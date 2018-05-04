@@ -1,0 +1,1 @@
+def club_authorization
