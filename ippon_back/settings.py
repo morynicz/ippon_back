@@ -139,7 +139,7 @@ SIMPLE_JWT = {
 
     'ALGORITHM': 'RS512',
     'SIGNING_KEY': os.environ['SECRET_KEY_PRIVATE'],
-    'VERIFYING_KEY':os.environ['SECRET_KEY_PUBLIC'],
+    'VERIFYING_KEY': os.environ['SECRET_KEY_PUBLIC'],
 
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
@@ -152,6 +152,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:4200',
