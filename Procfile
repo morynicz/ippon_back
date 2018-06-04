@@ -1,1 +1,1 @@
-web: gunicorn ippon_back/wsgi.py
+web: gunicorn ippon_back.wsgi
