@@ -9,6 +9,7 @@ Django==2.0.5
 django-cors-headers==2.2.0
 djangorestframework==3.8.2
 djangorestframework-simplejwt==3.2.3
+gunicorn==19.8.1
 idna==2.6
 itypes==1.1.0
 Jinja2==2.10
