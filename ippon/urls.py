@@ -11,6 +11,7 @@ router = DefaultRouter()
 router.register(r'players', views.PlayerViewSet)
 router.register(r'clubs', views.ClubViewSet)
 router.register(r'tournaments', views.TournamentViewSet)
+router.register(r'participations', views.TournamentParticipationViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

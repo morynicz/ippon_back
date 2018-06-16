@@ -22,3 +22,9 @@ class IsTournamentAdminOrReadOnlyTournament(permissions.BasePermission):
         if request and request.method in permissions.SAFE_METHODS:
             return True
         return TournamentAdmin.objects.all().filter(user=request.user, tournament=tournament)
+
+class IsTournamentAdminOrReadOnlyDependent(permissions.BasePermission):
+    def has_object_permission(self, request, view, dependent):
+        if request and request.method in permissions.SAFE_METHODS:
+            return True
+        return TournamentAdmin.objects.all().filter(user=request.user, tournament=dependent.tournament)

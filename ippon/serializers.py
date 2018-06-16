@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from ippon.models import Club, Player, Tournament
+from ippon.models import Club, Player, Tournament, TournamentParticipation
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -14,9 +15,10 @@ class PlayerSerializer(serializers.ModelSerializer):
         model = Player
         fields = ('id', 'name', 'surname', 'rank', 'sex', 'birthday', 'club_id')
 
+
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
-        model= Tournament
+        model = Tournament
         fields = (
             'id',
             'name',
@@ -36,3 +38,45 @@ class TournamentSerializer(serializers.ModelSerializer):
             'rank_constraint_value',
             'age_constraint_value'
         )
+
+
+class TournamentParticipationSerializer(serializers.ModelSerializer):
+    is_age_ok = serializers.BooleanField(source='check_is_age_ok', read_only=True)
+    is_rank_ok = serializers.BooleanField(source='check_is_rank_ok', read_only=True)
+    is_sex_ok = serializers.BooleanField(source='check_is_sex_ok', read_only=True)
+    tournament_id = serializers.IntegerField(source='tournament.id')
+    player = PlayerSerializer()
+
+    class Meta:
+        model = TournamentParticipation
+        fields = (
+            'id',
+            'is_paid',
+            'is_registered',
+            'is_qualified',
+            'is_age_ok',
+            'is_rank_ok',
+            'is_sex_ok',
+            'player',
+            'tournament_id',
+            'notes'
+        )
+
+    def create(self, validated_data):
+        if not isinstance(self.initial_data['player']['id'], int):
+            raise ValidationError('player.id must be an integer')
+        participation = TournamentParticipation.objects.create(
+            player=Player.objects.get(pk=self.initial_data['player']['id']),
+            tournament=Tournament.objects.get(pk=validated_data['tournament']['id'])
+        )
+        return participation
+
+    def update(self, instance, validated_data):
+        print(instance)
+        print(validated_data)
+        instance.is_paid = validated_data['is_paid']
+        instance.is_registered = validated_data['is_registered']
+        instance.is_qualified = validated_data['is_qualified']
+        instance.notes = validated_data['notes']
+        instance.save()
+        return instance

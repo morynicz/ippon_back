@@ -2,10 +2,10 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
-from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin
+from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsClubAdminOrReadOnlyDependent, \
-    IsTournamentAdminOrReadOnlyTournament
-from ippon.serializers import PlayerSerializer, ClubSerializer, TournamentSerializer
+    IsTournamentAdminOrReadOnlyTournament, IsTournamentAdminOrReadOnlyDependent
+from ippon.serializers import PlayerSerializer, ClubSerializer, TournamentSerializer, TournamentParticipationSerializer
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -56,6 +56,22 @@ class TournamentViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsTournamentAdminOrReadOnlyTournament)
 
+    @action(methods=['get'], detail=True)
+    def participations(self, request, pk=None):
+        serializer = TournamentParticipationSerializer(TournamentParticipation.objects.filter(tournament=pk), many=True)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def non_participants(self, request, pk=None):
+        serializer = PlayerSerializer(Player.objects.exclude(participations__tournament=pk), many=True)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def participants(self, request, pk=None):
+        serializer = PlayerSerializer(Player.objects.filter(participations__tournament=pk, participations__is_qualified=True), many=True)
+        return Response(serializer.data)
+
+
     def perform_create(self, serializer):
         tournament = serializer.save()
         ta = TournamentAdmin(user=self.request.user, tournament=tournament)
@@ -89,3 +105,9 @@ def has_tournament_authorization(is_master, pk, request):
         return Response({
             'isAuthorized': False
         })
+
+class TournamentParticipationViewSet(viewsets.ModelViewSet):
+    queryset = TournamentParticipation.objects.all()
+    serializer_class = TournamentParticipationSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsTournamentAdminOrReadOnlyDependent)
