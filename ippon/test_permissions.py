@@ -3,7 +3,7 @@ import unittest.mock
 
 from ippon import permissions
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrReadOnlyTournament, \
-    IsTournamentAdminOrReadOnlyDependent
+    IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner
 
 
 class ClubPermissionsTests(unittest.TestCase):
@@ -166,7 +166,7 @@ class TournamentDependentPermissionsNotAdmin(TournamentDependentPermissions):
 
 class TournamentDependentPermissionsAdmin(TournamentDependentPermissions):
     def setUp(self):
-        super(TournamentDependentPermissionsNotAdmin, self).setUp()
+        super(TournamentDependentPermissionsAdmin, self).setUp()
         self.tournament_admin_objects.all.return_value.filter.return_value = True
 
     def test_permits_when_safe_method(self):
@@ -180,3 +180,30 @@ class TournamentDependentPermissionsAdmin(TournamentDependentPermissions):
         self.assertEqual(result, True)
         self.tournament_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
                                                                                  tournament=self.tournament_participation.tournament)
+
+
+class TestTournamentOwnerPermissions(unittest.TestCase):
+    def setUp(self):
+        patcher = unittest.mock.patch("ippon.models.TournamentAdmin.objects")
+        self.tournament_admin_objects = patcher.start()
+        self.addCleanup(patcher.stop)
+        self.permission = IsTournamentAdminOrReadOnlyDependent()
+        self.permission = IsTournamentOwner()
+        self.tournament_admin = unittest.mock.Mock()
+        self.request = unittest.mock.Mock()
+        self.view = unittest.mock.Mock()
+
+
+    def test_does_not_permit_when_is_not_owner(self):
+        self.owner_permission_test(False)
+
+    def test_permits_when_is_owner(self):
+        self.owner_permission_test(True)
+
+    def owner_permission_test(self, is_owner):
+        self.tournament_admin_objects.filter.return_value = is_owner
+        result = self.permission.has_object_permission(self.request, self.view, self.tournament_admin)
+        self.assertEqual(result, is_owner)
+        self.tournament_admin_objects.filter.assert_called_with(user=self.request.user,
+                                                                tournament=self.tournament_admin.tournament,
+                                                                is_master=True)
