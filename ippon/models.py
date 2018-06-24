@@ -71,6 +71,9 @@ class TournamentAdmin(models.Model):
     user = models.ForeignKey('auth.User', related_name='tournaments', on_delete=models.PROTECT)
     is_master = models.BooleanField()
 
+    def get_user(self):
+        print(repr(self.user.__dict__))
+        return {'id': self.user.id, 'username': self.user.username}
 
 class Tournament(models.Model):
     name = models.CharField(max_length=100, blank=False)

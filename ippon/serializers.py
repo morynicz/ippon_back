@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ippon.models import Club, Player, Tournament, TournamentParticipation
+from ippon.models import Club, Player, Tournament, TournamentParticipation, TournamentAdmin
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -88,3 +88,33 @@ class MinimalUserSerializer(serializers.ModelSerializer):
             'id',
             'username'
         )
+
+
+class TournamentAdminSerializer(serializers.ModelSerializer):
+    tournament_id = serializers.IntegerField(source='tournament.id')
+    user = serializers.DictField(source='get_user')
+
+    class Meta:
+        model = TournamentAdmin
+        fields = (
+            'tournament_id',
+            'id',
+            'is_master',
+            'user'
+        )
+        read_only_fields = ('user',)
+
+    def create(self, validated_data):
+        if not isinstance(self.initial_data['user']['id'], int):
+            raise ValidationError('user.id must be an integer')
+        admin = TournamentAdmin.objects.create(
+            user=User.objects.get(pk=self.initial_data['user']['id']),
+            tournament=Tournament.objects.get(pk=validated_data['tournament']['id']),
+            is_master=False
+        )
+        return admin
+
+    def update(self, instance, validated_data):
+        instance.is_master = validated_data['is_master']
+        instance.save()
+        return instance
