@@ -12,6 +12,7 @@ router.register(r'players', views.PlayerViewSet)
 router.register(r'clubs', views.ClubViewSet)
 router.register(r'tournaments', views.TournamentViewSet)
 router.register(r'participations', views.TournamentParticipationViewSet)
+router.register(r'tournament_admins', views.TournamentAdminViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
