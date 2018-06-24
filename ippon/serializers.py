@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -72,11 +73,18 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
         return participation
 
     def update(self, instance, validated_data):
-        print(instance)
-        print(validated_data)
         instance.is_paid = validated_data['is_paid']
         instance.is_registered = validated_data['is_registered']
         instance.is_qualified = validated_data['is_qualified']
         instance.notes = validated_data['notes']
         instance.save()
         return instance
+
+
+class MinimalUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username'
+        )
