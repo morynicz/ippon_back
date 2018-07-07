@@ -118,3 +118,26 @@ class TournamentAdminSerializer(serializers.ModelSerializer):
         instance.is_master = validated_data['is_master']
         instance.save()
         return instance
+
+
+class ClubAdminSerializer(serializers.ModelSerializer):
+    club_id = serializers.IntegerField(source='club.id')
+    user = serializers.DictField(source='get_user')
+
+    class Meta:
+        model = TournamentAdmin
+        fields = (
+            'id',
+            'club_id',
+            'user'
+        )
+        read_only_fields = ('user',)
+
+    def create(self, validated_data):
+        if not isinstance(self.initial_data['user']['id'], int):
+            raise ValidationError('user id must be an integer')
+        admin = ClubAdmin.objects.create(
+            user=User.objects.get(pk=self.initial_data['user']['id']),
+            tournament=Tournament.objects.get(pk=validated_data['tournament']['id']),
+        )
+        return admin

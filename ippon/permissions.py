@@ -34,3 +34,8 @@ class IsTournamentAdminOrReadOnlyDependent(permissions.BasePermission):
 class IsTournamentOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, admin):
         return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament, is_master=True)
+
+
+class IsClubOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, admin):
+        return ClubAdmin.objects.filter(user=request.user, club=admin.club)

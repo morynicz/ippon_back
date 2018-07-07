@@ -3,7 +3,7 @@ import unittest.mock
 
 from ippon import permissions
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrReadOnlyTournament, \
-    IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner
+    IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner
 
 
 class ClubPermissionsTests(unittest.TestCase):
@@ -207,3 +207,27 @@ class TestTournamentOwnerPermissions(unittest.TestCase):
         self.tournament_admin_objects.filter.assert_called_with(user=self.request.user,
                                                                 tournament=self.tournament_admin.tournament,
                                                                 is_master=True)
+
+class TestClubOwnerPermissions(unittest.TestCase):
+    def setUp(self):
+        patcher = unittest.mock.patch("ippon.models.ClubAdmin.objects")
+        self.club_admin_objects = patcher.start()
+        self.addCleanup(patcher.stop)
+        self.permission = IsClubOwner()
+        self.club_admin = unittest.mock.Mock()
+        self.request = unittest.mock.Mock()
+        self.view = unittest.mock.Mock()
+
+
+    def test_does_not_permit_when_is_not_owner(self):
+        self.owner_permission_test(False)
+
+    def test_permits_when_is_owner(self):
+        self.owner_permission_test(True)
+
+    def owner_permission_test(self, is_owner):
+        self.club_admin_objects.filter.return_value = is_owner
+        result = self.permission.has_object_permission(self.request, self.view, self.club_admin)
+        self.assertEqual(result, is_owner)
+        self.club_admin_objects.filter.assert_called_with(user=self.request.user,
+                                                                club=self.club_admin.club)

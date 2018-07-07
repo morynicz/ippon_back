@@ -5,9 +5,9 @@ from rest_framework.response import Response
 
 from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsClubAdminOrReadOnlyDependent, \
-    IsTournamentAdminOrReadOnlyTournament, IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner
+    IsTournamentAdminOrReadOnlyTournament, IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner
 from ippon.serializers import PlayerSerializer, ClubSerializer, TournamentSerializer, TournamentParticipationSerializer, \
-    TournamentAdminSerializer, MinimalUserSerializer
+    TournamentAdminSerializer, MinimalUserSerializer, ClubAdminSerializer
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -32,6 +32,16 @@ class ClubViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True)
     def players(self, request, pk=None):
         serializer = PlayerSerializer(Player.objects.filter(club_id=pk), many=True)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def admins(self, request, pk=None):
+        serializer = ClubAdminSerializer(ClubAdmin.objects.filter(club=pk), many=True)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def non_admins(self, request, pk=None):
+        serializer = MinimalUserSerializer(User.objects.exclude(clubs__club=pk), many=True)
         return Response(serializer.data)
 
 
@@ -90,7 +100,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-
 @api_view(['GET'])
 def tournament_staff_authorization(request, pk, format=None):
     return has_tournament_authorization(False, pk, request)
@@ -133,3 +142,9 @@ class TournamentAdminViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,
                           IsTournamentOwner)
 
+
+class ClubAdminViewSet(viewsets.ModelViewSet):
+    queryset = ClubAdmin.objects.all()
+    serializer_class = ClubAdminSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          IsClubOwner)

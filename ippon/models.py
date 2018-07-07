@@ -48,6 +48,9 @@ class ClubAdmin(models.Model):
     club = models.ForeignKey('Club', related_name='admins', on_delete=models.PROTECT)
     user = models.ForeignKey('auth.User', related_name='clubs', on_delete=models.PROTECT)
 
+    def get_user(self):
+        return {'id': self.user.id, 'username': self.user.username}
+
 
 NUMERIC_CONSTRAINT = [
     (0, 'None'),
@@ -72,8 +75,8 @@ class TournamentAdmin(models.Model):
     is_master = models.BooleanField()
 
     def get_user(self):
-        print(repr(self.user.__dict__))
         return {'id': self.user.id, 'username': self.user.username}
+
 
 class Tournament(models.Model):
     name = models.CharField(max_length=100, blank=False)
@@ -119,6 +122,7 @@ class TournamentParticipation(models.Model):
             2: self.player.sex == 0
         }
         return constraints[self.tournament.sex_constraint]
+
 
 def is_numeric_constraint_satisfied(lhs, constraint, rhs):
     constraints = {
