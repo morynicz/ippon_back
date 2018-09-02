@@ -135,3 +135,16 @@ def is_numeric_constraint_satisfied(lhs, constraint, rhs):
         6: (lhs != rhs)
     }
     return constraints[constraint]
+
+class Team(models.Model):
+    name = models.CharField(max_length=100, blank=False)
+    tournament = models.ForeignKey('Tournament', related_name='teams', on_delete=models.CASCADE)
+
+class TeamMember(models.Model):
+    player = models.ForeignKey('Player', on_delete=models.CASCADE)
+    team = models.ForeignKey('Team', related_name='members',on_delete=models.CASCADE)
+
+class TeamFight(models.Model):
+    tournament = models.ForeignKey('Tournament', related_name='team_fights', on_delete=models.PROTECT)
+    aka_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
+    shiro_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')

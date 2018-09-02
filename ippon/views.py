@@ -1,13 +1,14 @@
 from django.contrib.auth.models import User
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation
+from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation, Team
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsClubAdminOrReadOnlyDependent, \
     IsTournamentAdminOrReadOnlyTournament, IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner
 from ippon.serializers import PlayerSerializer, ClubSerializer, TournamentSerializer, TournamentParticipationSerializer, \
-    TournamentAdminSerializer, MinimalUserSerializer, ClubAdminSerializer
+    TournamentAdminSerializer, MinimalUserSerializer, ClubAdminSerializer, TeamSerializer
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -148,3 +149,10 @@ class ClubAdminViewSet(viewsets.ModelViewSet):
     serializer_class = ClubAdminSerializer
     permission_classes = (permissions.IsAuthenticated,
                           IsClubOwner)
+
+
+class TeamViewSet(viewsets.ModelViewSet):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsTournamentAdminOrReadOnlyDependent)

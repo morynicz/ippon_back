@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ippon.models import Club, Player, Tournament, TournamentParticipation, TournamentAdmin
+from ippon.models import Club, Player, Tournament, TournamentParticipation, TournamentAdmin, Team, ClubAdmin
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -125,7 +125,7 @@ class ClubAdminSerializer(serializers.ModelSerializer):
     user = serializers.DictField(source='get_user')
 
     class Meta:
-        model = TournamentAdmin
+        model = ClubAdmin
         fields = (
             'id',
             'club_id',
@@ -138,6 +138,19 @@ class ClubAdminSerializer(serializers.ModelSerializer):
             raise ValidationError('user id must be an integer')
         admin = ClubAdmin.objects.create(
             user=User.objects.get(pk=self.initial_data['user']['id']),
-            tournament=Tournament.objects.get(pk=validated_data['tournament']['id']),
+            club=Club.objects.get(pk=validated_data['club']['id']),
         )
         return admin
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    members = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Team
+        fields = (
+            'id',
+            'name',
+            'tournament',
+            'members'
+        )
