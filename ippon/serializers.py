@@ -144,7 +144,7 @@ class ClubAdminSerializer(serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
-    members = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    members = serializers.ListField(read_only=True, source='get_member_ids', child=serializers.IntegerField(min_value=1))
 
     class Meta:
         model = Team

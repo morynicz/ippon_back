@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, action
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation, Team
@@ -26,7 +25,6 @@ class ClubViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         club = serializer.save()
-        print(club)
         ca = ClubAdmin(user=self.request.user, club=club)
         ca.save()
 
@@ -156,3 +154,38 @@ class TeamViewSet(viewsets.ModelViewSet):
     serializer_class = TeamSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsTournamentAdminOrReadOnlyDependent)
+
+    @action(
+        methods=['post'],
+        detail=True,
+        url_name='members-create',
+        url_path='members/(?P<player_id>[0-9]+)')
+    def create_member(self, request, pk=None, player_id=None):
+        try:
+            player = Player.objects.get(pk=player_id)
+            team = Team.objects.get(pk=pk)
+            team.team_members.create(player=player)
+            return Response(status=status.HTTP_201_CREATED)
+        except Player.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Team.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(
+        methods=['delete'],
+        detail=True,
+        url_name='members-delete',
+        url_path='members/(?P<player_id>[0-9]+)')
+    def delete_member(self, request, pk=None, player_id=None):
+        print("ping")
+        try:
+            player = Player.objects.get(pk=player_id)
+            team = Team.objects.get(pk=pk)
+            team.team_members.delete(player=player)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Player.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Team.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+# Add team/pk/members/pk2 to avoid leaking member obj to api

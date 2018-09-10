@@ -136,15 +136,28 @@ def is_numeric_constraint_satisfied(lhs, constraint, rhs):
     }
     return constraints[constraint]
 
+
 class Team(models.Model):
     name = models.CharField(max_length=100, blank=False)
     tournament = models.ForeignKey('Tournament', related_name='teams', on_delete=models.CASCADE)
 
+    def get_member_ids(self):
+        members = TeamMember.objects.filter(team__pk=self.id)
+        return [player.id for player in Player.objects.filter(pk__in=[member.player.id for member in members])]
+
 class TeamMember(models.Model):
     player = models.ForeignKey('Player', on_delete=models.CASCADE)
-    team = models.ForeignKey('Team', related_name='members',on_delete=models.CASCADE)
+    team = models.ForeignKey('Team', related_name='team_members', on_delete=models.CASCADE)
+
 
 class TeamFight(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='team_fights', on_delete=models.PROTECT)
     aka_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
     shiro_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
+
+
+class Fight(models.Model):
+    aka = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
+    shiro = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
+    team_fight = models.ForeignKey('TeamFight', on_delete=models.CASCADE)
+    ordering_number = models.IntegerField(default=0)
