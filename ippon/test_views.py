@@ -2,17 +2,16 @@ import datetime
 import json
 
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Tournament, Team, TournamentAdmin, TeamMember
+from ippon.models import Player, Club, Tournament, Team, TournamentAdmin
 
 BAD_PK = 0
 
 
-class TeamsViewTest(TestCase):
+class TeamsViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         c = Club.objects.create(
@@ -126,7 +125,7 @@ class TeamViewSetUnauthorizedTests(TeamsViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class TeamMembersViewTests(TestCase):
+class TeamMembersViewTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.club = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
@@ -150,12 +149,12 @@ class ValidIdsTeamMembersViewTests(AuthorizedTeamMembersViewTests):
     def setUp(self):
         super(ValidIdsTeamMembersViewTests, self).setUp()
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+        self.p1 = Player.objects.create(name='pnn1', surname='pss1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
 
     def test_post_valid_payload_creates_specified_teammember(self):
         response = self.client.post(
-            reverse('team-members-create', kwargs={'pk': self.t1.id, 'player_id': self.p1.id}),
+            reverse('team-members', kwargs={'pk': self.t1.id, 'player_id': self.p1.id}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -163,7 +162,7 @@ class ValidIdsTeamMembersViewTests(AuthorizedTeamMembersViewTests):
     def test_delete_existing_team_member_deletes_it(self):
         self.t1.team_members.create(player=self.p1)
 
-        response = self.client.delete(reverse('team-members-delete', kwargs={'pk': self.t1.pk, 'player_id': self.p1.pk}))
+        response = self.client.delete(reverse('team-members', kwargs={'pk': self.t1.pk, 'player_id': self.p1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
@@ -176,7 +175,7 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
 
         response = self.client.post(
-            reverse('team-members-create', kwargs={'pk': BAD_PK, 'player_id': p1.id}),
+            reverse('team-members', kwargs={'pk': BAD_PK, 'player_id': p1.id}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -185,7 +184,7 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
         t1 = Team.objects.create(tournament=self.to, name='t1')
 
         response = self.client.post(
-            reverse('team-members-create', kwargs={'pk': t1.id, 'player_id': BAD_PK}),
+            reverse('team-members', kwargs={'pk': t1.id, 'player_id': BAD_PK}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -193,5 +192,5 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
     def test_delete_not_existing_team_member_returns_bad_request(self):
         p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
-        response = self.client.delete(reverse('team-members-delete', kwargs={'pk': BAD_PK, 'player_id': p1.pk}))
+        response = self.client.delete(reverse('team-members', kwargs={'pk': BAD_PK, 'player_id': p1.pk}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

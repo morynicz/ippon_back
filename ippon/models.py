@@ -145,9 +145,13 @@ class Team(models.Model):
         members = TeamMember.objects.filter(team__pk=self.id)
         return [player.id for player in Player.objects.filter(pk__in=[member.player.id for member in members])]
 
+
 class TeamMember(models.Model):
     player = models.ForeignKey('Player', on_delete=models.CASCADE)
     team = models.ForeignKey('Team', related_name='team_members', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('player', 'team')
 
 
 class TeamFight(models.Model):

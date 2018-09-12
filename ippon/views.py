@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
-from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation, Team
+from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation, Team, TeamMember
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsClubAdminOrReadOnlyDependent, \
     IsTournamentAdminOrReadOnlyTournament, IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner
 from ippon.serializers import PlayerSerializer, ClubSerializer, TournamentSerializer, TournamentParticipationSerializer, \
@@ -155,11 +155,23 @@ class TeamViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsTournamentAdminOrReadOnlyDependent)
 
+    # TODO: check when will DRF finally release the multiple actions for single url improvement
     @action(
-        methods=['post'],
+        methods=['post', 'delete'],
         detail=True,
-        url_name='members-create',
+        url_name='members',
         url_path='members/(?P<player_id>[0-9]+)')
+    def handle_members(self, request, pk=None, player_id=None):
+        return {
+            'post': self.create_member,
+            'delete': self.delete_member
+        }[request.method.lower()](request, pk, player_id)
+
+    # @action(
+    #     methods=['post'],
+    #     detail=True,
+    #     url_name='members',
+    #     url_path='members/(?P<player_id>[0-9]+)')
     def create_member(self, request, pk=None, player_id=None):
         try:
             player = Player.objects.get(pk=player_id)
@@ -171,21 +183,19 @@ class TeamViewSet(viewsets.ModelViewSet):
         except Team.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @action(
-        methods=['delete'],
-        detail=True,
-        url_name='members-delete',
-        url_path='members/(?P<player_id>[0-9]+)')
+    # @action(
+    #     methods=['delete'],
+    #     detail=True,
+    #     url_name='members',
+    #     url_path='members/(?P<player_id>[0-9]+)')
     def delete_member(self, request, pk=None, player_id=None):
-        print("ping")
         try:
             player = Player.objects.get(pk=player_id)
             team = Team.objects.get(pk=pk)
-            team.team_members.delete(player=player)
+            membership = TeamMember.objects.filter(player=player, team=team)
+            membership.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Player.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Team.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
-# Add team/pk/members/pk2 to avoid leaking member obj to api
