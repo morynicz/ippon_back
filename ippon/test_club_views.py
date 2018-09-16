@@ -81,6 +81,16 @@ class ClubViewSetAuthorizedTests(ClubViewTest):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_newly_created_club_has_creator_as_admin(self):
+        response = self.client.post(
+            reverse('club-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(ClubAdmin.objects.filter(club__id=response.data["id"], user=self.u1))
+
+
     def test_post_invalid_payload_returns_400(self):
         response = self.client.post(
             reverse('club-list'),
