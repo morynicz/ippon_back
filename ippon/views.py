@@ -1,13 +1,10 @@
-from django.contrib.auth.models import User
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
-from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TournamentParticipation, Team, TeamMember
-from ippon.permissions import IsClubAdminOrReadOnlyClub, IsClubAdminOrReadOnlyDependent, \
-    IsTournamentAdminOrReadOnlyTournament, IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner
-from ippon.serializers import PlayerSerializer, ClubSerializer, TournamentSerializer, TournamentParticipationSerializer, \
-    TournamentAdminSerializer, MinimalUserSerializer, ClubAdminSerializer, TeamSerializer
+from ippon.models import *
+from ippon.permissions import *
+from ippon.serializers import *
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -126,6 +123,12 @@ def has_tournament_authorization(is_master, pk, request):
         return Response({
             'isAuthorized': False
         })
+
+
+@api_view(['GET'])
+def fight_authorization(request, pk, format=None):
+    fight = Fight.objects.get(pk=pk)
+    return has_tournament_authorization(False, fight.team_fight.tournament.id, request)
 
 
 class TournamentParticipationViewSet(viewsets.ModelViewSet):
