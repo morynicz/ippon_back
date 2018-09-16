@@ -195,7 +195,5 @@ class TeamViewSet(viewsets.ModelViewSet):
             membership = TeamMember.objects.filter(player=player, team=team)
             membership.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except Player.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except Team.DoesNotExist:
+        except (Player.DoesNotExist, Team.DoesNotExist, TeamMember.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)

@@ -182,7 +182,6 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
 
     def test_teams_post_invalid_player_returns_404(self):
         t1 = Team.objects.create(tournament=self.to, name='t1')
-
         response = self.client.post(
             reverse('team-members', kwargs={'pk': t1.id, 'player_id': BAD_PK}),
             content_type='application/json'
