@@ -131,18 +131,18 @@ class ClubViewSetUnauthorizedTests(ClubViewTest):
     def setUp(self):
         super(ClubViewSetUnauthorizedTests, self).setUp()
 
-    def test_list_returns_all_teams(self):
+    def test_list_returns_all_clubs(self):
         response = self.client.get(reverse('club-list'))
 
         self.assertEqual([self.c1_json, self.c2_json, self.c4_json], response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_teams_detail_for_existing_team_returns_correct_team(self):
+    def test_detail_for_existing_club_returns_correct_club(self):
         response = self.client.get(reverse('club-detail', kwargs={'pk': self.c1.pk}))
         self.assertEqual(self.c1_json, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_teams_detail_for_not_existing_team_returns_404(self):
+    def test_detail_for_not_existing_club_returns_404(self):
         response = self.client.get(reverse('club-detail', kwargs={'pk': -1}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
