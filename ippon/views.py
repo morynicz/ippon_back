@@ -106,12 +106,14 @@ def tournament_admin_authorization(request, pk, format=None):
     return has_tournament_authorization(True, pk, request)
 
 
-def has_tournament_authorization(is_master, pk, request):
+def has_tournament_authorization(allowed_master_statuses, pk, request):
     try:
+        if not isinstance(allowed_master_statuses, list):
+            allowed_master_statuses = [allowed_master_statuses]
         admin = TournamentAdmin.objects.get(
             user=request.user.id,
             tournament=pk,
-            is_master=is_master)
+            is_master__in=allowed_master_statuses)
         is_admin = False
         if admin is not None:
             is_admin = True
@@ -128,7 +130,7 @@ def has_tournament_authorization(is_master, pk, request):
 @api_view(['GET'])
 def fight_authorization(request, pk, format=None):
     fight = Fight.objects.get(pk=pk)
-    return has_tournament_authorization(False, fight.team_fight.tournament.id, request)
+    return has_tournament_authorization([True, False], fight.team_fight.tournament.id, request)
 
 
 class TournamentParticipationViewSet(viewsets.ModelViewSet):
