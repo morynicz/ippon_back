@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from ippon.models import *
@@ -202,3 +203,25 @@ class TeamViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except (Player.DoesNotExist, Team.DoesNotExist, TeamMember.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class PointViewSet(viewsets.ModelViewSet):
+    queryset = Point.objects.all()
+    serializer_class = PointSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsPointOwnerOrReadOnly)
+
+class FightViewSet(viewsets.ModelViewSet):
+    queryset = Fight.objects.all()
+    serializer_class = FightSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsFightOwnerOrReadOnly)
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='points')
+    def points(self, request, pk=None):
+        fight = get_object_or_404(self.queryset, pk=pk)
+        serializer = PointSerializer(Point.objects.filter(fight=fight), many=True)
+        return Response(serializer.data)

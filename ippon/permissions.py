@@ -39,3 +39,16 @@ class IsTournamentOwner(permissions.BasePermission):
 class IsClubOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, admin):
         return ClubAdmin.objects.filter(user=request.user, club=admin.club)
+
+
+class IsPointOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, point):
+        if request and request.method in permissions.SAFE_METHODS:
+            return True
+        return TournamentAdmin.objects.filter(tournament=point.fight.team_fight.tournament, user=request.user).count() > 0
+
+class IsFightOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, fight):
+        if request and request.method in permissions.SAFE_METHODS:
+            return True
+        return TournamentAdmin.objects.filter(tournament=fight.team_fight.tournament, user=request.user).count() > 0

@@ -163,5 +163,20 @@ class TeamFight(models.Model):
 class Fight(models.Model):
     aka = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
     shiro = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
-    team_fight = models.ForeignKey('TeamFight', on_delete=models.CASCADE)
+    team_fight = models.ForeignKey('TeamFight', on_delete=models.CASCADE, related_name='fights')
     ordering_number = models.IntegerField(default=0)
+
+POINT_TYPE = [
+    (0, 'Men'),
+    (1, 'Kote'),
+    (2, 'Do'),
+    (3, 'Tsuki'),
+    (4, 'Foul'),
+    (5, 'Hansoku'),
+    (6, 'Other')
+]
+
+class Point(models.Model):
+    player = models.ForeignKey('Player', on_delete=models.PROTECT, related_name='points')
+    fight = models.ForeignKey('Fight', on_delete=models.PROTECT, related_name='points')
+    type = models.IntegerField(choices=POINT_TYPE)

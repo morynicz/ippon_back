@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ippon.models import Club, Player, Tournament, TournamentParticipation, TournamentAdmin, Team, ClubAdmin
+from ippon.models import Club, Player, Tournament, TournamentParticipation, TournamentAdmin, Team, ClubAdmin, Point, \
+    Fight
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -144,7 +145,8 @@ class ClubAdminSerializer(serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
-    members = serializers.ListField(read_only=True, source='get_member_ids', child=serializers.IntegerField(min_value=1))
+    members = serializers.ListField(read_only=True, source='get_member_ids',
+                                    child=serializers.IntegerField(min_value=1))
 
     class Meta:
         model = Team
@@ -153,4 +155,25 @@ class TeamSerializer(serializers.ModelSerializer):
             'name',
             'tournament',
             'members'
+        )
+
+
+class PointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Point
+        fields = (
+            'id',
+            'type',
+            'player',
+            'fight'
+        )
+
+class FightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fight
+        fields = (
+            'id',
+            'aka',
+            'shiro',
+            'team_fight'
         )
