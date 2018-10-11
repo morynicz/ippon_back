@@ -211,6 +211,7 @@ class PointViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsPointOwnerOrReadOnly)
 
+
 class FightViewSet(viewsets.ModelViewSet):
     queryset = Fight.objects.all()
     serializer_class = FightSerializer
@@ -224,4 +225,20 @@ class FightViewSet(viewsets.ModelViewSet):
     def points(self, request, pk=None):
         fight = get_object_or_404(self.queryset, pk=pk)
         serializer = PointSerializer(Point.objects.filter(fight=fight), many=True)
+        return Response(serializer.data)
+
+
+class TeamFightViewSet(viewsets.ModelViewSet):
+    queryset = TeamFight.objects.all()
+    serializer_class = TeamFightSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsTournamentAdminOrReadOnlyDependent)
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='fights')
+    def fights(self, request, pk=None):
+        team_fight = get_object_or_404(self.queryset, pk=pk)
+        serializer = FightSerializer(Fight.objects.filter(team_fight=team_fight), many=True)
         return Response(serializer.data)

@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
 from ippon.models import Player, Club, Tournament, Team, TournamentAdmin
+from ippon.views import TeamFightViewSet
 
 BAD_PK = 0
 

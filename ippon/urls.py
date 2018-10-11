@@ -17,13 +17,16 @@ router.register(r'club_admins', views.ClubAdminViewSet)
 router.register(r'teams', views.TeamViewSet)
 router.register(r'points', views.PointViewSet)
 router.register(r'fights', views.FightViewSet)
+router.register(r'team_fights', views.TeamFightViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^schema/', schema_view),
     url(r'^authorization/clubs/(?P<pk>[0-9]+)/$', views.club_authorization, name='club-authorization'),
-    url(r'^authorization/tournaments/staff/(?P<pk>[0-9]+)/$', views.tournament_staff_authorization, name='tournament-staff-authorization'),
-    url(r'^authorization/tournaments/admins/(?P<pk>[0-9]+)/$', views.tournament_admin_authorization, name='tournament-admin-authorization'),
+    url(r'^authorization/tournaments/staff/(?P<pk>[0-9]+)/$', views.tournament_staff_authorization,
+        name='tournament-staff-authorization'),
+    url(r'^authorization/tournaments/admins/(?P<pk>[0-9]+)/$', views.tournament_admin_authorization,
+        name='tournament-admin-authorization'),
     url(r'^authorization/fights/(?P<pk>[0-9]+)/$', views.fight_authorization,
         name='fight-authorization'),
 ]
