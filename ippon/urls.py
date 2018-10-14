@@ -29,4 +29,7 @@ urlpatterns = [
         name='tournament-admin-authorization'),
     url(r'^authorization/fights/(?P<pk>[0-9]+)/$', views.fight_authorization,
         name='fight-authorization'),
+    url(r'^authorization/team_fights/(?P<pk>[0-9]+)/$', views.team_fight_authorization,
+        name='team-fight-authorization'),
+
 ]
