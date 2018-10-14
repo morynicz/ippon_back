@@ -204,6 +204,11 @@ class TeamViewSet(viewsets.ModelViewSet):
         except (Player.DoesNotExist, Team.DoesNotExist, TeamMember.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+    @action(methods=['get'], detail=True)
+    def members(self, request, pk=None):
+        serializer = PlayerSerializer(Player.objects.filter(team_member__team=pk), many=True)
+        return Response(serializer.data)
+
 
 class PointViewSet(viewsets.ModelViewSet):
     queryset = Point.objects.all()

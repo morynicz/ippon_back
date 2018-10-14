@@ -147,7 +147,7 @@ class Team(models.Model):
 
 
 class TeamMember(models.Model):
-    player = models.ForeignKey('Player', on_delete=models.CASCADE)
+    player = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='team_member')
     team = models.ForeignKey('Team', related_name='team_members', on_delete=models.CASCADE)
 
     class Meta:
