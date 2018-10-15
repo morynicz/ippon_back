@@ -210,6 +210,16 @@ class TeamViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+    @action(methods=['get'], detail=True, permission_classes= [
+        permissions.IsAuthenticated,
+        IsTournamentAdminDependent])
+    def not_assigned(self, request, pk=None):
+        serializer = PlayerSerializer(
+            Player.objects.filter(participations__tournament__teams=pk)
+                .exclude(team_member__team__tournament__teams=pk), many=True)
+        return Response(serializer.data)
+
+
 class PointViewSet(viewsets.ModelViewSet):
     queryset = Point.objects.all()
     serializer_class = PointSerializer

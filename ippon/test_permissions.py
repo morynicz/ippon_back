@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from ippon import permissions
 from ippon.models import Club, Tournament, Team, Player, TeamFight, TournamentAdmin
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrReadOnlyTournament, \
-    IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner, IsPointOwnerOrReadOnly
+    IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner, IsPointOwnerOrReadOnly, \
+    IsTournamentAdminDependent
 
 
 class ClubPermissionsTests(unittest.TestCase):
@@ -140,7 +141,7 @@ class TournamentPermissionTestsAdmin(TournamentPermissions):
                                                                                  tournament=self.tournament)
 
 
-class TournamentDependentPermissions(unittest.TestCase):
+class TournamentDependentOrReadOnlyPermissions(unittest.TestCase):
     def setUp(self):
         self.tournament_participation = unittest.mock.Mock()
         self.request = unittest.mock.Mock()
@@ -151,15 +152,64 @@ class TournamentDependentPermissions(unittest.TestCase):
         self.permission = IsTournamentAdminOrReadOnlyDependent()
 
 
-class TournamentDependentPermissionsNotAdmin(TournamentDependentPermissions):
+class TournamentDependentOrReadOnlyPermissionsNotAdmin(TournamentDependentOrReadOnlyPermissions):
     def setUp(self):
-        super(TournamentDependentPermissionsNotAdmin, self).setUp()
+        super(TournamentDependentOrReadOnlyPermissionsNotAdmin, self).setUp()
         self.tournament_admin_objects.all.return_value.filter.return_value = False
 
     def test_permits_when_safe_method(self):
         self.request.method = 'GET'
         result = self.permission.has_object_permission(self.request, self.view, self.tournament_participation)
         self.assertEqual(result, True)
+
+    def test_doesnt_permit_when_unsafe_method(self):
+        self.request.method = 'PUT'
+        result = self.permission.has_object_permission(self.request, self.view, self.tournament_participation)
+        self.assertEqual(result, False)
+        self.tournament_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
+                                                                                 tournament=self.tournament_participation.tournament)
+
+
+class TournamentDependentOrReadOnlyPermissionsAdmin(TournamentDependentOrReadOnlyPermissions):
+    def setUp(self):
+        super(TournamentDependentOrReadOnlyPermissionsAdmin, self).setUp()
+        self.tournament_admin_objects.all.return_value.filter.return_value = True
+
+    def test_permits_when_safe_method(self):
+        self.request.method = 'GET'
+        result = self.permission.has_object_permission(self.request, self.view, self.tournament_participation)
+        self.assertEqual(result, True)
+
+    def test_permits_when_unsafe_method(self):
+        self.request.method = 'PUT'
+        result = self.permission.has_object_permission(self.request, self.view, self.tournament_participation)
+        self.assertEqual(result, True)
+        self.tournament_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
+                                                                                 tournament=self.tournament_participation.tournament)
+
+
+class TournamentDependentPermissions(unittest.TestCase):
+    def setUp(self):
+        self.tournament_participation = unittest.mock.Mock()
+        self.request = unittest.mock.Mock()
+        self.view = unittest.mock.Mock()
+        patcher = unittest.mock.patch("ippon.models.TournamentAdmin.objects")
+        self.tournament_admin_objects = patcher.start()
+        self.addCleanup(patcher.stop)
+        self.permission = IsTournamentAdminDependent()
+
+
+class TournamentDependentPermissionsNotAdmin(TournamentDependentPermissions):
+    def setUp(self):
+        super(TournamentDependentPermissionsNotAdmin, self).setUp()
+        self.tournament_admin_objects.all.return_value.filter.return_value = False
+
+    def test_doesnt_permit_when_safe_method(self):
+        self.request.method = 'GET'
+        result = self.permission.has_object_permission(self.request, self.view, self.tournament_participation)
+        self.assertEqual(result, False)
+        self.tournament_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
+                                                                                 tournament=self.tournament_participation.tournament)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = 'PUT'
@@ -192,7 +242,6 @@ class TestTournamentOwnerPermissions(unittest.TestCase):
         patcher = unittest.mock.patch("ippon.models.TournamentAdmin.objects")
         self.tournament_admin_objects = patcher.start()
         self.addCleanup(patcher.stop)
-        self.permission = IsTournamentAdminOrReadOnlyDependent()
         self.permission = IsTournamentOwner()
         self.tournament_admin = unittest.mock.Mock()
         self.request = unittest.mock.Mock()
@@ -266,7 +315,7 @@ class TestPointPermissions(django.test.TestCase):
         self.permission = IsPointOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
-        self.request.user=self.admin
+        self.request.user = self.admin
 
 
 class TestPointPermissionNotAdmin(TestPointPermissions):
@@ -298,5 +347,3 @@ class TestPointPermissionAdmin(TestPointPermissions):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.point)
         self.assertEqual(result, True)
-
-
