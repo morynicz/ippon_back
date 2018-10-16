@@ -209,8 +209,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         serializer = PlayerSerializer(Player.objects.filter(team_member__team=pk), many=True)
         return Response(serializer.data)
 
-
-    @action(methods=['get'], detail=True, permission_classes= [
+    @action(methods=['get'], detail=True, permission_classes=[
         permissions.IsAuthenticated,
         IsTournamentAdminDependent])
     def not_assigned(self, request, pk=None):
@@ -263,3 +262,9 @@ class TeamFightViewSet(viewsets.ModelViewSet):
 def team_fight_authorization(request, pk, format=None):
     team_fight = TeamFight.objects.get(pk=pk)
     return has_tournament_authorization([True, False], team_fight.tournament.id, request)
+
+
+@api_view(['GET'])
+def team_authorization(request, pk, format=None):
+    team = Team.objects.get(pk=pk)
+    return has_tournament_authorization([True, False], team.tournament.id, request)

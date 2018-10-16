@@ -126,6 +126,7 @@ class FightViewSetUnauthorizedTests(FightViewTest):
         response = self.client.delete(reverse('fight-detail', kwargs={'pk': self.t1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+
 class UnauthorizedFightsPointsTest(FightViewSetUnauthorizedTests):
     def setUp(self):
         super(UnauthorizedFightsPointsTest, self).setUp()
@@ -138,7 +139,6 @@ class UnauthorizedFightsPointsTest(FightViewSetUnauthorizedTests):
 
     def test_get_points_for_valid_fight_returns_list_of_fights_points(self):
         expected = [self.po1_json, self.po2_json]
-        print(reverse('fight-points', kwargs={'pk': self.f1.pk}))
         response = self.client.get(reverse('fight-points', kwargs={'pk': self.f1.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -146,4 +146,3 @@ class UnauthorizedFightsPointsTest(FightViewSetUnauthorizedTests):
     def test_get_points_for_invalid_fight_returns_list_of_fights_points(self):
         response = self.client.get(reverse('fight-points', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-

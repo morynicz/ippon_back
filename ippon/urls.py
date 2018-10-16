@@ -31,5 +31,6 @@ urlpatterns = [
         name='fight-authorization'),
     url(r'^authorization/team_fights/(?P<pk>[0-9]+)/$', views.team_fight_authorization,
         name='team-fight-authorization'),
-
+    url(r'^authorization/teams/(?P<pk>[0-9]+)/$', views.team_authorization,
+        name='team-authorization'),
 ]

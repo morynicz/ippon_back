@@ -190,6 +190,34 @@ class TournamentAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticat
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+    def test_tournament_team_authorization_returns_negative_auth_if_not_authorized(self):
+        t1 = Team.objects.create(name="t1", tournament=self.tournament)
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('team-authorization', kwargs={'pk': t1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_tournament_team_authorization_returns_positive_auth_if_authorized_staff(self):
+        self.parametrized_team_authorization_returns_positive_auth_if_authorized(False)
+
+    def test_tournament_team_authorization_returns_positive_auth_if_authorized_admin(self):
+        self.parametrized_team_authorization_returns_positive_auth_if_authorized(True)
+
+    def parametrized_team_authorization_returns_positive_auth_if_authorized(self, is_admin):
+        TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=is_admin)
+        t1 = Team.objects.create(name="t1", tournament=self.tournament)
+        expected = {
+            "isAuthorized": True
+        }
+        response = self.client.get(reverse('team-authorization', kwargs={'pk': t1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+
 class AuthorizationViewsSetUnauthenticatedTests(AuthorizationViewsTest):
     def setUp(self):
         super(AuthorizationViewsSetUnauthenticatedTests, self).setUp()
