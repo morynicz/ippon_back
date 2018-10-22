@@ -434,3 +434,46 @@ class TournamentTeamTests(TournamentViewTest):
     def test_get_teams_for_invalid_tournament_returns_not_found(self):
         response = self.client.get(reverse('tournament-teams', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TournamentAdminAuthorizationsTest(TournamentViewTest):
+    def setUp(self):
+        super(TournamentAdminAuthorizationsTest, self).setUp()
+
+    def test_admin_auth_admin_returns_200_and_isAuthorized_true(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.get(reverse('tournament-admin-authorization', kwargs={'pk': self.to1.pk}))
+        self.assertEqual({"isAuthorized": True}, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_auth_staff_returns_200_and_isAuthorized_true(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.get(reverse('tournament-staff-authorization', kwargs={'pk': self.to1.pk}))
+        self.assertEqual({"isAuthorized": True}, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_staff_auth_admin_returns_200_and_isAuthorized_false(self):
+        self.user2 = User.objects.create(username='user2', password='password')
+        self.adm2 = TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.get(reverse('tournament-admin-authorization', kwargs={'pk': self.to1.pk}))
+        self.assertEqual({"isAuthorized": False}, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_staff_auth_staff_returns_200_and_isAuthorized_true(self):
+        self.user2 = User.objects.create(username='user2', password='password')
+        self.adm2 = TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.get(reverse('tournament-staff-authorization', kwargs={'pk': self.to1.pk}))
+        self.assertEqual({"isAuthorized": True}, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unauthenticated_auth_admin_returns_200_and_isAuthorized_false(self):
+        response = self.client.get(reverse('tournament-admin-authorization', kwargs={'pk': self.to1.pk}))
+        self.assertEqual({"isAuthorized": False}, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unauthenticated_staff_admin_returns_200_and_isAuthorized_false(self):
+        response = self.client.get(reverse('tournament-staff-authorization', kwargs={'pk': self.to1.pk}))
+        self.assertEqual({"isAuthorized": False}, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

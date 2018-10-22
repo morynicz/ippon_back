@@ -122,7 +122,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
 @api_view(['GET'])
 def tournament_staff_authorization(request, pk, format=None):
-    return has_tournament_authorization(False, pk, request)
+    return has_tournament_authorization([True, False], pk, request)
 
 
 @api_view(['GET'])
@@ -289,5 +289,5 @@ def team_fight_authorization(request, pk, format=None):
 
 @api_view(['GET'])
 def team_authorization(request, pk, format=None):
-    team = Team.objects.get(pk=pk)
+    team = get_object_or_404(Team.objects.all(),pk=pk)
     return has_tournament_authorization([True, False], team.tournament.id, request)
