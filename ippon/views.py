@@ -111,6 +111,14 @@ class TournamentViewSet(viewsets.ModelViewSet):
         serializer = MinimalUserSerializer(User.objects.exclude(tournaments__tournament=pk), many=True)
         return Response(serializer.data)
 
+    @action(methods=['get'], detail=True)
+    def teams(self, request, pk=None):
+        get_object_or_404(self.queryset, pk=pk)
+        serializer = TeamSerializer(
+            Team.objects.filter(tournament=pk), many=True)
+        return Response(serializer.data)
+
+
 
 @api_view(['GET'])
 def tournament_staff_authorization(request, pk, format=None):

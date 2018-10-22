@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Tournament, Team, TournamentAdmin, TeamFight
+from ippon.models import Player, Club, Tournament, TournamentAdmin, Team
 
 BAD_PK = 0
 
@@ -269,20 +269,12 @@ class AuthorizedTournamentAdminTest(TournamentAdminTest):
 class TournamentParticipantsTest(TournamentViewTest):
     def setUp(self):
         super(TournamentParticipantsTest, self).setUp()
-        self.t1 = Team.objects.create(tournament=self.to1, name='t1')
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par1 = self.to1.participations.create(player=self.p1, is_qualified=True)
-        self.t1.team_members.create(player=self.p1)
-        self.t2 = Team.objects.create(tournament=self.to1, name='t2')
         self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
-        self.t2.team_members.create(player=self.p2)
         self.par2 = self.to1.participations.create(player=self.p2)
-
-        self.tf = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to1)
-        self.f1 = self.tf.fights.create(aka=self.p1, shiro=self.p2)
-        self.f2 = self.tf.fights.create(aka=self.p2, shiro=self.p1)
 
         self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
@@ -325,11 +317,6 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
             }
         ]
         response = self.client.get(reverse('tournament-participants', kwargs={'pk': self.to1.pk}))
-        print("--")
-        print(expected)
-        print("==")
-        print(response.data)
-        print("--")
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -415,4 +402,35 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
 
     def test_get_participations_for_invalid_tournament_returns_not_found(self):
         response = self.client.get(reverse('tournament-participations', kwargs={'pk': BAD_PK}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TournamentTeamTests(TournamentViewTest):
+    def setUp(self):
+        super(TournamentTeamTests, self).setUp()
+        self.t1 = Team.objects.create(tournament=self.to1, name='t1')
+        self.t2 = Team.objects.create(tournament=self.to1, name='t2')
+        self.t3 = Team.objects.create(tournament=self.to2, name='t3')
+
+    def test_get_teams_returns_list_of_tournament_teams(self):
+        expected = [
+            {
+                "id": self.t1.id,
+                "name": "t1",
+                "members":[],
+                "tournament": self.to1.id
+            },
+            {
+                "id": self.t2.id,
+                "name": "t2",
+                "members": [],
+                "tournament": self.to1.id
+            }
+        ]
+        response = self.client.get(reverse('tournament-teams', kwargs={'pk': self.to1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_teams_for_invalid_tournament_returns_not_found(self):
+        response = self.client.get(reverse('tournament-teams', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
