@@ -70,7 +70,7 @@ SEX_CONSTRAINT = [
 
 
 class TournamentAdmin(models.Model):
-    tournament = models.ForeignKey('Tournament', related_name='admins', on_delete=models.PROTECT)
+    tournament = models.ForeignKey('Tournament', related_name='admins', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='tournaments', on_delete=models.PROTECT)
     is_master = models.BooleanField()
 

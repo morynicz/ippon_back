@@ -146,12 +146,12 @@ class UnauthorizedTeamFightsFightsTest(TeamFightViewSetUnauthorizedTests):
         self.f1_json = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p2.id, 'team_fight': self.tf1.id}
         self.f2_json = {'id': self.f2.id, 'aka': self.p2.id, 'shiro': self.p1.id, 'team_fight': self.tf1.id}
 
-    def test_get_points_for_valid_fight_returns_list_of_fights_points(self):
+    def test_get_fights_for_valid_team_fight_returns_list_of_fights(self):
         expected = [self.f1_json, self.f2_json]
         response = self.client.get(reverse('teamfight-fights', kwargs={'pk': self.tf1.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_points_for_invalid_fight_returns_list_of_fights_points(self):
+    def test_get_fights_for_invalid_team_fight_returns_not_found(self):
         response = self.client.get(reverse('teamfight-fights', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
