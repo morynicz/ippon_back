@@ -166,6 +166,7 @@ class Fight(models.Model):
     team_fight = models.ForeignKey('TeamFight', on_delete=models.CASCADE, related_name='fights')
     ordering_number = models.IntegerField(default=0)
 
+
 POINT_TYPE = [
     (0, 'Men'),
     (1, 'Kote'),
@@ -176,7 +177,33 @@ POINT_TYPE = [
     (6, 'Other')
 ]
 
+
 class Point(models.Model):
     player = models.ForeignKey('Player', on_delete=models.PROTECT, related_name='points')
     fight = models.ForeignKey('Fight', on_delete=models.PROTECT, related_name='points')
     type = models.IntegerField(choices=POINT_TYPE)
+
+
+class Location(models.Model):
+    tournament = models.ForeignKey('Tournament', related_name='locations', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, blank=False)
+
+
+class GroupPhase(models.Model):
+    tournament = models.ForeignKey('Tournament', related_name='group_phases', on_delete=models.CASCADE)
+    fight_length = models.IntegerField()
+
+
+class Group(models.Model):
+    name = models.CharField(max_length=100, blank=False)
+    group_phase = models.ForeignKey('GroupPhase', related_name='groups', on_delete=models.PROTECT)
+
+
+class GroupMember(models.Model):
+    group = models.ForeignKey('Group', related_name='group_memberships', on_delete=models.PROTECT)
+    team = models.ForeignKey('Team', related_name='teams', on_delete=models.PROTECT)
+
+
+class GroupFight(models.Model):
+    group = models.ForeignKey('GroupPhase', related_name='group_fights', on_delete=models.PROTECT)
+    team_fight = models.ForeignKey('TeamFight', related_name='group_fight', on_delete=models.PROTECT)
