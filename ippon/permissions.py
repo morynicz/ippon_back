@@ -57,3 +57,10 @@ class IsFightOwnerOrReadOnly(permissions.BasePermission):
         if request and request.method in permissions.SAFE_METHODS:
             return True
         return TournamentAdmin.objects.filter(tournament=fight.team_fight.tournament, user=request.user).count() > 0
+
+
+class IsGroupOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, group):
+        if request and request.method in permissions.SAFE_METHODS:
+            return True
+        return TournamentAdmin.objects.filter(tournament=group.group_phase.tournament, user=request.user).count() > 0

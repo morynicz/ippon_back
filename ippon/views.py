@@ -119,7 +119,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-
 @api_view(['GET'])
 def tournament_staff_authorization(request, pk, format=None):
     return has_tournament_authorization([True, False], pk, request)
@@ -289,5 +288,12 @@ def team_fight_authorization(request, pk, format=None):
 
 @api_view(['GET'])
 def team_authorization(request, pk, format=None):
-    team = get_object_or_404(Team.objects.all(),pk=pk)
+    team = get_object_or_404(Team.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], team.tournament.id, request)
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsGroupOwnerOrReadOnly)
