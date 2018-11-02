@@ -124,5 +124,5 @@ class PointViewSetUnauthorizedTests(PointsViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(reverse('point-detail', kwargs={'pk': self.t1.id}))
+        response = self.client.delete(reverse('point-detail', kwargs={'pk': self.po1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
