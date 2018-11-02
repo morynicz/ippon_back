@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from ippon.models import Club, Player, Tournament, TournamentParticipation, TournamentAdmin, Team, ClubAdmin, Point, \
-    Fight, TeamFight, Group
+    Fight, TeamFight, Group, GroupPhase
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -198,4 +198,14 @@ class GroupSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'group_phase'
+        )
+
+
+class GroupPhaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupPhase
+        fields = (
+            'id',
+            'tournament',
+            'fight_length'
         )

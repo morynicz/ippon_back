@@ -297,3 +297,10 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsGroupOwnerOrReadOnly)
+
+
+class GroupPhaseViewSet(viewsets.ModelViewSet):
+    queryset = GroupPhase.objects.all()
+    serializer_class = GroupPhaseSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsTournamentAdminOrReadOnlyDependent)
