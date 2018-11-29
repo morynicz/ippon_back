@@ -192,7 +192,7 @@ class Location(models.Model):
 class GroupPhase(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='group_phases', on_delete=models.CASCADE)
     fight_length = models.IntegerField()
-
+    name = models.CharField(max_length=100, blank=False)
 
 class Group(models.Model):
     name = models.CharField(max_length=100, blank=False)
@@ -205,5 +205,5 @@ class GroupMember(models.Model):
 
 
 class GroupFight(models.Model):
-    group = models.ForeignKey('GroupPhase', related_name='group_fights', on_delete=models.PROTECT)
+    group = models.ForeignKey('Group', related_name='group_fights', on_delete=models.PROTECT)
     team_fight = models.ForeignKey('TeamFight', related_name='group_fight', on_delete=models.PROTECT)
