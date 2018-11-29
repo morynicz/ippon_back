@@ -50,7 +50,9 @@ class IsPointOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, point):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return TournamentAdmin.objects.filter(tournament=point.fight.team_fight.tournament, user=request.user).count() > 0
+        return TournamentAdmin.objects.filter(tournament=point.fight.team_fight.tournament,
+                                              user=request.user).count() > 0
+
 
 class IsFightOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, fight):
@@ -64,3 +66,11 @@ class IsGroupOwnerOrReadOnly(permissions.BasePermission):
         if request and request.method in permissions.SAFE_METHODS:
             return True
         return TournamentAdmin.objects.filter(tournament=group.group_phase.tournament, user=request.user).count() > 0
+
+
+class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, group_fight):
+        if request and request.method in permissions.SAFE_METHODS:
+            return True
+        return TournamentAdmin.objects.filter(tournament=group_fight.team_fight.tournament,
+                                              user=request.user).count() > 0

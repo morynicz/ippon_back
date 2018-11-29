@@ -280,6 +280,13 @@ class TeamFightViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class GroupFightViewSet(viewsets.ModelViewSet):
+    queryset = GroupFight.objects.all()
+    serializer_class = GroupFightSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsGroupFightOwnerOrReadOnly)
+
+
 @api_view(['GET'])
 def team_fight_authorization(request, pk, format=None):
     team_fight = TeamFight.objects.get(pk=pk)
