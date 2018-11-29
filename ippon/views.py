@@ -305,6 +305,57 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsGroupOwnerOrReadOnly)
 
+    # TODO: check when will DRF finally release the multiple actions for single url improvement
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        url_name='members',
+        url_path='members/(?P<team_id>[0-9]+)')
+    def handle_members(self, request, pk=None, team_id=None):
+        return {
+            'post': self.create_member,
+            'delete': self.delete_member
+        }[request.method.lower()](request, pk, team_id)
+
+    # @action(
+    #     methods=['post'],
+    #     detail=True,
+    #     url_name='members',
+    #     url_path='members/(?P<team_id>[0-9]+)')
+    def create_member(self, request, pk=None, team_id=None):
+        try:
+            team = Team.objects.get(pk=team_id)
+            group = Group.objects.get(pk=pk)
+            group.group_memberships.create(team=team)
+            return Response(status=status.HTTP_201_CREATED)
+        except Group.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Team.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    # @action(
+    #     methods=['delete'],
+    #     detail=True,
+    #     url_name='members',
+    #     url_path='members/(?P<team_id>[0-9]+)')
+    def delete_member(self, request, pk=None, team_id=None):
+        try:
+            group = Group.objects.get(pk=pk)
+            team = Team.objects.get(pk=team_id)
+            membership = GroupMember.objects.filter(group=group, team=team)
+            if membership:
+                membership.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except (Group.DoesNotExist, Team.DoesNotExist, GroupMember.DoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(methods=['get'], detail=True)
+    def members(self, request, pk=None):
+        serializer = TeamSerializer(Team.objects.filter(group_member__group=pk), many=True)
+        return Response(serializer.data)
+
 
 class GroupPhaseViewSet(viewsets.ModelViewSet):
     queryset = GroupPhase.objects.all()

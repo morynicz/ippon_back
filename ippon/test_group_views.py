@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import Tournament, TournamentAdmin
+from ippon.models import Tournament, TournamentAdmin, Team
 
 BAD_PK = 0
 
@@ -110,3 +110,63 @@ class GroupViewSetUnauthorizedTests(GroupViewTest):
     def test_unauthorized_delete_gets_unauthorized(self):
         response = self.client.delete(reverse('group-detail', kwargs={'pk': self.group1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class GroupViewSetMembersUnauthorizedTests(GroupViewTest):
+    def setUp(self):
+        super(GroupViewSetMembersUnauthorizedTests, self).setUp()
+        self.t1 = Team.objects.create(tournament=self.to, name='t1')
+        self.t2 = Team.objects.create(tournament=self.to, name='t2')
+
+        self.group1.group_memberships.create(team=self.t1)
+        self.group1.group_memberships.create(team=self.t2)
+
+
+class AuthorizedGroupMembersViewTests(GroupViewSetMembersUnauthorizedTests):
+    def setUp(self):
+        super(AuthorizedGroupMembersViewTests, self).setUp()
+        self.client.force_authenticate(user=self.admin)
+
+
+class ValidIdsGroupMembersViewTests(AuthorizedGroupMembersViewTests):
+    def setUp(self):
+        super(ValidIdsGroupMembersViewTests, self).setUp()
+        self.t1 = Team.objects.create(tournament=self.to, name='t1')
+
+    def test_post_valid_payload_creates_specified_teammember(self):
+        response = self.client.post(
+            reverse('group-members', kwargs={'pk': self.group1.id, 'team_id': self.t1.id}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_delete_existing_team_member_deletes_it(self):
+        response = self.client.delete(reverse('group-members', kwargs={'pk': self.group1.pk, 'team_id': self.t2.pk}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
+    def setUp(self):
+        super(InvalidIdsGroupMemberViewTests, self).setUp()
+
+    def test_teams_post_invalid_group_returns_404(self):
+        t3 = Team.objects.create(tournament=self.to, name='t3')
+
+        response = self.client.post(
+            reverse('group-members', kwargs={'pk': BAD_PK, 'team_id': t3.id}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_teams_post_invalid_team_returns_404(self):
+        g3 = self.group_phase.groups.create(name='G3')
+        response = self.client.post(
+            reverse('group-members', kwargs={'pk': g3.id, 'team_id': BAD_PK}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_not_existing_group_member_returns_bad_request(self):
+        t3 = Team.objects.create(tournament=self.to, name='t3')
+        response = self.client.delete(reverse('group-members', kwargs={'pk': self.group1.id, 'team_id': t3.id}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
