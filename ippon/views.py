@@ -326,7 +326,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         try:
             team = Team.objects.get(pk=team_id)
             group = Group.objects.get(pk=pk)
-            group.group_memberships.create(team=team)
+            group.group_members.create(team=team)
             return Response(status=status.HTTP_201_CREATED)
         except Group.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -355,6 +355,18 @@ class GroupViewSet(viewsets.ModelViewSet):
     def members(self, request, pk=None):
         serializer = TeamSerializer(Team.objects.filter(group_member__group=pk), many=True)
         return Response(serializer.data)
+
+    @action(methods=['get'], detail=True, permission_classes=[
+        permissions.IsAuthenticated,
+        IsGroupOwnerOrReadOnly])
+    def not_assigned(self, request, pk=None):
+        serializer = TeamSerializer(
+            Team.objects.filter(tournament__group_phases__groups=pk)
+                .exclude(group_member__group__group_phase__groups=pk), many=True)
+        if(serializer.data):
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class GroupPhaseViewSet(viewsets.ModelViewSet):
