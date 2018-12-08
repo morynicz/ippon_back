@@ -36,4 +36,8 @@ urlpatterns = [
         name='team-fight-authorization'),
     url(r'^authorization/teams/(?P<pk>[0-9]+)/$', views.team_authorization,
         name='team-authorization'),
+    url(r'^authorization/groups/(?P<pk>[0-9]+)/$', views.group_authorization,
+        name='group-authorization'),
+    url(r'^authorization/group_phases/(?P<pk>[0-9]+)/$', views.group_phase_authorization,
+        name='group-phase-authorization'),
 ]

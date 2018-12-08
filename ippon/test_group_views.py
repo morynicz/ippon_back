@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import Tournament, TournamentAdmin, Team
+from ippon.models import Tournament, TournamentAdmin, Team, TeamFight
 
 BAD_PK = 0
 
@@ -110,6 +110,43 @@ class GroupViewSetUnauthorizedTests(GroupViewTest):
     def test_unauthorized_delete_gets_unauthorized(self):
         response = self.client.delete(reverse('group-detail', kwargs={'pk': self.group1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_group_fights_for_valid_group_returns_list_of_fights(self):
+        t1 = Team.objects.create(tournament=self.to, name='t1')
+        t2 = Team.objects.create(tournament=self.to, name='t2')
+        t3 = Team.objects.create(tournament=self.to, name='t3')
+
+        self.group1.group_members.create(team=t1)
+        self.group1.group_members.create(team=t2)
+        self.group1.group_members.create(team=t3)
+
+        tf1=TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
+        tf2=TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
+
+        gf1=self.group1.group_fights.create(team_fight=tf1)
+        gf2=self.group1.group_fights.create(team_fight=tf2)
+
+        gf1_json = {
+            'team_fight': tf1.id,
+            'group': self.group1.id,
+            'id': gf1.id
+        }
+
+        gf2_json = {
+            'team_fight': tf2.id,
+            'group': self.group1.id,
+            'id': gf2.id
+        }
+
+        expected = [gf1_json, gf2_json]
+        response = self.client.get(reverse('group-group_fights', kwargs={'pk': self.group1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_group_fights_for_invalid_group_returns_not_found(self):
+        response = self.client.get(reverse('group-group_fights', kwargs={'pk': BAD_PK}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 
 class GroupViewSetMembersTests(GroupViewTest):

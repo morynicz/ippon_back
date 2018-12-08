@@ -360,13 +360,20 @@ class GroupViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
         IsGroupOwnerOrReadOnly])
     def not_assigned(self, request, pk=None):
+        get_object_or_404(self.queryset, pk=pk)
         serializer = TeamSerializer(
             Team.objects.filter(tournament__group_phases__groups=pk)
                 .exclude(group_member__group__group_phase__groups=pk), many=True)
-        if(serializer.data):
-            return Response(serializer.data)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data)
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='group_fights')
+    def group_fights(self, request, pk=None):
+        get_object_or_404(self.queryset, pk=pk)
+        serializer = GroupFightSerializer(GroupFight.objects.filter(group=pk), many=True)
+        return Response(serializer.data)
 
 
 class GroupPhaseViewSet(viewsets.ModelViewSet):
@@ -374,3 +381,14 @@ class GroupPhaseViewSet(viewsets.ModelViewSet):
     serializer_class = GroupPhaseSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsTournamentAdminOrReadOnlyDependent)
+
+
+@api_view(['GET'])
+def group_authorization(request, pk, format=None):
+    group = get_object_or_404(Group.objects.all(), pk=pk)
+    return has_tournament_authorization([True, False], group.group_phase.tournament.id, request)
+
+@api_view(['GET'])
+def group_phase_authorization(request, pk, format=None):
+    group_phase = get_object_or_404(GroupPhase.objects.all(), pk=pk)
+    return has_tournament_authorization([True, False], group_phase.tournament.id, request)

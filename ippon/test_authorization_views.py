@@ -1,11 +1,11 @@
 import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TeamFight, Team, Fight
+from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TeamFight, Team, Fight, GroupPhase
 
 
 class AuthorizationViewsTest(APITestCase):
@@ -77,6 +77,11 @@ class TournamentAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticat
                                                     age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                                     sex_constraint=1)
 
+
+class TournamentAdminAuthenticatedTests(TournamentAuthorizationAuthenticatedTests):
+    def setUp(self):
+        super(TournamentAdminAuthenticatedTests, self).setUp()
+
     def test_tournament_admin_authorization_returns_positive_auth_if_authorized(self):
         TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=True)
 
@@ -116,6 +121,11 @@ class TournamentAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticat
         response = self.client.get(reverse('tournament-staff-authorization', kwargs={'pk': self.tournament.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuthenticatedTests):
+    def setUp(self):
+        super(TournamentFightAuthorizationAuthenticatedTests, self).setUp()
 
     def test_tournament_fight_authorization_returns_negative_auth_if_not_authorized(self):
         club = Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
@@ -159,6 +169,11 @@ class TournamentAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticat
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
+class TournamentTeamFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuthenticatedTests):
+    def setUp(self):
+        super(TournamentTeamFightAuthorizationAuthenticatedTests, self).setUp()
+
     def test_tournament_team_fight_authorization_returns_negative_auth_if_not_authorized(self):
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         t2 = Team.objects.create(name="t2", tournament=self.tournament)
@@ -190,6 +205,10 @@ class TournamentAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticat
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class TournamentTeamAuthorizationAuthenticatedTests(TournamentAuthorizationAuthenticatedTests):
+    def setUp(self):
+        super(TournamentTeamAuthorizationAuthenticatedTests, self).setUp()
+
     def test_tournament_team_authorization_returns_negative_auth_if_not_authorized(self):
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         expected = {
@@ -216,6 +235,67 @@ class TournamentAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticat
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
+class TournamentGroupAuthorizationAuthenticatedTests(TournamentAuthorizationAuthenticatedTests):
+    def setUp(self):
+        super(TournamentGroupAuthorizationAuthenticatedTests, self).setUp()
+        self.group_phase = GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
+
+    def test_tournament_group_authorization_returns_negative_auth_if_not_authorized(self):
+        g1 = self.group_phase.groups.create(name="g1")
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('group-authorization', kwargs={'pk': g1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_tournament_group_authorization_returns_positive_auth_if_authorized_staff(self):
+        self.parametrized_group_authorization_returns_positive_auth_if_authorized(False)
+
+    def test_tournament_group_authorization_returns_positive_auth_if_authorized_admin(self):
+        self.parametrized_group_authorization_returns_positive_auth_if_authorized(True)
+
+    def parametrized_group_authorization_returns_positive_auth_if_authorized(self, is_admin):
+        TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=is_admin)
+        g1 = self.group_phase.groups.create(name="g1")
+        expected = {
+            "isAuthorized": True
+        }
+        response = self.client.get(reverse('group-authorization', kwargs={'pk': g1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TournamentGroupPhaseAuthorizationAuthenticatedTests(TournamentAuthorizationAuthenticatedTests):
+    def setUp(self):
+        super(TournamentGroupPhaseAuthorizationAuthenticatedTests, self).setUp()
+        self.group_phase = GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
+
+    def test_tournament_group_phase_authorization_returns_negative_auth_if_not_authorized(self):
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('group-phase-authorization', kwargs={'pk': self.group_phase.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_tournament_group_phase_authorization_returns_positive_auth_if_authorized_staff(self):
+        self.parametrized_group_phase_authorization_returns_positive_auth_if_authorized(False)
+
+    def test_tournament_group_phase_authorization_returns_positive_auth_if_authorized_admin(self):
+        self.parametrized_group_phase_authorization_returns_positive_auth_if_authorized(True)
+
+    def parametrized_group_phase_authorization_returns_positive_auth_if_authorized(self, is_admin):
+        TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=is_admin)
+        expected = {
+            "isAuthorized": True
+        }
+        response = self.client.get(reverse('group-phase-authorization', kwargs={'pk': self.group_phase.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class AuthorizationViewsSetUnauthenticatedTests(AuthorizationViewsTest):
@@ -293,5 +373,36 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
         }
 
         response = self.client.get(reverse('team-fight-authorization', kwargs={'pk': tf.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_tournament_group_authorization_returns_negative_auth(self):
+        group_phase = GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
+        g1 = group_phase.groups.create(name="g1")
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('group-authorization', kwargs={'pk': g1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_tournament_team_authorization_returns_negative_auth(self):
+        t1 = Team.objects.create(name="t1", tournament=self.tournament)
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('team-authorization', kwargs={'pk': t1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_tournament_group_phase_authorization_returns_negative_auth_if_not_authorized(self):
+        group_phase = GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('group-phase-authorization', kwargs={'pk': group_phase.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
