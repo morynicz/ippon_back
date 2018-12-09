@@ -23,12 +23,12 @@ class GroupPhasesViewTest(APITestCase):
                                             sex_constraint=1)
         TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
 
-        self.gp1 = self.to.group_phases.create(fight_length=3)
-        self.gp2 = self.to.group_phases.create(fight_length=5)
+        self.gp1 = self.to.group_phases.create(fight_length=3, name="gp1")
+        self.gp2 = self.to.group_phases.create(fight_length=5, name="gp2")
 
-        self.gp1_json = {'id': self.gp1.id, 'tournament': self.to.id, 'fight_length': 3}
-        self.gp2_json = {'id': self.gp2.id, 'tournament': self.to.id, 'fight_length': 5}
-        self.valid_payload = {'id': self.gp1.id, 'tournament': self.to.id, 'fight_length': 3}
+        self.gp1_json = {'id': self.gp1.id, 'tournament': self.to.id, 'fight_length': 3, "name": "gp1"}
+        self.gp2_json = {'id': self.gp2.id, 'tournament': self.to.id, 'fight_length': 5, "name": "gp2"}
+        self.valid_payload = {'id': self.gp1.id, 'tournament': self.to.id, 'fight_length': 3, "name": "gp1"}
         self.invalid_payload = {'id': self.gp1.id, 'tournament': self.to.id}
 
 
@@ -111,3 +111,18 @@ class GroupPhaseViewSetUnauthorizedTests(GroupPhasesViewTest):
     def test_unauthorized_delete_gets_unauthorized(self):
         response = self.client.delete(reverse('groupphase-detail', kwargs={'pk': self.gp1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_groups_for_valid_group_phase_returns_list_of_groups(self):
+        group1 = self.gp1.groups.create(name='G1')
+        group2 = self.gp1.groups.create(name='G2')
+        g1_json = {'id': group1.id, "name": "G1", "group_phase": self.gp1.id}
+        g2_json = {'id': group2.id, "name": "G2", "group_phase": self.gp1.id}
+
+        expected = [g1_json, g2_json]
+        response = self.client.get(reverse('groupphase-groups', kwargs={'pk': self.gp1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_groups_for_invalid_group_phase_returns_not_found(self):
+        response = self.client.get(reverse('groupphase-groups', kwargs={'pk': BAD_PK}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

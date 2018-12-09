@@ -391,11 +391,21 @@ class GroupPhaseViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsTournamentAdminOrReadOnlyDependent)
 
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='groups')
+    def groups(self, request, pk=None):
+        get_object_or_404(self.queryset, pk=pk)
+        serializer = GroupSerializer(Group.objects.filter(group_phase=pk), many=True)
+        return Response(serializer.data)
+
 
 @api_view(['GET'])
 def group_authorization(request, pk, format=None):
     group = get_object_or_404(Group.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], group.group_phase.tournament.id, request)
+
 
 @api_view(['GET'])
 def group_phase_authorization(request, pk, format=None):
