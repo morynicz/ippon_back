@@ -417,7 +417,7 @@ class TournamentTeamTests(TournamentViewTest):
             {
                 "id": self.t1.id,
                 "name": "t1",
-                "members":[],
+                "members": [],
                 "tournament": self.to1.id
             },
             {
@@ -477,3 +477,35 @@ class TournamentAdminAuthorizationsTest(TournamentViewTest):
         response = self.client.get(reverse('tournament-staff-authorization', kwargs={'pk': self.to1.pk}))
         self.assertEqual({"isAuthorized": False}, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TournamentGroupPhasesUnauthorizedTests(TournamentViewTest):
+    def setUp(self):
+        super(TournamentGroupPhasesUnauthorizedTests, self).setUp()
+
+    def test_get_group_phases_for_valid_tournament_returns_list_of_group_phases(self):
+        gp1 = self.to1.group_phases.create(name="gp1", fight_length=2)
+        gp2 = self.to1.group_phases.create(name="gp2", fight_length=3)
+
+        gp1_json = {
+            'tournament': self.to1.id,
+            'name': gp1.name,
+            'fight_length': 2,
+            'id': gp1.id
+        }
+
+        gp2_json = {
+            'tournament': self.to1.id,
+            'name': gp2.name,
+            'fight_length': 3,
+            'id': gp2.id
+        }
+
+        expected = [gp1_json, gp2_json]
+        response = self.client.get(reverse('tournament-group_phases', kwargs={'pk': self.to1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_group_phases_for_invalid_tournament_returns_not_found(self):
+        response = self.client.get(reverse('tournament-group_phases', kwargs={'pk': BAD_PK}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -207,7 +207,8 @@ class GroupPhaseSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'tournament',
-            'fight_length'
+            'fight_length',
+            'name'
         )
 
 
