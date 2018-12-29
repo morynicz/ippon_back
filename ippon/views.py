@@ -417,7 +417,6 @@ def group_phase_authorization(request, pk, format=None):
 @api_view(['POST'])
 def register_user(request):
     serializer = UserRegistrationSerializer(data=request.data)
-    print(request.data)
     serializer.is_valid(raise_exception=True)
     user = serializer.save(password=make_password(serializer.validated_data["password"]))
     user.email_user(
