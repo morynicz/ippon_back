@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.generics import get_object_or_404
@@ -411,3 +412,17 @@ def group_authorization(request, pk, format=None):
 def group_phase_authorization(request, pk, format=None):
     group_phase = get_object_or_404(GroupPhase.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], group_phase.tournament.id, request)
+
+
+@api_view(['POST'])
+def register_user(request):
+    serializer = UserRegistrationSerializer(data=request.data)
+    print(request.data)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.save(password=make_password(serializer.validated_data["password"]))
+    user.email_user(
+        subject="You have been registered",
+        message="You have been successfully registered in ippon with username {}".format(
+            user.username))
+
+    return Response(status=status.HTTP_201_CREATED,data=serializer.data)

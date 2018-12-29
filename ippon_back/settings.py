@@ -159,3 +159,9 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:4200',
     '127.0.0.1:9000'
 )
+
+EMAIL_HOST = os.environ['MAIL_HOST']
+EMAIL_PORT = os.environ['MAIL_PORT']
+EMAIL_HOST_USER = os.environ['MAIL_USER']
+EMAIL_HOST_PASSWORD = os.environ['MAIL_PASSWORD']
+EMAIL_USE_TLS = os.environ['MAIL_USE_TLS'] == 'True'

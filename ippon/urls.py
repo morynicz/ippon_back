@@ -40,4 +40,5 @@ urlpatterns = [
         name='group-authorization'),
     url(r'^authorization/group_phases/(?P<pk>[0-9]+)/$', views.group_phase_authorization,
         name='group-phase-authorization'),
+    url(r'^registration/', views.register_user, name='register-user')
 ]
