@@ -359,11 +359,7 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
                 "player": {
                     'id': self.p1.id,
                     'name': 'pn1',
-                    'surname': 'ps1',
-                    'rank': 7,
-                    'birthday': '2001-01-01',
-                    'sex': 1,
-                    'club_id': self.club.id
+                    'surname': 'ps1'
                 },
                 'id': self.par1.id,
                 "is_paid": False,
@@ -379,11 +375,7 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
                 "player": {
                     'id': self.p2.id,
                     'name': 'pn2',
-                    'surname': 'ps2',
-                    'rank': 7,
-                    'birthday': '2001-01-01',
-                    'sex': 1,
-                    'club_id': self.club.id
+                    'surname': 'ps2'
                 },
                 'id': self.par2.id,
                 "is_paid": False,

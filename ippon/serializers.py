@@ -18,6 +18,12 @@ class PlayerSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'surname', 'rank', 'sex', 'birthday', 'club_id')
 
 
+class ShallowPlayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ('id', 'name', 'surname')
+
+
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tournament
@@ -47,7 +53,7 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
     is_rank_ok = serializers.BooleanField(source='check_is_rank_ok', read_only=True)
     is_sex_ok = serializers.BooleanField(source='check_is_sex_ok', read_only=True)
     tournament_id = serializers.IntegerField(source='tournament.id')
-    player = PlayerSerializer()
+    player = ShallowPlayerSerializer()
 
     class Meta:
         model = TournamentParticipation
@@ -235,9 +241,3 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 'write_only': True,
             },
         }
-
-
-class ShallowPlayerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Player
-        fields = ('id', 'name', 'surname')
