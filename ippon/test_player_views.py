@@ -71,6 +71,7 @@ class PlayerViewTest(APITestCase):
 class PlayerViewSetAuthorizedTests(PlayerViewTest):
     def setUp(self):
         super(PlayerViewSetAuthorizedTests, self).setUp()
+        self.c1.admins.create(user=self.u1)
         self.client.force_authenticate(user=self.u1)
 
     def test_post_valid_payload_creates_specified_player(self):
@@ -91,18 +92,17 @@ class PlayerViewSetAuthorizedTests(PlayerViewTest):
 
     def test_put_valid_payload_updates_player(self):
         response = self.client.put(
-            reverse('player-detail', kwargs={'pk': self.c1.pk}),
+            reverse('player-detail', kwargs={'pk': self.p1.pk}),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-        expected = self.p1_json.copy()
-        expected['name'] = self.valid_payload['name']
-        self.assertEqual(expected, response.data)
+        self.valid_payload["id"] = self.p1.id
+        self.assertEqual(self.valid_payload, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_put_invalid_payload_gets_bad_request(self):
         response = self.client.put(
-            reverse('player-detail', kwargs={'pk': self.c1.pk}),
+            reverse('player-detail', kwargs={'pk': self.p1.pk}),
             data=json.dumps(self.invalid_payload),
             content_type='application/json'
         )
@@ -113,7 +113,7 @@ class PlayerViewSetAuthorizedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_player_returns_bad_request(self):
-        response = self.client.delete(reverse('player-detail', kwargs={'pk': -5}))
+        response = self.client.delete(reverse('player-detail', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -128,12 +128,12 @@ class PlayerViewSetUnauthorizedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_existing_player_returns_correct_player(self):
-        response = self.client.get(reverse('player-detail', kwargs={'pk': self.c1.pk}))
+        response = self.client.get(reverse('player-detail', kwargs={'pk': self.p1.pk}))
         self.assertEqual(self.p1_json, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_player_returns_404(self):
-        response = self.client.get(reverse('player-detail', kwargs={'pk': -1}))
+        response = self.client.get(reverse('player-detail', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):
@@ -145,5 +145,5 @@ class PlayerViewSetUnauthorizedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(reverse('player-detail', kwargs={'pk': self.c1.id}))
+        response = self.client.delete(reverse('player-detail', kwargs={'pk': self.p1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
