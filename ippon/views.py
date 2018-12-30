@@ -45,8 +45,12 @@ class ClubViewSet(viewsets.ModelViewSet):
 
 @api_view(['GET'])
 def club_authorization(request, pk, format=None):
+    return has_club_authorization(pk, request)
+
+
+def has_club_authorization(club_id, request):
     try:
-        admin = ClubAdmin.objects.get(user=request.user.id, club=pk)
+        admin = ClubAdmin.objects.get(user=request.user.id, club=club_id)
         is_admin = False
         if admin is not None:
             is_admin = True
@@ -412,6 +416,12 @@ def group_authorization(request, pk, format=None):
 def group_phase_authorization(request, pk, format=None):
     group_phase = get_object_or_404(GroupPhase.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], group_phase.tournament.id, request)
+
+
+@api_view(['GET'])
+def player_authorization(request, pk, format=None):
+    player = get_object_or_404(Player.objects.all(), pk=pk)
+    return has_club_authorization(player.club_id, request)
 
 
 @api_view(['POST'])

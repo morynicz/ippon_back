@@ -19,11 +19,11 @@ class AuthorizationViewsTest(APITestCase):
         self.c2 = Club.objects.create(name='cn2', webpage='http://cw2.co', description='cd2', city='cc2')
         self.c4 = Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         self.a1 = ClubAdmin.objects.create(user=self.u1, club=self.c1)
-        self.a2 = ClubAdmin.objects.create(user=self.u1, club=self.c2)
+        self.a2 = ClubAdmin.objects.create(user=self.u2, club=self.c2)
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
         self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c2)
         self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
         self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
@@ -45,10 +45,8 @@ class AuthorizationViewsSetAuthenticatedTests(AuthorizationViewsTest):
 class ClubAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticatedTests):
     def setUp(self):
         super(ClubAuthorizationAuthenticatedTests, self).setUp()
-        self.c1 = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
 
     def test_club_authorization_returns_positive_auth_if_authorized(self):
-        ClubAdmin.objects.create(user=self.u1, club=self.c1)
         expected = {
             "isAuthorized": True
         }
@@ -62,9 +60,33 @@ class ClubAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticatedTest
             "isAuthorized": False
         }
 
-        response = self.client.get(reverse('club-authorization', kwargs={'pk': self.c1.pk}))
+        response = self.client.get(reverse('club-authorization', kwargs={'pk': self.c2.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class PlayerAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticatedTests):
+    def setUp(self):
+        super(PlayerAuthorizationAuthenticatedTests, self).setUp()
+
+    def test_player_authorization_returns_positive_auth_if_authorized(self):
+        expected = {
+            "isAuthorized": True
+        }
+
+        response = self.client.get(reverse('player-authorization', kwargs={'pk': self.p1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_player_authorization_returns_negative_auth_if_not_authorized(self):
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('player-authorization', kwargs={'pk': self.p2.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 
 class TournamentAuthorizationAuthenticatedTests(AuthorizationViewsSetAuthenticatedTests):
@@ -306,14 +328,26 @@ class AuthorizationViewsSetUnauthenticatedTests(AuthorizationViewsTest):
 class ClubAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthenticatedTests):
     def setUp(self):
         super(ClubAuthorizationUnauthenticatedTests, self).setUp()
-        self.club = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
 
     def test_club_authorization_returns_negative_auth_if_not_authenticated(self):
         expected = {
             "isAuthorized": False
         }
 
-        response = self.client.get(reverse('club-authorization', kwargs={'pk': self.club.pk}))
+        response = self.client.get(reverse('club-authorization', kwargs={'pk': self.c1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class PlayerAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthenticatedTests):
+    def setUp(self):
+        super(PlayerAuthorizationUnauthenticatedTests, self).setUp()
+
+    def test_player_authorization_returns_negative_auth_if_not_authenticated(self):
+        expected = {
+            "isAuthorized": False
+        }
+
+        response = self.client.get(reverse('player-authorization', kwargs={'pk': self.p1.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

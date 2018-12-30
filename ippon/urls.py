@@ -40,6 +40,8 @@ urlpatterns = [
         name='group-authorization'),
     url(r'^authorization/group_phases/(?P<pk>[0-9]+)/$', views.group_phase_authorization,
         name='group-phase-authorization'),
+    url(r'^authorization/players/(?P<pk>[0-9]+)/$', views.player_authorization,
+        name='player-authorization'),
     url(r'^registration/', views.register_user, name='register-user'),
     url(r'^shallow_players/(?P<pk>[0-9]+)/$', views.ShallowPlayerDetailView.as_view(), name="shallow-player-detail"),
     url(r'^shallow_players/', views.ShallowPlayerListView.as_view(), name="shallow-player-list")
