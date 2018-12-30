@@ -226,12 +226,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-             'username',
-             'email',
-             'password'
+            'username',
+            'email',
+            'password'
         )
         extra_kwargs = {
             'password': {
                 'write_only': True,
             },
         }
+
+
+class ShallowPlayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ('id', 'name', 'surname')

@@ -1,5 +1,5 @@
 from django.contrib.auth.hashers import make_password
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -424,4 +424,14 @@ def register_user(request):
         message="You have been successfully registered in ippon with username {}".format(
             user.username))
 
-    return Response(status=status.HTTP_201_CREATED,data=serializer.data)
+    return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+
+
+class ShallowPlayerListView(generics.ListAPIView):
+    queryset = Player.objects.all()
+    serializer_class = ShallowPlayerSerializer
+
+
+class ShallowPlayerDetailView(generics.RetrieveAPIView):
+    queryset = Player.objects.all()
+    serializer_class = ShallowPlayerSerializer
