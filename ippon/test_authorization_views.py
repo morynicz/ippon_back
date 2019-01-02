@@ -5,7 +5,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, ClubAdmin, Tournament, TournamentAdmin, TeamFight, Team, Fight, GroupPhase
+from ippon.models import Player, Club, ClubAdmin, TournamentAdmin, TeamFight, Team, Fight, GroupPhase
+from ippon.tournament.tournament import Tournament
 
 
 class AuthorizationViewsTest(APITestCase):

@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 import ippon.models as models
+import ippon.tournament.tournament
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -21,30 +22,6 @@ class ShallowPlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Player
         fields = ('id', 'name', 'surname')
-
-
-class TournamentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Tournament
-        fields = (
-            'id',
-            'name',
-            'date',
-            'city',
-            'address',
-            'description',
-            'webpage',
-            'team_size',
-            'group_match_length',
-            'ko_match_length',
-            'final_match_length',
-            'finals_depth',
-            'age_constraint',
-            'sex_constraint',
-            'rank_constraint',
-            'rank_constraint_value',
-            'age_constraint_value'
-        )
 
 
 class TournamentParticipationSerializer(serializers.ModelSerializer):
@@ -74,7 +51,7 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
             raise ValidationError('player.id must be an integer')
         participation = models.TournamentParticipation.objects.create(
             player=models.Player.objects.get(pk=self.initial_data['player']['id']),
-            tournament=models.Tournament.objects.get(pk=validated_data['tournament']['id'])
+            tournament=ippon.tournament.tournament.Tournament.objects.get(pk=validated_data['tournament']['id'])
         )
         return participation
 
@@ -115,7 +92,7 @@ class TournamentAdminSerializer(serializers.ModelSerializer):
             raise ValidationError('user.id must be an integer')
         admin = models.TournamentAdmin.objects.create(
             user=User.objects.get(pk=self.initial_data['user']['id']),
-            tournament=models.Tournament.objects.get(pk=validated_data['tournament']['id']),
+            tournament=ippon.tournament.tournament.Tournament.objects.get(pk=validated_data['tournament']['id']),
             is_master=False
         )
         return admin

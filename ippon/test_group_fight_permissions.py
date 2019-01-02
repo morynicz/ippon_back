@@ -4,7 +4,8 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import Club, Tournament, Team, Player, TeamFight, TournamentAdmin, GroupPhase, Group
+from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, GroupPhase, Group
+from ippon.tournament.tournament import Tournament
 from ippon.permissions import IsGroupFightOwnerOrReadOnly
 
 

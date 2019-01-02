@@ -53,23 +53,6 @@ class ClubAdmin(models.Model):
         return {'id': self.user.id, 'username': self.user.username}
 
 
-NUMERIC_CONSTRAINT = [
-    (0, 'None'),
-    (1, 'Less'),
-    (2, 'LessOrEqual'),
-    (3, 'Greater'),
-    (4, 'GreateOrEqual'),
-    (5, 'Equal'),
-    (6, 'NotEqual')
-]
-
-SEX_CONSTRAINT = [
-    (0, 'None'),
-    (1, 'WomenOnly'),
-    (2, 'MenOnly')
-]
-
-
 class TournamentAdmin(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='admins', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='tournaments', on_delete=models.PROTECT)
@@ -77,25 +60,6 @@ class TournamentAdmin(models.Model):
 
     def get_user(self):
         return {'id': self.user.id, 'username': self.user.username}
-
-
-class Tournament(models.Model):
-    name = models.CharField(max_length=100, blank=False)
-    webpage = models.URLField()
-    description = models.TextField()
-    city = models.CharField(max_length=100, blank=False)
-    date = models.DateField()
-    address = models.CharField(max_length=500, blank=False)
-    team_size = models.IntegerField()
-    group_match_length = models.IntegerField()
-    ko_match_length = models.IntegerField()
-    final_match_length = models.IntegerField()
-    age_constraint = models.IntegerField(choices=NUMERIC_CONSTRAINT)
-    rank_constraint = models.IntegerField(choices=NUMERIC_CONSTRAINT)
-    sex_constraint = models.IntegerField(choices=SEX_CONSTRAINT)
-    rank_constraint_value = models.IntegerField(choices=RANK_CHOICES)
-    age_constraint_value = models.IntegerField()
-    finals_depth = models.IntegerField()
 
 
 class TournamentParticipation(models.Model):

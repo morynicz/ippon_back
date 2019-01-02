@@ -3,13 +3,15 @@ import datetime
 from django.db import IntegrityError
 from django.test import TestCase
 
+import ippon.tournament.tournament
 from ippon import models
-from ippon.models import Club, Tournament, Team, Player, NoSuchFightException
+from ippon.models import Club, Team, Player, NoSuchFightException
+from ippon.tournament.tournament import Tournament
 
 
 class TournamentParticipationTests(TestCase):
     def setUp(self):
-        self.tournament = models.Tournament.objects.create(
+        self.tournament = ippon.tournament.tournament.Tournament.objects.create(
             name='T1',
             webpage='http://w1.co',
             description='d1',
@@ -94,7 +96,7 @@ class TeamTests(TestCase):
 
 class TestCupFights(TestCase):
     def setUp(self):
-        self.tournament = models.Tournament.objects.create(
+        self.tournament = ippon.tournament.tournament.Tournament.objects.create(
             name='T1',
             webpage='http://w1.co',
             description='d1',
