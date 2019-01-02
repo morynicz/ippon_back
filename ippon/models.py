@@ -3,6 +3,8 @@ from math import floor
 
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Club(models.Model):
@@ -119,10 +121,18 @@ class TeamMember(models.Model):
         unique_together = ('player', 'team')
 
 
+WINNER = [
+    (0, 'None'),
+    (1, 'Aka'),
+    (2, 'Shiro')
+]
+
+
 class TeamFight(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='team_fights', on_delete=models.PROTECT)
     aka_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
     shiro_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
+    winner = models.IntegerField(choices=WINNER, default=0)
 
 
 class Fight(models.Model):
@@ -185,6 +195,7 @@ class CupPhase(models.Model):
 class NoSuchFightException(Exception):
     pass
 
+
 class CupFight(models.Model):
     cup_phase = models.ForeignKey('CupPhase', related_name='cup_fights', on_delete=models.CASCADE)
     team_fight = models.ForeignKey('TeamFight', related_name='cup_fight', on_delete=models.PROTECT, null=True)
@@ -193,6 +204,27 @@ class CupFight(models.Model):
 
     def get_following_fight(self):
         try:
-            return CupFight.objects.get(Q(previous_aka_fight=self)|Q(previous_shiro_fight=self))
+            return CupFight.objects.get(Q(previous_aka_fight=self) | Q(previous_shiro_fight=self))
         except CupFight.DoesNotExist:
             raise NoSuchFightException()
+
+
+@receiver(post_save, sender=TeamFight)
+def winner_change_handler(sender, **kwargs):
+    try:
+        cup_fight = CupFight.objects.get(team_fight=kwargs['instance'].id)
+        parent = cup_fight.get_following_fight()
+        sibling = parent.previous_aka_fight if parent.previous_aka_fight is not cup_fight else parent.previous_shiro_fight
+        if sibling.team_fight.winner is not 0:
+            tournament = parent.cup_phase.tournament
+            parent.team_fight = tournament.team_fights.create(aka_team=get_winner(parent.previous_aka_fight),
+                                                              shiro_team=get_winner(parent.previous_shiro_fight))
+            print(parent.team_fight)
+            parent.save()
+    except CupFight.DoesNotExist:
+        return
+
+
+def get_winner(cup_fight):
+    team_fight = cup_fight.team_fight
+    return team_fight.aka_team if team_fight.winner is 1 else team_fight.shiro_team

@@ -117,10 +117,16 @@ class TestCupFights(TestCase):
         self.cup_phase = self.tournament.cup_phases.create(name="CP",
                                                            fight_length=3,
                                                            final_fight_length=5)
-        self.team1 = self.tournament.teams.create(name='t1')
-        self.team2 = self.tournament.teams.create(name='t2')
-        self.team_fight1 = self.tournament.team_fights.create(aka_team=self.team1, shiro_team=self.team2)
+        self.t1 = self.tournament.teams.create(name='t1')
+        self.t2 = self.tournament.teams.create(name='t2')
+        self.team_fight1 = self.tournament.team_fights.create(aka_team=self.t1,
+                                                              shiro_team=self.t2)
         self.cup_fight = self.cup_phase.cup_fights.create(team_fight=self.team_fight1)
+
+
+class CupFightFollowingFightTests(TestCupFights):
+    def setUp(self):
+        super(CupFightFollowingFightTests, self).setUp()
 
     def test_fight_throws_no_such_fight_when_het_following_called_on_final(self):
         with self.assertRaises(NoSuchFightException) as ex:
@@ -129,3 +135,30 @@ class TestCupFights(TestCase):
     def test_cup_fight_which_is_previous_on_aka_side_returns_following_fight(self):
         following_aka = self.cup_phase.cup_fights.create(team_fight=self.team_fight1, previous_aka_fight=self.cup_fight)
         self.assertEqual(self.cup_fight.get_following_fight(), following_aka)
+
+
+class CupFightSiblingTests(TestCupFights):
+    def setUp(self):
+        super(CupFightSiblingTests, self).setUp()
+        self.t3 = self.tournament.teams.create(name='t3')
+        self.t4 = self.tournament.teams.create(name='t4')
+        self.tf_aka = self.tournament.team_fights.create(aka_team=self.t3,
+                                                         shiro_team=self.t4)
+        self.cf_aka = self.cup_phase.cup_fights.create(team_fight=self.tf_aka)
+        self.cf_parent = self.cup_phase.cup_fights.create(previous_aka_fight=self.cf_aka,
+                                                          previous_shiro_fight=self.cup_fight)
+        self.cf_aka.team_fight.winner = 1
+        self.cf_aka.team_fight.save()
+
+        self.cup_phase.cup_fights.create()
+
+    def test_cup_fight_when_winner_is_set_and_sibling_has_winner_already_set_creates_team_fight_in_parent(self):
+        self.cup_fight.team_fight.winner = 2
+        self.cup_fight.team_fight.save()
+        self.cf_parent.refresh_from_db()
+        self.assertIsNotNone(self.cf_parent.team_fight)
+        self.assertEqual(self.cf_parent.team_fight.aka_team, self.t3)
+        self.assertEqual(self.cf_parent.team_fight.shiro_team, self.t2)
+
+    def test_when_fight_winner_is_set_and_sibling_doesnt_have_winner_yet_doesnt_change_parent(self):
+        self.assertIsNone(self.cf_parent.team_fight)
