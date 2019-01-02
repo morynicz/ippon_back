@@ -111,6 +111,15 @@ class TournamentViewSet(viewsets.ModelViewSet):
         serializer = GroupPhaseSerializer(GroupPhase.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='cup_phases')
+    def cup_phases(self, request, pk=None):
+        get_object_or_404(self.queryset, pk=pk)
+        serializer = CupPhaseSerializer(CupPhase.objects.filter(tournament=pk), many=True)
+        return Response(serializer.data)
+
 
 class TournamentParticipationViewSet(viewsets.ModelViewSet):
     queryset = TournamentParticipation.objects.all()
@@ -357,3 +366,19 @@ class ShallowPlayerListView(generics.ListAPIView):
 class ShallowPlayerDetailView(generics.RetrieveAPIView):
     queryset = Player.objects.all()
     serializer_class = ShallowPlayerSerializer
+
+
+class CupPhaseViewSet(viewsets.ModelViewSet):
+    queryset = CupPhase.objects.all()
+    serializer_class = CupPhaseSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsTournamentAdminOrReadOnlyDependent)
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='fights')
+    def fights(self, request, pk=None):
+        get_object_or_404(self.queryset, pk=pk)
+        serializer = CupFightSerializer(CupFight.objects.filter(cup_phase=pk), many=True)
+        return Response(serializer.data)

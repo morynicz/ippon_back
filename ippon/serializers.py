@@ -2,31 +2,30 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ippon.models import Club, Player, Tournament, TournamentParticipation, TournamentAdmin, Team, ClubAdmin, Point, \
-    Fight, TeamFight, Group, GroupPhase, GroupFight
+import ippon.models as models
 
 
 class ClubSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Club
+        model = models.Club
         fields = ('id', 'name', 'webpage', 'description', 'city')
 
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Player
+        model = models.Player
         fields = ('id', 'name', 'surname', 'rank', 'sex', 'birthday', 'club_id')
 
 
 class ShallowPlayerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Player
+        model = models.Player
         fields = ('id', 'name', 'surname')
 
 
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tournament
+        model = models.Tournament
         fields = (
             'id',
             'name',
@@ -56,7 +55,7 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
     player = ShallowPlayerSerializer()
 
     class Meta:
-        model = TournamentParticipation
+        model = models.TournamentParticipation
         fields = (
             'id',
             'is_paid',
@@ -73,9 +72,9 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if not isinstance(self.initial_data['player']['id'], int):
             raise ValidationError('player.id must be an integer')
-        participation = TournamentParticipation.objects.create(
-            player=Player.objects.get(pk=self.initial_data['player']['id']),
-            tournament=Tournament.objects.get(pk=validated_data['tournament']['id'])
+        participation = models.TournamentParticipation.objects.create(
+            player=models.Player.objects.get(pk=self.initial_data['player']['id']),
+            tournament=models.Tournament.objects.get(pk=validated_data['tournament']['id'])
         )
         return participation
 
@@ -102,7 +101,7 @@ class TournamentAdminSerializer(serializers.ModelSerializer):
     user = serializers.DictField(source='get_user')
 
     class Meta:
-        model = TournamentAdmin
+        model = models.TournamentAdmin
         fields = (
             'tournament_id',
             'id',
@@ -114,9 +113,9 @@ class TournamentAdminSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if not isinstance(self.initial_data['user']['id'], int):
             raise ValidationError('user.id must be an integer')
-        admin = TournamentAdmin.objects.create(
+        admin = models.TournamentAdmin.objects.create(
             user=User.objects.get(pk=self.initial_data['user']['id']),
-            tournament=Tournament.objects.get(pk=validated_data['tournament']['id']),
+            tournament=models.Tournament.objects.get(pk=validated_data['tournament']['id']),
             is_master=False
         )
         return admin
@@ -132,7 +131,7 @@ class ClubAdminSerializer(serializers.ModelSerializer):
     user = serializers.DictField(source='get_user')
 
     class Meta:
-        model = ClubAdmin
+        model = models.ClubAdmin
         fields = (
             'id',
             'club_id',
@@ -143,9 +142,9 @@ class ClubAdminSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if not isinstance(self.initial_data['user']['id'], int):
             raise ValidationError('user id must be an integer')
-        admin = ClubAdmin.objects.create(
+        admin = models.ClubAdmin.objects.create(
             user=User.objects.get(pk=self.initial_data['user']['id']),
-            club=Club.objects.get(pk=validated_data['club']['id']),
+            club=models.Club.objects.get(pk=validated_data['club']['id']),
         )
         return admin
 
@@ -155,7 +154,7 @@ class TeamSerializer(serializers.ModelSerializer):
                                     child=serializers.IntegerField(min_value=1))
 
     class Meta:
-        model = Team
+        model = models.Team
         fields = (
             'id',
             'name',
@@ -166,7 +165,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class PointSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Point
+        model = models.Point
         fields = (
             'id',
             'type',
@@ -177,7 +176,7 @@ class PointSerializer(serializers.ModelSerializer):
 
 class FightSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Fight
+        model = models.Fight
         fields = (
             'id',
             'aka',
@@ -188,7 +187,7 @@ class FightSerializer(serializers.ModelSerializer):
 
 class TeamFightSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TeamFight
+        model = models.TeamFight
         fields = (
             'id',
             'aka_team',
@@ -199,7 +198,7 @@ class TeamFightSerializer(serializers.ModelSerializer):
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Group
+        model = models.Group
         fields = (
             'id',
             'name',
@@ -209,7 +208,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class GroupPhaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GroupPhase
+        model = models.GroupPhase
         fields = (
             'id',
             'tournament',
@@ -220,7 +219,7 @@ class GroupPhaseSerializer(serializers.ModelSerializer):
 
 class GroupFightSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GroupFight
+        model = models.GroupFight
         fields = (
             'id',
             'team_fight',
@@ -241,3 +240,27 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 'write_only': True,
             },
         }
+
+
+class CupPhaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CupPhase
+        fields = (
+            'id',
+            'tournament',
+            'name',
+            'fight_length',
+            'final_fight_length'
+        )
+
+
+class CupFightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CupFight
+        fields = (
+            'id',
+            'team_fight',
+            'cup_phase',
+            'previous_shiro_fight',
+            'previous_aka_fight'
+        )

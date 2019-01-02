@@ -501,3 +501,36 @@ class TournamentGroupPhasesUnauthorizedTests(TournamentViewTest):
     def test_get_group_phases_for_invalid_tournament_returns_not_found(self):
         response = self.client.get(reverse('tournament-group_phases', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TournamentCupPhasesUnauthorizedTests(TournamentViewTest):
+    def setUp(self):
+        super(TournamentCupPhasesUnauthorizedTests, self).setUp()
+
+    def test_get_cup_phases_for_valid_tournament_returns_list_of_cup_phases(self):
+        cp1 = self.to1.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4)
+        cp2 = self.to1.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6)
+
+        cp1_json = {
+            'id': cp1.id,
+            'tournament': self.to1.id,
+            'fight_length': 3,
+            'name': 'cp1',
+            'final_fight_length': 4
+        }
+        cp2_json = {
+            'id': cp2.id,
+            'tournament': self.to1.id,
+            'fight_length': 5,
+            'name': 'cp2',
+            'final_fight_length': 6
+        }
+
+        expected = [cp1_json, cp2_json]
+        response = self.client.get(reverse('tournament-cup_phases', kwargs={'pk': self.to1.pk}))
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_cup_phases_for_invalid_tournament_returns_not_found(self):
+        response = self.client.get(reverse('tournament-cup_phases', kwargs={'pk': BAD_PK}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

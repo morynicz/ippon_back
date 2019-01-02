@@ -2,6 +2,7 @@ import datetime
 from math import floor
 
 from django.db import models
+from django.db.models import Q
 
 
 class Club(models.Model):
@@ -208,3 +209,26 @@ class GroupMember(models.Model):
 class GroupFight(models.Model):
     group = models.ForeignKey('Group', related_name='group_fights', on_delete=models.PROTECT)
     team_fight = models.ForeignKey('TeamFight', related_name='group_fight', on_delete=models.PROTECT)
+
+
+class CupPhase(models.Model):
+    tournament = models.ForeignKey('Tournament', related_name='cup_phases', on_delete=models.CASCADE)
+    fight_length = models.IntegerField()
+    final_fight_length = models.IntegerField()
+    name = models.CharField(max_length=100, blank=False)
+
+
+class NoSuchFightException(Exception):
+    pass
+
+class CupFight(models.Model):
+    cup_phase = models.ForeignKey('CupPhase', related_name='cup_fights', on_delete=models.CASCADE)
+    team_fight = models.ForeignKey('TeamFight', related_name='cup_fight', on_delete=models.PROTECT, null=True)
+    previous_shiro_fight = models.OneToOneField('self', on_delete=models.PROTECT, related_name='+', null=True)
+    previous_aka_fight = models.OneToOneField('self', on_delete=models.PROTECT, related_name='+', null=True)
+
+    def get_following_fight(self):
+        try:
+            return CupFight.objects.get(Q(previous_aka_fight=self)|Q(previous_shiro_fight=self))
+        except CupFight.DoesNotExist:
+            raise NoSuchFightException()

@@ -22,6 +22,7 @@ router.register(r'team_fights', views.TeamFightViewSet)
 router.register(r'groups', views.GroupViewSet)
 router.register(r'group_phases', views.GroupPhaseViewSet)
 router.register(r'group_fights', views.GroupFightViewSet)
+router.register(r'cup_phases', views.CupPhaseViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
