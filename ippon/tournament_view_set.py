@@ -4,12 +4,11 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import TournamentParticipation, Player, TournamentAdmin, Team, GroupPhase, CupPhase
-from ippon.tournament.tournament import Tournament
+from ippon.models import TournamentParticipation, Player, TournamentAdmin, Team, GroupPhase, CupPhase, Tournament
 from ippon.permissions import IsTournamentAdminOrReadOnlyTournament, IsTournamentOwner
 from ippon.serializers import TournamentParticipationSerializer, PlayerSerializer, \
-    TournamentAdminSerializer, MinimalUserSerializer, TeamSerializer, GroupPhaseSerializer, CupPhaseSerializer
-from ippon.tournament.serializers import TournamentSerializer
+    TournamentAdminSerializer, MinimalUserSerializer, TeamSerializer, GroupPhaseSerializer, CupPhaseSerializer, \
+    TournamentSerializer
 
 
 class TournamentViewSet(viewsets.ModelViewSet):
