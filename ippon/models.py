@@ -134,6 +134,11 @@ class TeamFight(models.Model):
     shiro_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
     winner = models.IntegerField(choices=WINNER, default=0)
 
+    def __str__(self):
+        return "id: {id}, aka_team: {aka}, shiro_team: {shiro}, winner: {win}".format(id=self.id, aka=self.aka_team,
+                                                                                      shiro=self.shiro_team,
+                                                                                      win=self.winner)
+
 
 class Fight(models.Model):
     aka = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
@@ -182,7 +187,10 @@ class GroupMember(models.Model):
 
 class GroupFight(models.Model):
     group = models.ForeignKey('Group', related_name='group_fights', on_delete=models.PROTECT)
-    team_fight = models.ForeignKey('TeamFight', related_name='group_fight', on_delete=models.PROTECT)
+    team_fight = models.ForeignKey('TeamFight', related_name='group_fight', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "group: {}\nteam_fight: {}".format(self.group, self.team_fight)
 
 
 class CupPhase(models.Model):
@@ -198,9 +206,9 @@ class NoSuchFightException(Exception):
 
 class CupFight(models.Model):
     cup_phase = models.ForeignKey('CupPhase', related_name='cup_fights', on_delete=models.CASCADE)
-    team_fight = models.ForeignKey('TeamFight', related_name='cup_fight', on_delete=models.PROTECT, null=True)
-    previous_shiro_fight = models.OneToOneField('self', on_delete=models.PROTECT, related_name='+', null=True)
-    previous_aka_fight = models.OneToOneField('self', on_delete=models.PROTECT, related_name='+', null=True)
+    team_fight = models.ForeignKey('TeamFight', related_name='cup_fight', on_delete=models.DO_NOTHING, null=True)
+    previous_shiro_fight = models.OneToOneField('self', on_delete=models.CASCADE, related_name='+', null=True)
+    previous_aka_fight = models.OneToOneField('self', on_delete=models.CASCADE, related_name='+', null=True)
 
     def get_following_fight(self):
         try:
@@ -219,7 +227,6 @@ def winner_change_handler(sender, **kwargs):
             tournament = parent.cup_phase.tournament
             parent.team_fight = tournament.team_fights.create(aka_team=get_winner(parent.previous_aka_fight),
                                                               shiro_team=get_winner(parent.previous_shiro_fight))
-            print(parent.team_fight)
             parent.save()
     except CupFight.DoesNotExist:
         return
