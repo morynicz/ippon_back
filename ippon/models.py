@@ -192,6 +192,9 @@ class GroupFight(models.Model):
     def __str__(self):
         return "group: {}\nteam_fight: {}".format(self.group, self.team_fight)
 
+    def delete(self, using=None, keep_parents=False):
+        super(GroupFight, self).delete()
+        self.team_fight.delete()
 
 class CupPhase(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='cup_phases', on_delete=models.CASCADE)

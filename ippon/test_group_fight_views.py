@@ -104,6 +104,10 @@ class GroupFightViewSetAuthorizedTests(GroupFightViewTest):
     def test_delete_existing_group_fight_deletes_it(self):
         response = self.client.delete(reverse('groupfight-detail', kwargs={'pk': self.gf1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(GroupFight.DoesNotExist):
+            GroupFight.objects.get(pk=self.gf1.id)
+        with self.assertRaises(TeamFight.DoesNotExist):
+            TeamFight.objects.get(pk=self.gf1.team_fight.id)
 
     def test_delete_not_existing_group_fight_returns_bad_request(self):
         response = self.client.delete(reverse('groupfight-detail', kwargs={'pk': -5}))
