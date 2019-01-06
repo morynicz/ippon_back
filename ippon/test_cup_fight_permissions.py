@@ -11,11 +11,6 @@ from ippon.serializers import CupFightSerializer
 
 class TestCupFightPermissions(django.test.TestCase):
     def setUp(self):
-        c = Club.objects.create(
-            name='cn1',
-            webpage='http://cw1.co',
-            description='cd1',
-            city='cc1')
         self.admin = User.objects.create(username='admin', password='password')
         self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                             date=datetime.date(year=2021, month=1, day=1), address='a1',
@@ -24,20 +19,12 @@ class TestCupFightPermissions(django.test.TestCase):
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.t1.team_members.create(player=self.p1)
         self.t2 = Team.objects.create(tournament=self.to, name='t2')
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.t2.team_members.create(player=self.p2)
 
         self.tf = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
-        self.fight = self.tf.fights.create(aka=self.p1, shiro=self.p2)
         self.permission = IsCupFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
-        self.view.kwargs = dict()
         self.request.user = self.admin
         self.cup_phase = self.to.cup_phases.create(name="cp", fight_length=3, final_fight_length=4)
         self.cup_fight = self.cup_phase.cup_fights.create(team_fight=self.tf)
