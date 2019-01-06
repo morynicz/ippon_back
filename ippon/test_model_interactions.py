@@ -51,3 +51,19 @@ class GroupFightAndTeamFightInteractionTests(TournamentDependentClasses):
         self.team_fight.delete()
         with self.assertRaises(models.GroupFight.DoesNotExist):
             print(models.GroupFight.objects.get(pk=self.group_fight.id))
+
+
+class CupFightAndTeamFightInteractionTests(TournamentDependentClasses):
+    def setUp(self):
+        super(CupFightAndTeamFightInteractionTests, self).setUp()
+        self.cup_phase = self.tournament.cup_phases.create(name="a", fight_length=4, final_fight_length=5)
+        self.cup_fight = self.cup_phase.cup_fights.create(team_fight=self.team_fight)
+
+    def test_cup_fight_deletion_triggers_underlying_team_fight_deletion(self):
+        self.cup_fight.delete()
+        with self.assertRaises(models.TeamFight.DoesNotExist):
+            print(models.TeamFight.objects.get(pk=self.team_fight.id))
+
+    def test_team_fight_deletion_does_not_trigger_related_cup_fight_deletion(self):
+        self.team_fight.delete()
+        self.assertEquals(self.cup_fight, models.CupFight.objects.get(pk=self.cup_fight.id))

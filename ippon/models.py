@@ -196,6 +196,7 @@ class GroupFight(models.Model):
         super(GroupFight, self).delete()
         self.team_fight.delete()
 
+
 class CupPhase(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='cup_phases', on_delete=models.CASCADE)
     fight_length = models.IntegerField()
@@ -209,7 +210,7 @@ class NoSuchFightException(Exception):
 
 class CupFight(models.Model):
     cup_phase = models.ForeignKey('CupPhase', related_name='cup_fights', on_delete=models.CASCADE)
-    team_fight = models.ForeignKey('TeamFight', related_name='cup_fight', on_delete=models.DO_NOTHING, null=True)
+    team_fight = models.ForeignKey('TeamFight', related_name='cup_fight', on_delete=models.SET_NULL, null=True)
     previous_shiro_fight = models.OneToOneField('self', on_delete=models.CASCADE, related_name='+', null=True)
     previous_aka_fight = models.OneToOneField('self', on_delete=models.CASCADE, related_name='+', null=True)
 
@@ -218,6 +219,10 @@ class CupFight(models.Model):
             return CupFight.objects.get(Q(previous_aka_fight=self) | Q(previous_shiro_fight=self))
         except CupFight.DoesNotExist:
             raise NoSuchFightException()
+
+    def delete(self, using=None, keep_parents=False):
+        super(CupFight, self).delete()
+        self.team_fight.delete()
 
 
 @receiver(post_save, sender=TeamFight)
