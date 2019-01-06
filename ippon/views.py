@@ -304,3 +304,10 @@ class CupPhaseViewSet(viewsets.ModelViewSet):
         get_object_or_404(self.queryset, pk=pk)
         serializer = CupFightSerializer(CupFight.objects.filter(cup_phase=pk), many=True)
         return Response(serializer.data)
+
+
+class CupFightViewSet(viewsets.ModelViewSet):
+    queryset = CupFight.objects.all()
+    serializer_class = CupFightSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsCupFightOwnerOrReadOnly)
