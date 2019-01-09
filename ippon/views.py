@@ -185,7 +185,8 @@ class GroupViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'],
         detail=True,
         url_name='members',
-        url_path='members/(?P<team_id>[0-9]+)')
+        url_path='members/(?P<team_id>[0-9]+)',
+        permission_classes=[IsGroupOwner])
     def handle_members(self, request, pk=None, team_id=None):
         return {
             'post': self.create_member,
@@ -231,9 +232,11 @@ class GroupViewSet(viewsets.ModelViewSet):
         serializer = TeamSerializer(Team.objects.filter(group_member__group=pk), many=True)
         return Response(serializer.data)
 
-    @action(methods=['get'], detail=True, permission_classes=[
-        permissions.IsAuthenticated,
-        IsGroupOwnerOrReadOnly])
+    @action(methods=['get'],
+            detail=True,
+            permission_classes=[
+                permissions.IsAuthenticated,
+                IsGroupOwner])
     def not_assigned(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
         serializer = TeamSerializer(

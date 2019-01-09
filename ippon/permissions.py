@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
-from ippon.models import ClubAdmin, TournamentAdmin, CupFight, CupPhase, Group
-from ippon.serializers import CupFightSerializer, GroupFightSerializer
+from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase
+from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer
 
 
 def is_user_admin_of_the_tournament(request, tournament):
@@ -68,10 +68,30 @@ class IsFightOwnerOrReadOnly(permissions.BasePermission):
 
 
 class IsGroupOwnerOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            if "pk" in view.kwargs:
+                try:
+                    group = Group.objects.get(pk=view.kwargs["pk"])
+                    return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
+                except Group.DoesNotExist:
+                    return False
+
+            try:
+                serializer = GroupSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                group_phase = GroupPhase.objects.get(pk=serializer.validated_data["group_phase"].id)
+                return is_user_admin_of_the_tournament(request, group_phase.tournament)
+            except(KeyError):
+                return False
+            except GroupPhase.DoesNotExist:
+                return False
+        return True
+
     def has_object_permission(self, request, view, group):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return TournamentAdmin.objects.filter(tournament=group.group_phase.tournament, user=request.user).count() > 0
+        return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
 
 
 class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
@@ -81,13 +101,12 @@ class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
                 serializer = GroupFightSerializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 group = Group.objects.get(pk=serializer.validated_data["group"].id)
-                return is_user_admin_of_the_tournament(request,group.group_phase.tournament)
+                return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
             except(KeyError):
                 return False
             except Group.DoesNotExist:
                 return False
         return True
-
 
     def has_object_permission(self, request, view, group_fight):
         if request and request.method in permissions.SAFE_METHODS:
@@ -102,7 +121,7 @@ class IsCupFightOwnerOrReadOnly(permissions.BasePermission):
                 serializer = CupFightSerializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 cup_phase = CupPhase.objects.get(pk=serializer.validated_data["cup_phase"].id)
-                return is_user_admin_of_the_tournament(request,cup_phase.tournament)
+                return is_user_admin_of_the_tournament(request, cup_phase.tournament)
             except(KeyError):
                 return False
             except CupPhase.DoesNotExist:
@@ -113,3 +132,16 @@ class IsCupFightOwnerOrReadOnly(permissions.BasePermission):
         if request and request.method in permissions.SAFE_METHODS:
             return True
         return is_user_admin_of_the_tournament(request, cup_fight.cup_phase.tournament)
+
+
+class IsGroupOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            pk = view.kwargs["pk"]
+            group = Group.objects.get(pk=pk)
+            return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
+        except (KeyError, Group.DoesNotExist):
+            return False
+
+    def has_object_permission(self, request, view, group):
+        return is_user_admin_of_the_tournament(request, group.group_phase.tournament)

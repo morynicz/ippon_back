@@ -66,7 +66,7 @@ class TestCupFightPermissionAdmin(TestCupFightPermissions):
         result = self.permission.has_object_permission(self.request, self.view, self.cup_fight)
         self.assertEqual(result, True)
 
-    def test_permit_when_post(self):
+    def test_does_permit_when_post(self):
         self.request.method = 'POST'
         result = self.permission.has_permission(self.request, self.view)
         self.assertEqual(result, True)

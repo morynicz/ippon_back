@@ -15,6 +15,7 @@ class GroupViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.admin = User.objects.create(username='admin', password='password')
+        self.not_admin = User.objects.create(username='user', password='password')
         self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                             date=datetime.date(year=2021, month=1, day=1), address='a1',
                                             team_size=1, group_match_length=3, ko_match_length=3,
@@ -83,6 +84,32 @@ class GroupViewSetAuthorizedTests(GroupViewTest):
 class GroupViewSetUnauthorizedTests(GroupViewTest):
     def setUp(self):
         super(GroupViewSetUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.not_admin)
+
+    def test_put_gets_forbidden(self):
+        response = self.client.put(
+            reverse('group-detail', kwargs={'pk': self.group1.id}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_gets_forbidden(self):
+        response = self.client.post(
+            reverse('group-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_gets_forbidden(self):
+        response = self.client.delete(reverse('group-detail', kwargs={'pk': self.group1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class GroupViewSetUnauthenticatedTests(GroupViewTest):
+    def setUp(self):
+        super(GroupViewSetUnauthenticatedTests, self).setUp()
 
     def test_list_returns_all_fights(self):
         response = self.client.get(reverse('group-list'))
@@ -99,7 +126,15 @@ class GroupViewSetUnauthorizedTests(GroupViewTest):
         response = self.client.get(reverse('group-detail', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_unauthorized_put_gets_unauthorized(self):
+    def test_put_gets_unauthorized(self):
+        response = self.client.post(
+            reverse('group-detail', kwargs={'pk': self.group1.id}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_post_gets_unauthorized(self):
         response = self.client.post(
             reverse('group-list'),
             data=json.dumps(self.valid_payload),
@@ -107,7 +142,7 @@ class GroupViewSetUnauthorizedTests(GroupViewTest):
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_unauthorized_delete_gets_unauthorized(self):
+    def test_delete_gets_unauthorized(self):
         response = self.client.delete(reverse('group-detail', kwargs={'pk': self.group1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -120,11 +155,11 @@ class GroupViewSetUnauthorizedTests(GroupViewTest):
         self.group1.group_members.create(team=t2)
         self.group1.group_members.create(team=t3)
 
-        tf1=TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
-        tf2=TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
+        tf1 = TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
+        tf2 = TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
 
-        gf1=self.group1.group_fights.create(team_fight=tf1)
-        gf2=self.group1.group_fights.create(team_fight=tf2)
+        gf1 = self.group1.group_fights.create(team_fight=tf1)
+        gf2 = self.group1.group_fights.create(team_fight=tf2)
 
         gf1_json = {
             'team_fight': tf1.id,
@@ -148,7 +183,6 @@ class GroupViewSetUnauthorizedTests(GroupViewTest):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-
 class GroupViewSetMembersTests(GroupViewTest):
     def setUp(self):
         super(GroupViewSetMembersTests, self).setUp()
@@ -164,8 +198,9 @@ class GroupViewSetMembersTests(GroupViewTest):
 class GroupViewSetMembersUnauthorizedTests(GroupViewSetMembersTests):
     def setUp(self):
         super(GroupViewSetMembersUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.not_admin)
 
-    def test_groups_get_members_returns_list_of_members(self):
+    def test_get_members_returns_list_of_members(self):
         response = self.client.get(reverse('group-members', kwargs={'pk': self.group1.pk}))
 
         expected = [{'id': self.t1.id, 'tournament': self.to.id, 'members': [], 'name': 't1'},
@@ -173,8 +208,25 @@ class GroupViewSetMembersUnauthorizedTests(GroupViewSetMembersTests):
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_teams_get_non_members_returns_unauthorized(self):
-        response = self.client.get(reverse('team-not-assigned', kwargs={'pk': self.group1.pk}))
+    def test_get_non_members_returns_forbidden(self):
+        response = self.client.get(reverse('group-not-assigned', kwargs={'pk': self.group1.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class GroupViewSetMembersUnauthenticatedTests(GroupViewSetMembersTests):
+    def setUp(self):
+        super(GroupViewSetMembersUnauthenticatedTests, self).setUp()
+
+    def test_get_members_returns_list_of_members(self):
+        response = self.client.get(reverse('group-members', kwargs={'pk': self.group1.pk}))
+
+        expected = [{'id': self.t1.id, 'tournament': self.to.id, 'members': [], 'name': 't1'},
+                    {'id': self.t2.id, 'tournament': self.to.id, 'members': [], 'name': 't2'}]
+        self.assertEqual(expected, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_non_members_returns_unauthorized(self):
+        response = self.client.get(reverse('group-not-assigned', kwargs={'pk': self.group1.pk}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -211,14 +263,14 @@ class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
     def setUp(self):
         super(InvalidIdsGroupMemberViewTests, self).setUp()
 
-    def test_groups_post_invalid_group_returns_404(self):
+    def test_groups_post_invalid_group_member_returns_forbidden(self):
         t3 = Team.objects.create(tournament=self.to, name='t3')
 
         response = self.client.post(
             reverse('group-members', kwargs={'pk': BAD_PK, 'team_id': t3.id}),
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_groups_post_invalid_groups_returns_404(self):
         g3 = self.group_phase.groups.create(name='G3')
@@ -233,6 +285,6 @@ class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
         response = self.client.delete(reverse('group-members', kwargs={'pk': self.group1.id, 'team_id': t3.id}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_groups_get_non_members_returns_404(self):
+    def test_groups_get_non_members_returns_forbidden(self):
         response = self.client.get(reverse('group-not-assigned', kwargs={'pk': BAD_PK}))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

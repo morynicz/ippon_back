@@ -9,7 +9,7 @@ from ippon import permissions
 from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournament
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrReadOnlyTournament, \
     IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner, IsPointOwnerOrReadOnly, \
-    IsTournamentAdminDependent, IsGroupOwnerOrReadOnly
+    IsTournamentAdminDependent
 
 
 class ClubPermissionsTests(unittest.TestCase):
@@ -349,49 +349,3 @@ class TestPointPermissionAdmin(TestPointPermissions):
         self.assertEqual(result, True)
 
 
-class TestGroupPermissions(django.test.TestCase):
-    def setUp(self):
-        self.admin = User.objects.create(username='admin', password='password')
-        self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
-                                            date=datetime.date(year=2021, month=1, day=1), address='a1',
-                                            team_size=1, group_match_length=3, ko_match_length=3,
-                                            final_match_length=3, finals_depth=0, age_constraint=5,
-                                            age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                            sex_constraint=1)
-        self.group_phase = self.to.group_phases.create(fight_length=3)
-        self.group = self.group_phase.groups.create(name='G1')
-        self.permission = IsGroupOwnerOrReadOnly()
-        self.request = unittest.mock.Mock()
-        self.view = unittest.mock.Mock()
-        self.request.user = self.admin
-
-
-class TestGroupPermissionNotAdmin(TestGroupPermissions):
-    def setUp(self):
-        super(TestGroupPermissionNotAdmin, self).setUp()
-
-    def test_permits_when_safe_method(self):
-        self.request.method = 'GET'
-        result = self.permission.has_object_permission(self.request, self.view, self.group)
-        self.assertEqual(result, True)
-
-    def test_doesnt_permit_when_unsafe_method(self):
-        self.request.method = 'PUT'
-        result = self.permission.has_object_permission(self.request, self.view, self.group)
-        self.assertEqual(result, False)
-
-
-class TestGroupPermissionAdmin(TestGroupPermissions):
-    def setUp(self):
-        super(TestGroupPermissionAdmin, self).setUp()
-        TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
-
-    def test_permits_when_safe_method(self):
-        self.request.method = 'GET'
-        result = self.permission.has_object_permission(self.request, self.view, self.group)
-        self.assertEqual(result, True)
-
-    def test_does_permit_when_unsafe_method(self):
-        self.request.method = 'PUT'
-        result = self.permission.has_object_permission(self.request, self.view, self.group)
-        self.assertEqual(result, True)
