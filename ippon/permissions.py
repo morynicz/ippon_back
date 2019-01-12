@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
-from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase
-from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer
+from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight
+from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer, FightSerializer
 
 
 def is_user_admin_of_the_tournament(request, tournament):
@@ -61,6 +61,19 @@ class IsPointOwnerOrReadOnly(permissions.BasePermission):
 
 
 class IsFightOwnerOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            try:
+                serializer = FightSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                team_fight = TeamFight.objects.get(pk=serializer.validated_data["team_fight"].id)
+                return is_user_admin_of_the_tournament(request, team_fight.tournament)
+            except(KeyError):
+                return False
+            except TeamFight.DoesNotExist:
+                return False
+        return True
+
     def has_object_permission(self, request, view, fight):
         if request and request.method in permissions.SAFE_METHODS:
             return True

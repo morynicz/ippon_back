@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 
 from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournament
 from ippon.permissions import IsFightOwnerOrReadOnly
+from ippon.serializers import FightSerializer
 
 
 class TestFightPermissions(django.test.TestCase):
@@ -37,6 +38,7 @@ class TestFightPermissions(django.test.TestCase):
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
         self.request.user = self.admin
+        self.request.data = FightSerializer(self.fight).data
 
 
 class TestFightPermissionNotAdmin(TestFightPermissions):
@@ -53,6 +55,11 @@ class TestFightPermissionNotAdmin(TestFightPermissions):
         result = self.permission.has_object_permission(self.request, self.view, self.fight)
         self.assertEqual(result, False)
 
+    def test_doesnt_permit_when_post(self):
+        self.request.method = 'POST'
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, False)
+
 
 class TestFightPermissionAdmin(TestFightPermissions):
     def setUp(self):
@@ -67,4 +74,9 @@ class TestFightPermissionAdmin(TestFightPermissions):
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.fight)
+        self.assertEqual(result, True)
+
+    def test_does_permit_when_post(self):
+        self.request.method = 'POST'
+        result = self.permission.has_permission(self.request, self.view)
         self.assertEqual(result, True)

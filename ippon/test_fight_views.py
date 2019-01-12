@@ -19,14 +19,13 @@ class FightViewTest(APITestCase):
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
-        self.admin = User.objects.create(username='admin', password='password')
+        self.user = User.objects.create(username='admin', password='password')
         self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                             date=datetime.date(year=2021, month=1, day=1), address='a1',
                                             team_size=1, group_match_length=3, ko_match_length=3,
                                             final_match_length=3, finals_depth=0, age_constraint=5,
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
-        TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
@@ -49,7 +48,8 @@ class FightViewTest(APITestCase):
 class FightViewSetAuthorizedTests(FightViewTest):
     def setUp(self):
         super(FightViewSetAuthorizedTests, self).setUp()
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.user)
+        TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
 
     def test_post_valid_payload_creates_specified_fight(self):
         response = self.client.post(
@@ -95,9 +95,9 @@ class FightViewSetAuthorizedTests(FightViewTest):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class FightViewSetUnauthorizedTests(FightViewTest):
+class FightViewSetUnauthenticatedTests(FightViewTest):
     def setUp(self):
-        super(FightViewSetUnauthorizedTests, self).setUp()
+        super(FightViewSetUnauthenticatedTests, self).setUp()
 
     def test_list_returns_all_fights(self):
         response = self.client.get(reverse('fight-list'))
@@ -114,22 +114,36 @@ class FightViewSetUnauthorizedTests(FightViewTest):
         response = self.client.get(reverse('fight-detail', kwargs={'pk': -1}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_unauthorized_put_gets_unauthorized(self):
+
+class FightViewSetUnauthorizedTests(FightViewTest):
+    def setUp(self):
+        super(FightViewSetUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.user)
+
+    def test_unauthorized_post_gets_unauthorized(self):
         response = self.client.post(
             reverse('fight-list'),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthorized_put_gets_unauthorized(self):
+        response = self.client.post(
+            reverse('fight-detail', kwargs={'pk': self.f1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthorized_delete_gets_unauthorized(self):
         response = self.client.delete(reverse('fight-detail', kwargs={'pk': self.t1.id}))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class UnauthorizedFightsPointsTest(FightViewSetUnauthorizedTests):
+class UnauthenticatedFightsPointsTest(FightViewSetUnauthenticatedTests):
     def setUp(self):
-        super(UnauthorizedFightsPointsTest, self).setUp()
+        super(UnauthenticatedFightsPointsTest, self).setUp()
         self.po1 = self.f1.points.create(player=self.p1, type=0)
         self.po2 = self.f1.points.create(player=self.p2, type=1)
         self.po3 = self.f2.points.create(player=self.p2, type=1)
