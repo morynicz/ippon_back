@@ -9,6 +9,24 @@ def is_user_admin_of_the_tournament(request, tournament):
                                           user=request.user).count() > 0
 
 
+def get_tournament_from_dependent(obj):
+    return obj.tournament
+
+
+def has_object_creation_permission(request, serializer, tournament_dependent_class_field,
+                                   tournament_dependent_class, getter_fcn=get_tournament_from_dependent):
+    try:
+        serializer = serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tournament_dependent = tournament_dependent_class.objects.get(
+            pk=serializer.validated_data[tournament_dependent_class_field].id)
+        return is_user_admin_of_the_tournament(request, getter_fcn(tournament_dependent))
+    except(KeyError):
+        return False
+    except tournament_dependent_class.DoesNotExist:
+        return False
+
+
 class IsClubAdminOrReadOnlyClub(permissions.BasePermission):
     def has_object_permission(self, request, view, club):
         if request and request.method in permissions.SAFE_METHODS:
@@ -63,15 +81,7 @@ class IsPointOwnerOrReadOnly(permissions.BasePermission):
 class IsFightOwnerOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == "POST":
-            try:
-                serializer = FightSerializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                team_fight = TeamFight.objects.get(pk=serializer.validated_data["team_fight"].id)
-                return is_user_admin_of_the_tournament(request, team_fight.tournament)
-            except(KeyError):
-                return False
-            except TeamFight.DoesNotExist:
-                return False
+            return has_object_creation_permission(request, FightSerializer, "team_fight", TeamFight)
         return True
 
     def has_object_permission(self, request, view, fight):
@@ -89,16 +99,7 @@ class IsGroupOwnerOrReadOnly(permissions.BasePermission):
                     return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
                 except Group.DoesNotExist:
                     return False
-
-            try:
-                serializer = GroupSerializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                group_phase = GroupPhase.objects.get(pk=serializer.validated_data["group_phase"].id)
-                return is_user_admin_of_the_tournament(request, group_phase.tournament)
-            except(KeyError):
-                return False
-            except GroupPhase.DoesNotExist:
-                return False
+            return has_object_creation_permission(request, GroupSerializer, "group_phase", GroupPhase)
         return True
 
     def has_object_permission(self, request, view, group):
@@ -108,17 +109,17 @@ class IsGroupOwnerOrReadOnly(permissions.BasePermission):
 
 
 class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
+    def get_tournament(self, group):
+        return group.group_phase.tournament
+
     def has_permission(self, request, view):
         if request.method == "POST":
-            try:
-                serializer = GroupFightSerializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                group = Group.objects.get(pk=serializer.validated_data["group"].id)
-                return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
-            except(KeyError):
-                return False
-            except Group.DoesNotExist:
-                return False
+            return has_object_creation_permission(
+                request=request,
+                serializer=GroupFightSerializer,
+                tournament_dependent_class_field="group",
+                tournament_dependent_class=Group,
+                getter_fcn=self.get_tournament)
         return True
 
     def has_object_permission(self, request, view, group_fight):
@@ -130,15 +131,8 @@ class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
 class IsCupFightOwnerOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == "POST":
-            try:
-                serializer = CupFightSerializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                cup_phase = CupPhase.objects.get(pk=serializer.validated_data["cup_phase"].id)
-                return is_user_admin_of_the_tournament(request, cup_phase.tournament)
-            except(KeyError):
-                return False
-            except CupPhase.DoesNotExist:
-                return False
+            return has_object_creation_permission(request, CupFightSerializer, "cup_phase",
+                                                  CupPhase)
         return True
 
     def has_object_permission(self, request, view, cup_fight):
