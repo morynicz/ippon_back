@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight
+from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight, Team
 from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer, FightSerializer
 
 
@@ -49,10 +49,18 @@ class IsTournamentAdminOrReadOnlyTournament(permissions.BasePermission):
 
 
 class IsTournamentAdminOrReadOnlyDependent(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            try:
+                return is_user_admin_of_the_tournament(request, request.data["tournament"])
+            except(KeyError):
+                return False
+        return True
+
     def has_object_permission(self, request, view, dependent):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return TournamentAdmin.objects.all().filter(user=request.user, tournament=dependent.tournament)
+        return TournamentAdmin.objects.all().filter(user=request.user, tournament=dependent.tournament).count() > 0
 
 
 class IsTournamentAdminDependent(permissions.BasePermission):
@@ -152,3 +160,16 @@ class IsGroupOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, group):
         return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
+
+
+class IsTeamOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            pk = view.kwargs["pk"]
+            team = Team.objects.get(pk=pk)
+            return is_user_admin_of_the_tournament(request, team.tournament)
+        except (KeyError, Team.DoesNotExist):
+            return False
+
+    def has_object_permission(self, request, view, team):
+        return is_user_admin_of_the_tournament(request, team.tournament)

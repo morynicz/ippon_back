@@ -13,14 +13,13 @@ from ippon.utils import BAD_PK
 class CupPhasesViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.admin = User.objects.create(username='admin', password='password')
+        self.user = User.objects.create(username='admin', password='password')
         self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                             date=datetime.date(year=2021, month=1, day=1), address='a1',
                                             team_size=1, group_match_length=3, ko_match_length=3,
                                             final_match_length=3, finals_depth=0, age_constraint=5,
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
-        TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
 
         self.cp1 = self.to.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4)
         self.cp2 = self.to.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6)
@@ -53,10 +52,12 @@ class CupPhasesViewTest(APITestCase):
             'name': 'cp1'
         }
 
+
 class CupPhasesViewSetAuthorizedTests(CupPhasesViewTest):
     def setUp(self):
         super(CupPhasesViewSetAuthorizedTests, self).setUp()
-        self.client.force_authenticate(user=self.admin)
+        TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
+        self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_cup_phase(self):
         response = self.client.post(
@@ -105,6 +106,32 @@ class CupPhasesViewSetAuthorizedTests(CupPhasesViewTest):
 class CupPhaseViewSetUnauthorizedTests(CupPhasesViewTest):
     def setUp(self):
         super(CupPhaseViewSetUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.user)
+
+    def test_unauthorized_put_gets_forbidden(self):
+        response = self.client.put(
+            reverse('cupphase-detail', kwargs={"pk": self.cp1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthorized_post_gets_forbidden(self):
+        response = self.client.post(
+            reverse('cupphase-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthorized_delete_gets_forbidden(self):
+        response = self.client.delete(reverse('cupphase-detail', kwargs={'pk': self.cp1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class CupPhaseViewSetUnauthenticatedTests(CupPhasesViewTest):
+    def setUp(self):
+        super(CupPhaseViewSetUnauthenticatedTests, self).setUp()
 
     def test_list_returns_all_cup_phases(self):
         response = self.client.get(reverse('cupphase-list'))
@@ -144,9 +171,12 @@ class CupPhaseViewSetUnauthorizedTests(CupPhasesViewTest):
         cf2 = self.cp1.cup_fights.create(team_fight=tf2)
         cf3 = self.cp1.cup_fights.create(previous_shiro_fight=cf1, previous_aka_fight=cf2)
 
-        cf1_json = {'id': cf1.id, "cup_phase": self.cp1.id, "team_fight": tf1.id, 'previous_shiro_fight': None, 'previous_aka_fight': None}
-        cf2_json = {'id': cf2.id, "cup_phase": self.cp1.id, "team_fight": tf2.id, 'previous_shiro_fight': None, 'previous_aka_fight': None}
-        cf3_json = {'id': cf3.id, "cup_phase": self.cp1.id, "team_fight": None, 'previous_shiro_fight': cf1.id, 'previous_aka_fight': cf2.id}
+        cf1_json = {'id': cf1.id, "cup_phase": self.cp1.id, "team_fight": tf1.id, 'previous_shiro_fight': None,
+                    'previous_aka_fight': None}
+        cf2_json = {'id': cf2.id, "cup_phase": self.cp1.id, "team_fight": tf2.id, 'previous_shiro_fight': None,
+                    'previous_aka_fight': None}
+        cf3_json = {'id': cf3.id, "cup_phase": self.cp1.id, "team_fight": None, 'previous_shiro_fight': cf1.id,
+                    'previous_aka_fight': cf2.id}
 
         expected = [cf1_json, cf2_json, cf3_json]
         response = self.client.get(reverse('cupphase-fights', kwargs={'pk': self.cp1.pk}))

@@ -75,7 +75,9 @@ class TeamViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'],
         detail=True,
         url_name='members',
-        url_path='members/(?P<player_id>[0-9]+)')
+        url_path='members/(?P<player_id>[0-9]+)',
+        permission_classes=(permissions.IsAuthenticated,
+                            IsTeamOwner))
     def handle_members(self, request, pk=None, player_id=None):
         return {
             'post': self.create_member,
