@@ -19,14 +19,13 @@ class TeamFightViewTest(APITestCase):
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
-        self.admin = User.objects.create(username='admin', password='password')
+        self.user = User.objects.create(username='admin', password='password')
         self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                             date=datetime.date(year=2021, month=1, day=1), address='a1',
                                             team_size=1, group_match_length=3, ko_match_length=3,
                                             final_match_length=3, finals_depth=0, age_constraint=5,
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
-        TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
@@ -59,7 +58,8 @@ class TeamFightViewTest(APITestCase):
 class TeamFightViewSetAuthorizedTests(TeamFightViewTest):
     def setUp(self):
         super(TeamFightViewSetAuthorizedTests, self).setUp()
-        self.client.force_authenticate(user=self.admin)
+        TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
+        self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_team_fight(self):
         response = self.client.post(
@@ -108,6 +108,32 @@ class TeamFightViewSetAuthorizedTests(TeamFightViewTest):
 class TeamFightViewSetUnauthorizedTests(TeamFightViewTest):
     def setUp(self):
         super(TeamFightViewSetUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.user)
+
+    def test_put_gets_forbidden(self):
+        response = self.client.post(
+            reverse('teamfight-detail', kwargs={'pk': self.tf1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_gets_forbidden(self):
+        response = self.client.post(
+            reverse('teamfight-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_gets_forbidden(self):
+        response = self.client.delete(reverse('teamfight-detail', kwargs={'pk': self.tf1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TeamFightViewSetUnauthenticatedTests(TeamFightViewTest):
+    def setUp(self):
+        super(TeamFightViewSetUnauthenticatedTests, self).setUp()
 
     def test_list_returns_all_fights(self):
         response = self.client.get(reverse('teamfight-list'))
@@ -125,6 +151,14 @@ class TeamFightViewSetUnauthorizedTests(TeamFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):
+        response = self.client.post(
+            reverse('teamfight-detail', kwargs={'pk': self.tf1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unauthorized_post_gets_unauthorized(self):
         response = self.client.post(
             reverse('teamfight-list'),
             data=json.dumps(self.valid_payload),
