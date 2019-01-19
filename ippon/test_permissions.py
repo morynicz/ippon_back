@@ -10,6 +10,7 @@ from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournam
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrReadOnlyTournament, \
     IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner, IsPointOwnerOrReadOnly, \
     IsTournamentAdminDependent, IsTeamOwner
+from ippon.serializers import PointSerializer
 
 
 class ClubPermissionsTests(unittest.TestCase):
@@ -327,7 +328,9 @@ class TestPointPermissions(django.test.TestCase):
         self.point = self.f.points.create(player=self.p1, type=0)
         self.permission = IsPointOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
+        self.request.data = PointSerializer(self.point).data
         self.view = unittest.mock.Mock()
+        self.view.kwargs = dict()
         self.request.user = self.admin
 
 
@@ -343,6 +346,11 @@ class TestPointPermissionNotAdmin(TestPointPermissions):
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.point)
+        self.assertEqual(result, False)
+
+    def test_doesnt_permit_general(self):
+        self.request.method = 'POST'
+        result = self.permission.has_permission(self.request, self.view)
         self.assertEqual(result, False)
 
 
@@ -361,6 +369,10 @@ class TestPointPermissionAdmin(TestPointPermissions):
         result = self.permission.has_object_permission(self.request, self.view, self.point)
         self.assertEqual(result, True)
 
+    def test_permits_general(self):
+        self.request.method = 'PUT'
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, True)
 
 
 class IsTeamOwnerTests(django.test.TestCase):
