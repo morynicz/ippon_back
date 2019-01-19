@@ -276,28 +276,47 @@ class TestTournamentOwnerPermissions(unittest.TestCase):
                                                                 is_master=True)
 
 
-class TestClubOwnerPermissions(unittest.TestCase):
+class TestClubOwnerPermissions(django.test.TestCase):
     def setUp(self):
-        patcher = unittest.mock.patch("ippon.models.ClubAdmin.objects")
-        self.club_admin_objects = patcher.start()
-        self.addCleanup(patcher.stop)
+        self.user = User.objects.create(username='user', password='password')
+        self.admin = User.objects.create(username='admin', password='password')
+        self.club = Club.objects.create(
+            name='cn1',
+            webpage='http://cw1.co',
+            description='cd1',
+            city='cc1')
         self.permission = IsClubOwner()
-        self.club_admin = unittest.mock.Mock()
-        self.request = unittest.mock.Mock()
+        self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
+        self.view.kwargs = dict(pk=self.club.id)
+        self.club_admin = self.club.admins.create(user=self.admin)
 
-    def test_does_not_permit_when_is_not_owner(self):
-        self.owner_permission_test(False)
+
+class TestClubOwnerPermissionsAdmin(TestClubOwnerPermissions):
+    def setUp(self):
+        super(TestClubOwnerPermissionsAdmin, self).setUp()
+        self.club.admins.create(user=self.user)
+
+    def test_permits_when_is_owner_for_object(self):
+        result = self.permission.has_object_permission(self.request, self.view, self.club_admin)
+        self.assertTrue(result)
 
     def test_permits_when_is_owner(self):
-        self.owner_permission_test(True)
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertTrue(result)
 
-    def owner_permission_test(self, is_owner):
-        self.club_admin_objects.filter.return_value = is_owner
+
+class TestClubOwnerPermissionsNotAdmin(TestClubOwnerPermissions):
+    def setUp(self):
+        super(TestClubOwnerPermissionsNotAdmin, self).setUp()
+
+    def test_does_not_permit_when_is_not_owner_for_object(self):
         result = self.permission.has_object_permission(self.request, self.view, self.club_admin)
-        self.assertEqual(result, is_owner)
-        self.club_admin_objects.filter.assert_called_with(user=self.request.user,
-                                                          club=self.club_admin.club)
+        self.assertFalse(result)
+
+    def test_does_not_permit_when_is_not_owner(self):
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertFalse(result)
 
 
 class TestPointPermissions(django.test.TestCase):

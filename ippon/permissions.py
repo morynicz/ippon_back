@@ -75,17 +75,22 @@ class IsTournamentOwner(permissions.BasePermission):
 
 
 class IsClubOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return ClubAdmin.objects.filter(user=request.user, club=view.kwargs["pk"]).count() > 0
+
     def has_object_permission(self, request, view, admin):
-        return ClubAdmin.objects.filter(user=request.user, club=admin.club)
+        return ClubAdmin.objects.filter(user=request.user, club=admin.club).count() > 0
+
+
+def get_tournament_from_fight(fight):
+    return fight.team_fight.tournament
 
 
 class IsPointOwnerOrReadOnly(permissions.BasePermission):
-    def get_tournament_from_fight(self, fight):
-        return fight.team_fight.tournament
 
     def has_permission(self, request, view):
         if request.method == "POST":
-            return has_object_creation_permission(request, PointSerializer, "fight", Fight, self.get_tournament_from_fight)
+            return has_object_creation_permission(request, PointSerializer, "fight", Fight, get_tournament_from_fight)
         return True
 
     def has_object_permission(self, request, view, point):

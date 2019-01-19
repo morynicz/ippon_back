@@ -32,12 +32,16 @@ class ClubViewSet(viewsets.ModelViewSet):
         serializer = PlayerSerializer(Player.objects.filter(club_id=pk), many=True)
         return Response(serializer.data)
 
-    @action(methods=['get'], detail=True)
+    @action(methods=['get'],
+            detail=True,
+            permission_classes=(permissions.IsAuthenticated, IsClubOwner))
     def admins(self, request, pk=None):
         serializer = ClubAdminSerializer(ClubAdmin.objects.filter(club=pk), many=True)
         return Response(serializer.data)
 
-    @action(methods=['get'], detail=True)
+    @action(methods=['get'],
+            detail=True,
+            permission_classes=(permissions.IsAuthenticated, IsClubOwner))
     def non_admins(self, request, pk=None):
         serializer = MinimalUserSerializer(User.objects.exclude(clubs__club=pk), many=True)
         return Response(serializer.data)

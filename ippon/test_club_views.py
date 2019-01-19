@@ -90,7 +90,6 @@ class ClubViewSetAuthorizedTests(ClubViewTest):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(ClubAdmin.objects.filter(club__id=response.data["id"], user=self.u1))
 
-
     def test_post_invalid_payload_returns_400(self):
         response = self.client.post(
             reverse('club-list'),
@@ -126,51 +125,15 @@ class ClubViewSetAuthorizedTests(ClubViewTest):
         response = self.client.delete(reverse('club-detail', kwargs={'pk': -5}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
-class ClubViewSetUnauthorizedTests(ClubViewTest):
-    def setUp(self):
-        super(ClubViewSetUnauthorizedTests, self).setUp()
-
-    def test_list_returns_all_clubs(self):
-        response = self.client.get(reverse('club-list'))
-
-        self.assertEqual([self.c1_json, self.c2_json, self.c4_json], response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_detail_for_existing_club_returns_correct_club(self):
-        response = self.client.get(reverse('club-detail', kwargs={'pk': self.c1.pk}))
-        self.assertEqual(self.c1_json, response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_detail_for_not_existing_club_returns_404(self):
-        response = self.client.get(reverse('club-detail', kwargs={'pk': -1}))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_unauthorized_put_gets_unauthorized(self):
-        response = self.client.post(
-            reverse('club-list'),
-            data=json.dumps(self.valid_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_teams_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(reverse('club-detail', kwargs={'pk': self.c1.id}))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-class ClubViewAdditionalActionsTest(ClubViewTest):
-    def setUp(self):
-        super(ClubViewAdditionalActionsTest, self).setUp()
-
     def test_players_lists_all_club_members(self):
-        players=[
+        players = [
             {
                 "id": self.p1.id,
                 "name": "pn1",
                 "surname": "ps1",
                 "rank": 7,
                 "birthday": "2001-01-01",
-                "sex":1,
+                "sex": 1,
                 "club_id": self.c1.id
             },
             {
@@ -237,3 +200,81 @@ class ClubViewAdditionalActionsTest(ClubViewTest):
 
         self.assertCountEqual(non_admins, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class ClubViewSetUnauthorizedTests(ClubViewTest):
+    def setUp(self):
+        super(ClubViewSetUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.u2)
+
+    def test_put_gets_unauthorized(self):
+        response = self.client.put(
+            reverse('club-detail', kwargs={'pk': self.c1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_gets_unauthorized(self):
+        response = self.client.delete(reverse('club-detail', kwargs={'pk': self.c1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admins_returns_forbidden(self):
+        response = self.client.get(reverse('club-admins', kwargs={'pk': self.c1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_non_admins_returns_forbidden(self):
+        response = self.client.get(reverse('club-non-admins', kwargs={'pk': self.c1.id}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ClubViewSetUnauthenticatedTests(ClubViewTest):
+    def setUp(self):
+        super(ClubViewSetUnauthenticatedTests, self).setUp()
+
+    def test_list_returns_all_clubs(self):
+        response = self.client.get(reverse('club-list'))
+
+        self.assertEqual([self.c1_json, self.c2_json, self.c4_json], response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_for_existing_club_returns_correct_club(self):
+        response = self.client.get(reverse('club-detail', kwargs={'pk': self.c1.pk}))
+        self.assertEqual(self.c1_json, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_for_not_existing_club_returns_404(self):
+        response = self.client.get(reverse('club-detail', kwargs={'pk': -1}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unauthorized_post_gets_unauthorized(self):
+        response = self.client.post(
+            reverse('club-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unauthorized_put_gets_unauthorized(self):
+        response = self.client.put(
+            reverse('club-detail', kwargs={'pk': self.c1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_teams_unauthorized_delete_gets_unauthorized(self):
+        response = self.client.delete(reverse('club-detail', kwargs={'pk': self.c1.id}))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_admins_returns_unauthorized(self):
+        ClubAdmin.objects.create(user=self.u2, club=self.c1)
+        response = self.client.get(reverse('club-admins', kwargs={'pk': self.c1.id}))
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_non_admins_returns_unauthorized(self):
+        response = self.client.get(reverse('club-non-admins', kwargs={'pk': self.c1.id}))
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
