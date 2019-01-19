@@ -5,28 +5,30 @@ import unittest.mock
 import django.test
 from django.contrib.auth.models import User
 
+import ippon.permissions as permissions
+import ippon.serializers as serializers
 from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournament
-from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrReadOnlyTournament, \
-    IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner, IsPointOwnerOrReadOnly, \
-    IsTournamentAdminDependent, IsTeamOwner, IsClubAdminOrReadOnlyDependent
-from ippon.serializers import PointSerializer, PlayerSerializer
+from ippon.serializers import PointSerializer
 
 
 class ClubPermissionsTests(django.test.TestCase):
     def setUp(self):
-        self.club = unittest.mock.Mock()
-        self.request = unittest.mock.Mock()
+        self.user = User.objects.create(username='user', password='password')
+        self.admin = User.objects.create(username='admin', password='password')
+        self.club = Club.objects.create(
+            name='cn1',
+            webpage='http://cw1.co',
+            description='cd1',
+            city='cc1')
+        self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
-        patcher = unittest.mock.patch("ippon.models.ClubAdmin.objects")
-        self.club_admin_objects = patcher.start()
-        self.addCleanup(patcher.stop)
-        self.permission = IsClubAdminOrReadOnlyClub()
+        self.club_admin = self.club.admins.create(user=self.admin)
+        self.permission = permissions.IsClubAdminOrReadOnlyClub()
 
 
 class ClubPermissionTestsNotAdmin(ClubPermissionsTests):
     def setUp(self):
         super(ClubPermissionTestsNotAdmin, self).setUp()
-        self.club_admin_objects.all.return_value.filter.return_value = False
 
     def test_permits_when_safe_method(self):
         self.request.method = 'GET'
@@ -37,19 +39,17 @@ class ClubPermissionTestsNotAdmin(ClubPermissionsTests):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.club)
         self.assertEqual(result, False)
-        self.club_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user, club=self.club)
 
 
 class ClubPermissionTestsAdmin(ClubPermissionsTests):
     def setUp(self):
         super(ClubPermissionTestsAdmin, self).setUp()
-        self.club_admin_objects.all.return_value.filter.return_value = True
+        self.club.admins.create(user=self.user)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.club)
         self.assertEqual(result, True)
-        self.club_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user, club=self.club)
 
 
 class PlayerPermissionsTest(django.test.TestCase):
@@ -64,8 +64,8 @@ class PlayerPermissionsTest(django.test.TestCase):
         self.player = self.club.players.create(name='pn1', surname='ps1', rank=7,
                                                birthday=datetime.date(year=2001, month=1, day=1), sex=1,
                                                club_id=self.club)
-        self.permission = IsClubAdminOrReadOnlyDependent()
-        self.request = unittest.mock.Mock(user=self.user, data=PlayerSerializer(self.player).data)
+        self.permission = permissions.IsClubAdminOrReadOnlyDependent()
+        self.request = unittest.mock.Mock(user=self.user, data=serializers.PlayerSerializer(self.player).data)
         self.view = unittest.mock.Mock()
         self.club_admin = self.club.admins.create(user=self.admin)
 
@@ -120,7 +120,7 @@ class TournamentPermissions(django.test.TestCase):
         self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict(pk=self.tournament.id)
-        self.permission = IsTournamentAdminOrReadOnlyTournament()
+        self.permission = permissions.IsTournamentAdminOrReadOnlyTournament()
 
 
 class TournamentPermissionTestsNotAdmin(TournamentPermissions):
@@ -160,7 +160,7 @@ class TournamentDependentOrReadOnlyPermissions(django.test.TestCase):
                                             sex_constraint=1)
         self.tournament_dependent = self.to.group_phases.create(name="a", fight_length=4)
         self.request = unittest.mock.Mock()
-        self.permission = IsTournamentAdminOrReadOnlyDependent()
+        self.permission = permissions.IsTournamentAdminOrReadOnlyDependent()
         self.request.data = {"tournament": self.to.id}
         self.request.user = self.admin
         self.view = unittest.mock.Mock()
@@ -216,7 +216,7 @@ class TournamentDependentPermissions(unittest.TestCase):
         patcher = unittest.mock.patch("ippon.models.TournamentAdmin.objects")
         self.tournament_admin_objects = patcher.start()
         self.addCleanup(patcher.stop)
-        self.permission = IsTournamentAdminDependent()
+        self.permission = permissions.IsTournamentAdminDependent()
         self.request.data = {"tournament": self.tournament_id}
 
 
@@ -268,7 +268,7 @@ class TestTournamentOwnerPermissions(django.test.TestCase):
                                             final_match_length=3, finals_depth=0, age_constraint=5,
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
-        self.permission = IsTournamentOwner()
+        self.permission = permissions.IsTournamentOwner()
         self.tournament_admin = self.to.admins.create(user=self.admin, is_master=True)
         self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
@@ -311,7 +311,7 @@ class TestClubOwnerPermissions(django.test.TestCase):
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
-        self.permission = IsClubOwner()
+        self.permission = permissions.IsClubOwner()
         self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict(pk=self.club.id)
@@ -371,7 +371,7 @@ class TestPointPermissions(django.test.TestCase):
         self.tf = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.f = self.tf.fights.create(aka=self.p1, shiro=self.p2)
         self.point = self.f.points.create(player=self.p1, type=0)
-        self.permission = IsPointOwnerOrReadOnly()
+        self.permission = permissions.IsPointOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.request.data = PointSerializer(self.point).data
         self.view = unittest.mock.Mock()
@@ -434,7 +434,7 @@ class IsTeamOwnerTests(django.test.TestCase):
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict()
         self.request.user = self.user
-        self.permission = IsTeamOwner()
+        self.permission = permissions.IsTeamOwner()
 
 
 class IsTeamOwnerAdminTests(IsTeamOwnerTests):

@@ -33,7 +33,7 @@ class IsClubAdminOrReadOnlyClub(permissions.BasePermission):
     def has_object_permission(self, request, view, club):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return ClubAdmin.objects.all().filter(user=request.user, club=club)
+        return ClubAdmin.objects.all().filter(user=request.user, club=club).count() > 0
 
 
 class IsClubAdminOrReadOnlyDependent(permissions.BasePermission):
