@@ -13,7 +13,7 @@ from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrRead
 from ippon.serializers import PointSerializer
 
 
-class ClubPermissionsTests(unittest.TestCase):
+class ClubPermissionsTests(django.test.TestCase):
     def setUp(self):
         self.club = unittest.mock.Mock()
         self.request = unittest.mock.Mock()
@@ -53,7 +53,7 @@ class ClubPermissionTestsAdmin(ClubPermissionsTests):
         self.club_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user, club=self.club)
 
 
-class PlayerPermissionsTest(unittest.TestCase):
+class PlayerPermissionsTest(django.test.TestCase):
     def setUp(self):
         self.player = unittest.mock.Mock()
         self.request = unittest.mock.Mock()
@@ -100,21 +100,26 @@ class PlayerPermissionTestsAdmin(PlayerPermissionsTest):
                                                                            club=self.player.club_id)
 
 
-class TournamentPermissions(unittest.TestCase):
+class TournamentPermissions(django.test.TestCase):
     def setUp(self):
-        self.tournament = unittest.mock.Mock()
-        self.request = unittest.mock.Mock()
+        self.admin = User.objects.create(username='admin', password='password')
+        self.user = User.objects.create(username='user', password='password')
+        self.tournament = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
+                                                    date=datetime.date(year=2021, month=1, day=1), address='a1',
+                                                    team_size=1, group_match_length=3, ko_match_length=3,
+                                                    final_match_length=3, finals_depth=0, age_constraint=5,
+                                                    age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                                    sex_constraint=1)
+        self.tournament_admin = self.tournament.admins.create(user=self.admin, is_master=True)
+        self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
-        patcher = unittest.mock.patch("ippon.models.TournamentAdmin.objects")
-        self.tournament_admin_objects = patcher.start()
-        self.addCleanup(patcher.stop)
+        self.view.kwargs = dict(pk=self.tournament.id)
         self.permission = IsTournamentAdminOrReadOnlyTournament()
 
 
 class TournamentPermissionTestsNotAdmin(TournamentPermissions):
     def setUp(self):
         super(TournamentPermissionTestsNotAdmin, self).setUp()
-        self.tournament_admin_objects.all.return_value.filter.return_value = False
 
     def test_permits_when_safe_method(self):
         self.request.method = 'GET'
@@ -125,21 +130,17 @@ class TournamentPermissionTestsNotAdmin(TournamentPermissions):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.tournament)
         self.assertEqual(result, False)
-        self.tournament_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
-                                                                                 tournament=self.tournament)
 
 
 class TournamentPermissionTestsAdmin(TournamentPermissions):
     def setUp(self):
         super(TournamentPermissionTestsAdmin, self).setUp()
-        self.tournament_admin_objects.all.return_value.filter.return_value = True
+        self.tournament_admin = self.tournament.admins.create(user=self.user, is_master=True)
 
-    def test_doesnt_permit_when_unsafe_method(self):
+    def test_permits_when_unsafe_method(self):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.tournament)
         self.assertEqual(result, True)
-        self.tournament_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
-                                                                                 tournament=self.tournament)
 
 
 class TournamentDependentOrReadOnlyPermissions(django.test.TestCase):
@@ -251,29 +252,48 @@ class TournamentDependentPermissionsAdmin(TournamentDependentPermissions):
                                                                                  tournament=self.tournament_participation.tournament)
 
 
-class TestTournamentOwnerPermissions(unittest.TestCase):
+class TestTournamentOwnerPermissions(django.test.TestCase):
     def setUp(self):
-        patcher = unittest.mock.patch("ippon.models.TournamentAdmin.objects")
-        self.tournament_admin_objects = patcher.start()
-        self.addCleanup(patcher.stop)
+        self.admin = User.objects.create(username='admin', password='password')
+        self.user = User.objects.create(username='user', password='password')
+        self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
+                                            date=datetime.date(year=2021, month=1, day=1), address='a1',
+                                            team_size=1, group_match_length=3, ko_match_length=3,
+                                            final_match_length=3, finals_depth=0, age_constraint=5,
+                                            age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                            sex_constraint=1)
         self.permission = IsTournamentOwner()
-        self.tournament_admin = unittest.mock.Mock()
-        self.request = unittest.mock.Mock()
+        self.tournament_admin = self.to.admins.create(user=self.admin, is_master=True)
+        self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
+        self.view.kwargs = dict(pk=self.to.id)
 
-    def test_does_not_permit_when_is_not_owner(self):
-        self.owner_permission_test(False)
 
-    def test_permits_when_is_owner(self):
-        self.owner_permission_test(True)
+class TestTournamentOwnerPermissionsAdmin(TestTournamentOwnerPermissions):
+    def setUp(self):
+        super(TestTournamentOwnerPermissionsAdmin, self).setUp()
+        self.to.admins.create(user=self.user, is_master=True)
 
-    def owner_permission_test(self, is_owner):
-        self.tournament_admin_objects.filter.return_value = is_owner
+    def test_permits_object(self):
         result = self.permission.has_object_permission(self.request, self.view, self.tournament_admin)
-        self.assertEqual(result, is_owner)
-        self.tournament_admin_objects.filter.assert_called_with(user=self.request.user,
-                                                                tournament=self.tournament_admin.tournament,
-                                                                is_master=True)
+        self.assertTrue(result)
+
+    def test_permits(self):
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertTrue(result)
+
+
+class TestTournamentOwnerPermissionsNotAdmin(TestTournamentOwnerPermissions):
+    def setUp(self):
+        super(TestTournamentOwnerPermissionsNotAdmin, self).setUp()
+
+    def test_does_not_permit_object(self):
+        result = self.permission.has_object_permission(self.request, self.view, self.tournament_admin)
+        self.assertFalse(result)
+
+    def test_does_not_permit(self):
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertFalse(result)
 
 
 class TestClubOwnerPermissions(django.test.TestCase):

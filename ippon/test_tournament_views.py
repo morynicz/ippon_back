@@ -15,7 +15,7 @@ class TournamentViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.club = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
-        self.admin = User.objects.create(username='admin', password='password')
+        self.user = User.objects.create(username='admin', password='password')
         self.to1 = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                              date=datetime.date(year=2021, month=1, day=1), address='a1',
                                              team_size=1, group_match_length=3, ko_match_length=3,
@@ -28,8 +28,6 @@ class TournamentViewTest(APITestCase):
                                              final_match_length=3, finals_depth=0, age_constraint=5,
                                              age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                              sex_constraint=1)
-        self.adm1 = TournamentAdmin.objects.create(user=self.admin, tournament=self.to1, is_master=True)
-        TournamentAdmin.objects.create(user=self.admin, tournament=self.to2, is_master=True)
 
         self.to1_json = {
             'id': self.to1.id,
@@ -112,15 +110,8 @@ class TournamentViewTest(APITestCase):
 class TournamentViewSetAuthorizedTests(TournamentViewTest):
     def setUp(self):
         super(TournamentViewSetAuthorizedTests, self).setUp()
-        self.client.force_authenticate(user=self.admin)
-
-    def test_post_valid_payload_creates_specified_tournament(self):
-        response = self.client.post(
-            reverse('tournament-list'),
-            data=json.dumps(self.valid_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        self.client.force_authenticate(user=self.user)
 
     def test_post_invalid_payload_returns_400(self):
         response = self.client.post(
@@ -150,7 +141,7 @@ class TournamentViewSetAuthorizedTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_existing_tournament_deletes_it(self):
-        response = self.client.delete(reverse('tournament-detail', kwargs={'pk': self.to2.pk}))
+        response = self.client.delete(reverse('tournament-detail', kwargs={'pk': self.to1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_tournament_returns_bad_request(self):
@@ -161,6 +152,32 @@ class TournamentViewSetAuthorizedTests(TournamentViewTest):
 class TournamentViewSetUnauthorizedTests(TournamentViewTest):
     def setUp(self):
         super(TournamentViewSetUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.user)
+
+    def test_post_valid_payload_creates_specified_tournament(self):
+        response = self.client.post(
+            reverse('tournament-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_gets_forbidden(self):
+        response = self.client.put(
+            reverse('tournament-detail', kwargs={'pk': self.to1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_gets_forbidden(self):
+        response = self.client.delete(reverse('tournament-detail', kwargs={'pk': self.to1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TournamentViewSetUnauthenticatedTests(TournamentViewTest):
+    def setUp(self):
+        super(TournamentViewSetUnauthenticatedTests, self).setUp()
 
     def test_list_returns_all_tournaments(self):
         response = self.client.get(reverse('tournament-list'))
@@ -177,9 +194,17 @@ class TournamentViewSetUnauthorizedTests(TournamentViewTest):
         response = self.client.get(reverse('tournament-detail', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_unauthorized_put_gets_unauthorized(self):
+    def test_unauthorized_post_gets_unauthorized(self):
         response = self.client.post(
             reverse('tournament-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unauthorized_put_gets_unauthorized(self):
+        response = self.client.put(
+            reverse('tournament-detail', kwargs={'pk': self.to1.pk}),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
@@ -202,6 +227,20 @@ class TournamentAdminTest(TournamentViewTest):
 class UnauthorizedTournamentAdminTest(TournamentAdminTest):
     def setUp(self):
         super(UnauthorizedTournamentAdminTest, self).setUp()
+        self.client.force_authenticate(user=self.user)
+
+    def test_get_admins_returns_forbidden(self):
+        response = self.client.get(reverse('tournament-admins', kwargs={'pk': self.to1.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_non_admins_returns_forbidden(self):
+        response = self.client.get(reverse('tournament-non-admins', kwargs={'pk': self.to1.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class UnauthenticatedTournamentAdminTest(TournamentAdminTest):
+    def setUp(self):
+        super(UnauthenticatedTournamentAdminTest, self).setUp()
 
     def test_get_admins_returns_unauthorized(self):
         response = self.client.get(reverse('tournament-admins', kwargs={'pk': self.to1.pk}))
@@ -215,19 +254,11 @@ class UnauthorizedTournamentAdminTest(TournamentAdminTest):
 class AuthorizedTournamentAdminTest(TournamentAdminTest):
     def setUp(self):
         super(AuthorizedTournamentAdminTest, self).setUp()
-        self.client.force_authenticate(user=self.admin)
+        self.adm1 = TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        self.client.force_authenticate(user=self.user)
 
     def test_get_admins_for_valid_fight_returns_list_of_tournaments_admins(self):
         expected = [
-            {
-                'id': self.adm1.id,
-                'is_master': True,
-                'tournament_id': self.to1.id,
-                'user': {
-                    'id': self.admin.id,
-                    'username': 'admin'
-                }
-            },
             {
                 'id': self.adm2.id,
                 'is_master': False,
@@ -235,6 +266,15 @@ class AuthorizedTournamentAdminTest(TournamentAdminTest):
                 'user': {
                     'id': self.user2.id,
                     'username': 'user2'
+                }
+            },
+            {
+                'id': self.adm1.id,
+                'is_master': True,
+                'tournament_id': self.to1.id,
+                'user': {
+                    'id': self.user.id,
+                    'username': 'admin'
                 }
             }
         ]
@@ -282,9 +322,9 @@ class TournamentParticipantsTest(TournamentViewTest):
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
 
 
-class UnauthorizedParticipantsTest(TournamentParticipantsTest):
+class UnauthenticatedParticipantsTest(TournamentParticipantsTest):
     def setUp(self):
-        super(UnauthorizedParticipantsTest, self).setUp()
+        super(UnauthenticatedParticipantsTest, self).setUp()
 
     def test_get_participants_returns_unauthorized(self):
         response = self.client.get(reverse('tournament-participants', kwargs={'pk': self.to1.pk}))
@@ -302,7 +342,8 @@ class UnauthorizedParticipantsTest(TournamentParticipantsTest):
 class AuthorizedParticipantsTest(TournamentParticipantsTest):
     def setUp(self):
         super(AuthorizedParticipantsTest, self).setUp()
-        self.client.force_authenticate(user=self.admin)
+        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        self.client.force_authenticate(user=self.user)
 
     def test_get_participants_for_valid_tournament_returns_list_of_participants(self):
         expected = [
@@ -431,15 +472,16 @@ class TournamentTeamTests(TournamentViewTest):
 class TournamentAdminAuthorizationsTest(TournamentViewTest):
     def setUp(self):
         super(TournamentAdminAuthorizationsTest, self).setUp()
+        self.adm1 = TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
 
     def test_admin_auth_admin_returns_200_and_isAuthorized_true(self):
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.user)
         response = self.client.get(reverse('tournament-admin-authorization', kwargs={'pk': self.to1.pk}))
         self.assertEqual({"isAuthorized": True}, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_admin_auth_staff_returns_200_and_isAuthorized_true(self):
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.user)
         response = self.client.get(reverse('tournament-staff-authorization', kwargs={'pk': self.to1.pk}))
         self.assertEqual({"isAuthorized": True}, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -471,9 +513,9 @@ class TournamentAdminAuthorizationsTest(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class TournamentGroupPhasesUnauthorizedTests(TournamentViewTest):
+class TournamentGroupPhasesUnauthenticatedTests(TournamentViewTest):
     def setUp(self):
-        super(TournamentGroupPhasesUnauthorizedTests, self).setUp()
+        super(TournamentGroupPhasesUnauthenticatedTests, self).setUp()
 
     def test_get_group_phases_for_valid_tournament_returns_list_of_group_phases(self):
         gp1 = self.to1.group_phases.create(name="gp1", fight_length=2)
@@ -503,9 +545,9 @@ class TournamentGroupPhasesUnauthorizedTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class TournamentCupPhasesUnauthorizedTests(TournamentViewTest):
+class TournamentCupPhasesUnauthenticatedTests(TournamentViewTest):
     def setUp(self):
-        super(TournamentCupPhasesUnauthorizedTests, self).setUp()
+        super(TournamentCupPhasesUnauthenticatedTests, self).setUp()
 
     def test_get_cup_phases_for_valid_tournament_returns_list_of_cup_phases(self):
         cp1 = self.to1.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4)
