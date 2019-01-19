@@ -120,6 +120,32 @@ class PlayerViewSetAuthorizedTests(PlayerViewTest):
 class PlayerViewSetUnauthorizedTests(PlayerViewTest):
     def setUp(self):
         super(PlayerViewSetUnauthorizedTests, self).setUp()
+        self.client.force_authenticate(user=self.u1)
+
+    def test_unauthorized_put_gets_forbidden(self):
+        response = self.client.put(
+            reverse('player-detail', kwargs={'pk': self.p1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthorized_post_gets_forbidden(self):
+        response = self.client.post(
+            reverse('player-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthorized_delete_gets_forbidden(self):
+        response = self.client.delete(reverse('player-detail', kwargs={'pk': self.p1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class PlayerViewSetUnauthenticatedTests(PlayerViewTest):
+    def setUp(self):
+        super(PlayerViewSetUnauthenticatedTests, self).setUp()
 
     def test_list_returns_all_players(self):
         response = self.client.get(reverse('player-list'))
@@ -137,6 +163,14 @@ class PlayerViewSetUnauthorizedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):
+        response = self.client.put(
+            reverse('player-detail', kwargs={'pk': self.p1.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unauthorized_post_gets_unauthorized(self):
         response = self.client.post(
             reverse('player-list'),
             data=json.dumps(self.valid_payload),

@@ -1,8 +1,9 @@
 from rest_framework import permissions
 
-from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight, Team, Fight, Tournament
+from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight, Team, Fight, Tournament, \
+    Club
 from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer, FightSerializer, \
-    PointSerializer
+    PointSerializer, PlayerSerializer
 
 
 def is_user_admin_of_the_tournament(request, tournament):
@@ -14,10 +15,10 @@ def get_tournament_from_dependent(obj):
     return obj.tournament
 
 
-def has_object_creation_permission(request, serializer, tournament_dependent_class_field,
+def has_object_creation_permission(request, serializer_class, tournament_dependent_class_field,
                                    tournament_dependent_class, getter_fcn=get_tournament_from_dependent):
     try:
-        serializer = serializer(data=request.data)
+        serializer = serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         tournament_dependent = tournament_dependent_class.objects.get(
             pk=serializer.validated_data[tournament_dependent_class_field].id)
@@ -36,10 +37,21 @@ class IsClubAdminOrReadOnlyClub(permissions.BasePermission):
 
 
 class IsClubAdminOrReadOnlyDependent(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            try:
+                serializer = PlayerSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                club = serializer.validated_data["club_id"].id
+                return ClubAdmin.objects.all().filter(user=request.user, club=club).count() > 0
+            except Club.DoesNotExist:
+                return False
+        return True
+
     def has_object_permission(self, request, view, player):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return ClubAdmin.objects.all().filter(user=request.user, club=player.club_id)
+        return ClubAdmin.objects.all().filter(user=request.user, club=player.club_id).count() > 0
 
 
 class IsTournamentAdminOrReadOnlyTournament(permissions.BasePermission):
@@ -150,7 +162,7 @@ class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
         if request.method == "POST":
             return has_object_creation_permission(
                 request=request,
-                serializer=GroupFightSerializer,
+                serializer_class=GroupFightSerializer,
                 tournament_dependent_class_field="group",
                 tournament_dependent_class=Group,
                 getter_fcn=self.get_tournament)

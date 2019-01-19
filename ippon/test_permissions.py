@@ -5,12 +5,11 @@ import unittest.mock
 import django.test
 from django.contrib.auth.models import User
 
-from ippon import permissions
 from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournament
 from ippon.permissions import IsClubAdminOrReadOnlyClub, IsTournamentAdminOrReadOnlyTournament, \
     IsTournamentAdminOrReadOnlyDependent, IsTournamentOwner, IsClubOwner, IsPointOwnerOrReadOnly, \
-    IsTournamentAdminDependent, IsTeamOwner
-from ippon.serializers import PointSerializer
+    IsTournamentAdminDependent, IsTeamOwner, IsClubAdminOrReadOnlyDependent
+from ippon.serializers import PointSerializer, PlayerSerializer
 
 
 class ClubPermissionsTests(django.test.TestCase):
@@ -55,19 +54,25 @@ class ClubPermissionTestsAdmin(ClubPermissionsTests):
 
 class PlayerPermissionsTest(django.test.TestCase):
     def setUp(self):
-        self.player = unittest.mock.Mock()
-        self.request = unittest.mock.Mock()
+        self.user = User.objects.create(username='user', password='password')
+        self.admin = User.objects.create(username='admin', password='password')
+        self.club = Club.objects.create(
+            name='cn1',
+            webpage='http://cw1.co',
+            description='cd1',
+            city='cc1')
+        self.player = self.club.players.create(name='pn1', surname='ps1', rank=7,
+                                               birthday=datetime.date(year=2001, month=1, day=1), sex=1,
+                                               club_id=self.club)
+        self.permission = IsClubAdminOrReadOnlyDependent()
+        self.request = unittest.mock.Mock(user=self.user, data=PlayerSerializer(self.player).data)
         self.view = unittest.mock.Mock()
-        patcher = unittest.mock.patch("ippon.models.ClubAdmin.objects")
-        self.club_admin_objects = patcher.start()
-        self.addCleanup(patcher.stop)
-        self.permission = permissions.IsClubAdminOrReadOnlyDependent()
+        self.club_admin = self.club.admins.create(user=self.admin)
 
 
 class PlayerPermissionTestsNotAdmin(PlayerPermissionsTest):
     def setUp(self):
         super(PlayerPermissionTestsNotAdmin, self).setUp()
-        self.club_admin_objects.all.return_value.filter.return_value = False
 
     def test_permits_when_safe_method(self):
         self.request.method = 'GET'
@@ -78,14 +83,17 @@ class PlayerPermissionTestsNotAdmin(PlayerPermissionsTest):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.player)
         self.assertEqual(result, False)
-        self.club_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
-                                                                           club=self.player.club_id)
+
+    def test_doesnt_permit_when_post(self):
+        self.request.method = 'POST'
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, False)
 
 
 class PlayerPermissionTestsAdmin(PlayerPermissionsTest):
     def setUp(self):
         super(PlayerPermissionTestsAdmin, self).setUp()
-        self.club_admin_objects.all.return_value.filter.return_value = True
+        self.club.admins.create(user=self.user)
 
     def test_permits_when_safe_method(self):
         self.request.method = 'GET'
@@ -96,8 +104,6 @@ class PlayerPermissionTestsAdmin(PlayerPermissionsTest):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.player)
         self.assertEqual(result, True)
-        self.club_admin_objects.all.return_value.filter.assert_called_with(user=self.request.user,
-                                                                           club=self.player.club_id)
 
 
 class TournamentPermissions(django.test.TestCase):
