@@ -308,8 +308,8 @@ class CupPhaseViewSet(viewsets.ModelViewSet):
     @action(
         methods=['get'],
         detail=True,
-        url_name='fights')
-    def fights(self, request, pk=None):
+        url_name='cup_fights')
+    def cup_fights(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
         serializer = CupFightSerializer(CupFight.objects.filter(cup_phase=pk), many=True)
         return Response(serializer.data)

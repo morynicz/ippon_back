@@ -179,10 +179,10 @@ class CupPhaseViewSetUnauthenticatedTests(CupPhasesViewTest):
                     'previous_aka_fight': cf2.id}
 
         expected = [cf1_json, cf2_json, cf3_json]
-        response = self.client.get(reverse('cupphase-fights', kwargs={'pk': self.cp1.pk}))
+        response = self.client.get(reverse('cupphase-cup_fights', kwargs={'pk': self.cp1.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_fights_for_invalid_cup_phase_returns_not_found(self):
-        response = self.client.get(reverse('cupphase-fights', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('cupphase-cup_fights', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
