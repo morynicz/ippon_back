@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import ClubAdmin, TournamentAdmin, Fight, TeamFight, Team, Group, GroupPhase, Player
+from ippon.models import ClubAdmin, TournamentAdmin, Fight, TeamFight, Team, Group, GroupPhase, Player, CupPhase
 
 
 @api_view(['GET'])
@@ -86,6 +86,10 @@ def group_phase_authorization(request, pk, format=None):
     group_phase = get_object_or_404(GroupPhase.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], group_phase.tournament.id, request)
 
+@api_view(['GET'])
+def cup_phase_authorization(request, pk, format=None):
+    cup_phase = get_object_or_404(CupPhase.objects.all(), pk=pk)
+    return has_tournament_authorization([True, False], cup_phase.tournament.id, request)
 
 @api_view(['GET'])
 def player_authorization(request, pk, format=None):

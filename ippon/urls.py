@@ -44,6 +44,8 @@ urlpatterns = [
         name='group-authorization'),
     url(r'^authorization/group_phases/(?P<pk>[0-9]+)/$', ippon.authorization_views.group_phase_authorization,
         name='group-phase-authorization'),
+    url(r'^authorization/cup_phases/(?P<pk>[0-9]+)/$', ippon.authorization_views.cup_phase_authorization,
+        name='cup-phase-authorization'),
     url(r'^authorization/players/(?P<pk>[0-9]+)/$', ippon.authorization_views.player_authorization,
         name='player-authorization'),
     url(r'^registration/', views.register_user, name='register-user'),
