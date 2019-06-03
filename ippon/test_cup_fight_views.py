@@ -113,6 +113,12 @@ class CupFightViewSetAuthorizedTests(CupFightViewTest):
         with self.assertRaises(TeamFight.DoesNotExist):
             TeamFight.objects.get(pk=self.cf1.team_fight.id)
 
+    def test_delete_existing_cup_fight_without_teamfight_deletes_it(self):
+        response = self.client.delete(reverse('cupfight-detail', kwargs={'pk': self.cf3.pk}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(CupFight.DoesNotExist):
+            CupFight.objects.get(pk=self.cf3.id)
+
     def test_delete_not_existing_cup_fight_returns_bad_request(self):
         response = self.client.delete(reverse('cupfight-detail', kwargs={'pk': -5}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

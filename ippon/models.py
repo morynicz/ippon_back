@@ -222,7 +222,8 @@ class CupFight(models.Model):
 
     def delete(self, using=None, keep_parents=False):
         super(CupFight, self).delete()
-        self.team_fight.delete()
+        if self.team_fight:
+            self.team_fight.delete()
 
 
 @receiver(post_save, sender=TeamFight)
