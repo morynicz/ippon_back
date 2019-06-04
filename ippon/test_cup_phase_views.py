@@ -21,29 +21,32 @@ class CupPhasesViewTest(APITestCase):
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
 
-        self.cp1 = self.to.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4)
-        self.cp2 = self.to.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6)
+        self.cp1 = self.to.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4, number_of_positions=16)
+        self.cp2 = self.to.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6, number_of_positions=15)
 
         self.cp1_json = {
             'id': self.cp1.id,
             'tournament': self.to.id,
             'fight_length': 3,
             'name': 'cp1',
-            'final_fight_length': 4
+            'final_fight_length': 4,
+            'number_of_positions':16
         }
         self.cp2_json = {
             'id': self.cp2.id,
             'tournament': self.to.id,
             'fight_length': 5,
             'name': 'cp2',
-            'final_fight_length': 6
+            'final_fight_length': 6,
+            'number_of_positions':15
         }
         self.valid_payload = {
             'id': self.cp1.id,
             'tournament': self.to.id,
             'fight_length': 3,
             'name': 'cp1',
-            'final_fight_length': 4
+            'final_fight_length': 4,
+            'number_of_positions':16
         }
         self.invalid_payload = {
             'id': self.cp1.id,

@@ -550,22 +550,24 @@ class TournamentCupPhasesUnauthenticatedTests(TournamentViewTest):
         super(TournamentCupPhasesUnauthenticatedTests, self).setUp()
 
     def test_get_cup_phases_for_valid_tournament_returns_list_of_cup_phases(self):
-        cp1 = self.to1.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4)
-        cp2 = self.to1.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6)
+        cp1 = self.to1.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4, number_of_positions=16)
+        cp2 = self.to1.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6, number_of_positions=15)
 
         cp1_json = {
             'id': cp1.id,
             'tournament': self.to1.id,
             'fight_length': 3,
             'name': 'cp1',
-            'final_fight_length': 4
+            'final_fight_length': 4,
+            'number_of_positions':16
         }
         cp2_json = {
             'id': cp2.id,
             'tournament': self.to1.id,
             'fight_length': 5,
             'name': 'cp2',
-            'final_fight_length': 6
+            'final_fight_length': 6,
+            'number_of_positions':15
         }
 
         expected = [cp1_json, cp2_json]

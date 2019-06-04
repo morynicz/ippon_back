@@ -227,7 +227,8 @@ class CupPhaseSerializer(serializers.ModelSerializer):
             'tournament',
             'name',
             'fight_length',
-            'final_fight_length'
+            'final_fight_length',
+            'number_of_positions'
         )
 
 

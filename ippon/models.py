@@ -202,6 +202,7 @@ class CupPhase(models.Model):
     fight_length = models.IntegerField()
     final_fight_length = models.IntegerField()
     name = models.CharField(max_length=100, blank=False)
+    number_of_positions = models.IntegerField(default=2)
 
 
 class NoSuchFightException(Exception):
