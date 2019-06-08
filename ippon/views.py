@@ -58,14 +58,14 @@ class TournamentAdminViewSet(viewsets.ModelViewSet):
     queryset = TournamentAdmin.objects.all()
     serializer_class = TournamentAdminSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          IsTournamentOwner)
+                          IsTournamentOwnerAdminCreation)
 
 
 class ClubAdminViewSet(viewsets.ModelViewSet):
     queryset = ClubAdmin.objects.all()
     serializer_class = ClubAdminSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          IsClubOwner)
+                          IsClubOwnerAdminCreation)
 
 
 class TeamViewSet(viewsets.ModelViewSet):

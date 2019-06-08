@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import permissions
 
 from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight, Team, Fight, Tournament, \
@@ -87,7 +89,7 @@ class IsTournamentOwner(permissions.BasePermission):
         try:
             tournament = Tournament.objects.get(pk=(view.kwargs["pk"]))
             return TournamentAdmin.objects.filter(user=request.user, tournament=tournament,
-                                              is_master=True).count() > 0
+                                                  is_master=True).count() > 0
         except KeyError:
             return False
         except Tournament.DoesNotExist:
@@ -99,11 +101,39 @@ class IsTournamentOwner(permissions.BasePermission):
 
 
 class IsClubOwner(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return ClubAdmin.objects.filter(user=request.user, club=view.kwargs["pk"]).count() > 0
+    def has_permission(self, request, view):  # TODO: CCheck if this is needed
+        try:
+            return ClubAdmin.objects.filter(user=request.user, club=view.kwargs["pk"]).count() > 0
+        except KeyError:
+            return False
 
     def has_object_permission(self, request, view, admin):
         return ClubAdmin.objects.filter(user=request.user, club=admin.club).count() > 0
+
+
+class IsClubOwnerAdminCreation(permissions.BasePermission):
+    def has_permission(self, request, view):  # TODO: CCheck if this is needed
+        try:
+            req_body = json.loads(request.body)
+            return ClubAdmin.objects.filter(user=request.user, club=req_body["club_id"]).count() > 0
+        except KeyError:
+            return False
+
+    def has_object_permission(self, request, view, admin):
+        return ClubAdmin.objects.filter(user=request.user, club=admin.club).count() > 0
+
+
+class IsTournamentOwnerAdminCreation(permissions.BasePermission):
+    def has_permission(self, request, view):  # TODO: CCheck if this is needed
+        try:
+            req_body = json.loads(request.body)
+            return TournamentAdmin.objects.filter(user=request.user, tournament=req_body["tournament_id"],
+                                                  is_master=True).exists()
+        except KeyError:
+            return False
+
+    def has_object_permission(self, request, view, admin):
+        return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament, is_master=True).exists()
 
 
 def get_tournament_from_fight(fight):
