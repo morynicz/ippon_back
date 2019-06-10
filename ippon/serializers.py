@@ -49,8 +49,11 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if not isinstance(self.initial_data['player']['id'], int):
             raise ValidationError('player.id must be an integer')
+        filtered = models.Player.objects.filter(pk=self.initial_data['player']['id'])
+        if not filtered.exists():
+            raise ValidationError('no such player')
         participation = models.TournamentParticipation.objects.create(
-            player=models.Player.objects.get(pk=self.initial_data['player']['id']),
+            player=filtered.first(),
             tournament=ippon.models.Tournament.objects.get(pk=validated_data['tournament']['id'])
         )
         return participation

@@ -135,6 +135,17 @@ class IsTournamentOwnerAdminCreation(permissions.BasePermission):
     def has_object_permission(self, request, view, admin):
         return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament, is_master=True).exists()
 
+class IsTournamentAdminParticipantCreation(permissions.BasePermission):
+    def has_permission(self, request, view):  # TODO: CCheck if this is needed
+        try:
+            req_body = json.loads(request.body)
+            return TournamentAdmin.objects.filter(user=request.user, tournament=req_body["tournament_id"]).exists()
+        except KeyError:
+            return False
+
+    def has_object_permission(self, request, view, admin):
+        return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament).exists()
+
 
 def get_tournament_from_fight(fight):
     return fight.team_fight.tournament

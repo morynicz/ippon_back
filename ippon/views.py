@@ -51,7 +51,7 @@ class TournamentParticipationViewSet(viewsets.ModelViewSet):
     queryset = TournamentParticipation.objects.all()
     serializer_class = TournamentParticipationSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          IsTournamentAdminOrReadOnlyDependent)
+                          IsTournamentAdminParticipantCreation)
 
 
 class TournamentAdminViewSet(viewsets.ModelViewSet):
