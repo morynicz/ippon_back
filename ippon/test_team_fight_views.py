@@ -45,12 +45,12 @@ class TeamFightViewTest(APITestCase):
         self.t4.team_members.create(player=self.p4)
 
         self.tf1 = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
-        self.tf2 = TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to)
+        self.tf2 = TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to, status=1)
 
-        self.tf1_json = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t2.id, 'tournament': self.to.id}
-        self.tf2_json = {'id': self.tf2.id, 'aka_team': self.t3.id, 'shiro_team': self.t4.id, 'tournament': self.to.id}
+        self.tf1_json = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t2.id, 'tournament': self.to.id, 'status': 0, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}
+        self.tf2_json = {'id': self.tf2.id, 'aka_team': self.t3.id, 'shiro_team': self.t4.id, 'tournament': self.to.id, 'status': 1, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}
         self.valid_payload = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t1.id,
-                              'tournament': self.to.id}
+                              'tournament': self.to.id, 'status': 0, 'winner': 0}
         self.invalid_payload = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': BAD_PK,
                                 'tournament': self.to.id}
 

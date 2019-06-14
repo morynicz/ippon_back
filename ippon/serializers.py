@@ -166,13 +166,20 @@ class FightSerializer(serializers.ModelSerializer):
 
 
 class TeamFightSerializer(serializers.ModelSerializer):
+    aka_score = serializers.IntegerField(source='get_aka_wins', read_only=True)
+    shiro_score = serializers.IntegerField(source='get_shiro_wins', read_only=True)
+
     class Meta:
         model = models.TeamFight
         fields = (
             'id',
             'aka_team',
             'shiro_team',
-            'tournament'
+            'tournament',
+            'winner',
+            'status',
+            'aka_score',
+            'shiro_score'
         )
 
 
