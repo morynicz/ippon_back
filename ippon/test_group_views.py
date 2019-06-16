@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import TournamentAdmin, Team, TeamFight, Tournament
+from ippon.models import TournamentAdmin, Team, TeamFight, Tournament, Club, Player
 
 BAD_PK = 0
 
@@ -228,6 +228,139 @@ class GroupViewSetMembersUnauthenticatedTests(GroupViewSetMembersTests):
     def test_get_non_members_returns_unauthorized(self):
         response = self.client.get(reverse('group-not-assigned', kwargs={'pk': self.group1.pk}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class GroupMemberViewSetScoreCountingTests(GroupViewTest):
+    def setUp(self):
+        super(GroupMemberViewSetScoreCountingTests, self).setUp()
+        c = Club.objects.create(
+            name='cn1',
+            webpage='http://cw1.co',
+            description='cd1',
+            city='cc1')
+
+        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p5 = Player.objects.create(name='pn5', surname='ps5', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p6 = Player.objects.create(name='pn6', surname='ps6', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+
+        self.t1 = Team.objects.create(tournament=self.to, name='t1')
+        self.t2 = Team.objects.create(tournament=self.to, name='t2')
+        self.t3 = Team.objects.create(tournament=self.to, name='t3')
+
+        self.group1.group_members.create(team=self.t1)
+        self.group1.group_members.create(team=self.t2)
+        self.group1.group_members.create(team=self.t3)
+
+        self.t1.team_members.create(player=self.p1)
+        self.t1.team_members.create(player=self.p2)
+        self.t2.team_members.create(player=self.p3)
+        self.t2.team_members.create(player=self.p4)
+        self.t3.team_members.create(player=self.p5)
+        self.t3.team_members.create(player=self.p6)
+
+        tf1 = self.to.team_fights.create(aka_team=self.t1, shiro_team=self.t2)
+        tf2 = self.to.team_fights.create(aka_team=self.t1, shiro_team=self.t3)
+        tf3 = self.to.team_fights.create(aka_team=self.t2, shiro_team=self.t3)
+
+        self.group1.group_fights.create(team_fight=tf1)
+        self.group1.group_fights.create(team_fight=tf2)
+        self.group1.group_fights.create(team_fight=tf3)
+
+        f1 = tf1.fights.create(aka=self.p1, shiro=self.p3)
+        f1.points.create(player=self.p1, type=0)
+        f1.points.create(player=self.p3, type=1)
+        f1.points.create(player=self.p1, type=2)
+        f1.winner = 1
+        f1.status = 2
+        f1.save()
+
+        f2 = tf1.fights.create(aka=self.p2, shiro=self.p4)
+        f2.points.create(player=self.p4, type=3)
+        f2.points.create(player=self.p2, type=1)
+        f2.status = 2
+        f2.save()
+
+        tf1.status = 2
+        tf1.winner = 1
+        tf1.save()
+
+        f3 = tf2.fights.create(aka=self.p1, shiro=self.p5)
+        f3.points.create(player=self.p1, type=4)
+        f3.points.create(player=self.p1, type=4)
+        f3.points.create(player=self.p5, type=5)
+        f3.points.create(player=self.p1, type=1)
+        f3.points.create(player=self.p1, type=1)
+        f3.winner = 1
+        f3.status = 2
+        f3.save()
+
+        f4 = tf2.fights.create(aka=self.p2, shiro=self.p6)
+        f4.points.create(player=self.p2, type=1)
+        f4.points.create(player=self.p2, type=1)
+        f4.winner = 2
+        f4.status = 2
+        f4.save()
+
+        tf2.status = 2
+        tf2.save()
+
+        f5 = tf3.fights.create(aka=self.p3, shiro=self.p5)
+        f5.points.create(player=self.p3, type=2)
+        f5.points.create(player=self.p3, type=2)
+        f5.winner = 1
+        f5.status = 2
+        f5.save()
+
+        f6 = tf3.fights.create(aka=self.p4, shiro=self.p6)
+        f6.points.create(player=self.p6, type=3)
+        f6.points.create(player=self.p6, type=3)
+        f6.winner = 2
+        f6.status = 2
+        f6.save()
+
+        tf3.status = 2
+        tf3.save()
+
+    def test_get_group_memeber_1_scores_returns_score(self):
+        expected_response = {
+            "wins": 1,
+            "draws": 1,
+            "points": 7
+        }
+        self.group_member_score_test(expected_response, self.t1.id)
+
+    def group_member_score_test(self, expected_response, team_id):
+        response = self.client.get(
+            reverse('group-member_score', kwargs={'pk': self.group1.id, 'team_id': team_id}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_response)
+
+    def test_get_group_memeber_2_scores_returns_score(self):
+        expected_response = {
+            "wins": 0,
+            "draws": 1,
+            "points": 4
+        }
+        self.group_member_score_test(expected_response, self.t2.id)
+
+    def test_get_group_memeber_3_scores_returns_score(self):
+        expected_response = {
+            "wins": 0,
+            "draws": 2,
+            "points": 3
+        }
+        self.group_member_score_test(expected_response, self.t3.id)
 
 
 class AuthorizedGroupMembersViewTests(GroupViewSetMembersTests):

@@ -259,6 +259,29 @@ class GroupViewSet(viewsets.ModelViewSet):
         serializer = GroupFightSerializer(GroupFight.objects.filter(group=pk), many=True)
         return Response(serializer.data)
 
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='member_score',
+        url_path='members/(?P<team_id>[0-9]+)/score'
+    )
+    def member_score(self, request, pk=None, team_id=None):
+        group = get_object_or_404(self.queryset, pk=pk)
+        # serializer = GroupFightSerializer(GroupFight.objects.filter(group=pk), many=True)
+        team = get_object_or_404(Team.objects.all(), pk=team_id)
+        fights = (TeamFight.objects.filter(group_fight__group=pk, aka_team=team_id) \
+                  | TeamFight.objects.filter(group_fight__group=pk, shiro_team=team_id)).filter(status=2)
+        wins = (fights.filter(aka_team=team_id, winner=1) \
+            |fights.filter(shiro_team=team_id, winner=2)).count()
+
+        draws = fights.filter(winner=0, status=2).count()
+        points = Point.objects.exclude(type=4)\
+            .filter(fight__team_fight__group_fight__group=pk, fight__team_fight__status=2)\
+            .filter(Q(fight__team_fight__aka_team=team_id)|Q(fight__team_fight__shiro_team=team_id))\
+            .filter(player__in=team.get_member_ids()).count()
+
+        return Response({"wins": wins, "draws": draws, "points": points})
+
 
 class GroupPhaseViewSet(viewsets.ModelViewSet):
     queryset = GroupPhase.objects.all()
