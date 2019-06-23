@@ -334,7 +334,8 @@ class GroupMemberViewSetScoreCountingTests(GroupViewTest):
         expected_response = {
             "wins": 1,
             "draws": 1,
-            "points": 7
+            "points": 7,
+            "id": self.t1.id
         }
         self.group_member_score_test(expected_response, self.t1.id)
 
@@ -350,7 +351,8 @@ class GroupMemberViewSetScoreCountingTests(GroupViewTest):
         expected_response = {
             "wins": 0,
             "draws": 1,
-            "points": 4
+            "points": 4,
+            "id": self.t2.id
         }
         self.group_member_score_test(expected_response, self.t2.id)
 
@@ -358,7 +360,8 @@ class GroupMemberViewSetScoreCountingTests(GroupViewTest):
         expected_response = {
             "wins": 0,
             "draws": 2,
-            "points": 3
+            "points": 3,
+            "id": self.t3.id
         }
         self.group_member_score_test(expected_response, self.t3.id)
 

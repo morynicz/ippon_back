@@ -280,7 +280,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             .filter(Q(fight__team_fight__aka_team=team_id)|Q(fight__team_fight__shiro_team=team_id))\
             .filter(player__in=team.get_member_ids()).count()
 
-        return Response({"wins": wins, "draws": draws, "points": points})
+        return Response({"wins": wins, "draws": draws, "points": points, "id": team.id})
 
 
 class GroupPhaseViewSet(viewsets.ModelViewSet):
