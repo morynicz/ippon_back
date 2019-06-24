@@ -161,7 +161,9 @@ class FightSerializer(serializers.ModelSerializer):
             'id',
             'aka',
             'shiro',
-            'team_fight'
+            'team_fight',
+            'winner',
+            'status'
         )
 
 

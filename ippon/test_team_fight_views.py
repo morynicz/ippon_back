@@ -177,8 +177,8 @@ class UnauthorizedTeamFightsFightsTest(TeamFightViewSetUnauthorizedTests):
         self.f1 = self.tf1.fights.create(aka=self.p1, shiro=self.p2)
         self.f2 = self.tf1.fights.create(aka=self.p2, shiro=self.p1)
 
-        self.f1_json = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p2.id, 'team_fight': self.tf1.id}
-        self.f2_json = {'id': self.f2.id, 'aka': self.p2.id, 'shiro': self.p1.id, 'team_fight': self.tf1.id}
+        self.f1_json = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p2.id, 'team_fight': self.tf1.id, 'status': 0, 'winner': 0}
+        self.f2_json = {'id': self.f2.id, 'aka': self.p2.id, 'shiro': self.p1.id, 'team_fight': self.tf1.id, 'status': 0, 'winner': 0}
 
     def test_get_fights_for_valid_team_fight_returns_list_of_fights(self):
         expected = [self.f1_json, self.f2_json]
