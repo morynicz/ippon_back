@@ -1,10 +1,10 @@
 import datetime
 
+import django
 from django.db import IntegrityError
 from django.test import TestCase
 
 import ippon.models
-from ippon import models
 from ippon.models import Club, Team, Player, NoSuchFightException, Tournament
 
 
@@ -28,13 +28,13 @@ class TournamentParticipationTests(TestCase):
             rank_constraint_value=7,
             sex_constraint=1)
         self.tournament.save()
-        c = models.Club.objects.create(
+        c = ippon.models.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
         c.save()
-        p = models.Player.objects.create(
+        p = ippon.models.Player.objects.create(
             name='pn1',
             surname='ps1',
             rank=7,
@@ -44,7 +44,7 @@ class TournamentParticipationTests(TestCase):
         )
         p.save()
 
-        self.part = models.TournamentParticipation.objects.create(
+        self.part = ippon.models.TournamentParticipation.objects.create(
             tournament=self.tournament,
             player=p
         )
@@ -261,3 +261,76 @@ class TestTeamFights(TestCase):
 
     def test_correctly_counts_shiro_points(self):
         self.assertEqual(self.team_fight1.get_shiro_points(), 3)
+
+class CupPhaseTests(TestCase):
+    def setUp(self) -> None:
+        self.tournament = ippon.models.Tournament.objects.create(
+            name='T1',
+            webpage='http://w1.co',
+            description='d1',
+            city='c1',
+            date=datetime.date(year=2021, month=1, day=1),
+            address='a1',
+            team_size=1,
+            group_match_length=3,
+            ko_match_length=3,
+            final_match_length=3,
+            finals_depth=0,
+            age_constraint=5,
+            age_constraint_value=20,
+            rank_constraint=5,
+            rank_constraint_value=7,
+            sex_constraint=1)
+        self.tournament.save()
+        c = Club.objects.create(
+            name='cn1',
+            webpage='http://cw1.co',
+            description='cd1',
+            city='cc1')
+        self.cup_phase = self.tournament.cup_phases.create(name="CP",
+                                                           fight_length=3,
+                                                           final_fight_length=5)
+        self.t1 = self.tournament.teams.create(name='t1')
+        self.t2 = self.tournament.teams.create(name='t2')
+        self.team_fight1 = self.tournament.team_fights.create(aka_team=self.t1,
+                                                              shiro_team=self.t2)
+        self.cf1 = self.cup_phase.cup_fights.create(team_fight=self.team_fight1)
+
+        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p5 = Player.objects.create(name='pn5', surname='ps5', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p6 = Player.objects.create(name='pn6', surname='ps6', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p7 = Player.objects.create(name='pn7', surname='ps6', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p8 = Player.objects.create(name='pn8', surname='ps6', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+
+        self.t1.team_members.create(player=self.p1)
+        self.t1.team_members.create(player=self.p2)
+        self.t1.team_members.create(player=self.p3)
+        self.t1.team_members.create(player=self.p7)
+
+        self.t2.team_members.create(player=self.p4)
+        self.t2.team_members.create(player=self.p5)
+        self.t2.team_members.create(player=self.p6)
+        self.t2.team_members.create(player=self.p8)
+
+        self.f1 = self.team_fight1.fights.create(aka=self.p1, shiro=self.p4)
+        self.f2 = self.team_fight1.fights.create(aka=self.p2, shiro=self.p5)
+        self.f3 = self.team_fight1.fights.create(aka=self.p3, shiro=self.p6)
+        self.f4 = self.team_fight1.fights.create(aka=self.p7, shiro=self.p8)
+
+    def test_destruction_of_cup_phase_is_impossible_when_there_are_some_fights_in_it(self):
+        with self.assertRaises(django.db.models.ProtectedError) as pe:
+            self.cup_phase.delete()
+        self.assertTrue(ippon.models.TeamFight.objects.filter(cup_fight=self.cf1).count())
+        self.assertTrue(ippon.models.CupFight.objects.filter(cup_phase=self.cup_phase).count())
+        self.assertTrue(ippon.models.Fight.objects.filter(team_fight=self.team_fight1).count())

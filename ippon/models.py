@@ -221,7 +221,7 @@ class GroupFight(models.Model):
 
 
 class CupPhase(models.Model):
-    tournament = models.ForeignKey('Tournament', related_name='cup_phases', on_delete=models.CASCADE)
+    tournament = models.ForeignKey('Tournament', related_name='cup_phases', on_delete=models.PROTECT)
     fight_length = models.IntegerField()
     final_fight_length = models.IntegerField()
     name = models.CharField(max_length=100, blank=False)
@@ -233,7 +233,7 @@ class NoSuchFightException(Exception):
 
 
 class CupFight(models.Model):
-    cup_phase = models.ForeignKey('CupPhase', related_name='cup_fights', on_delete=models.CASCADE)
+    cup_phase = models.ForeignKey('CupPhase', related_name='cup_fights', on_delete=models.PROTECT)
     team_fight = models.ForeignKey('TeamFight', related_name='cup_fight', on_delete=models.SET_NULL, null=True)
     previous_shiro_fight = models.OneToOneField('self', on_delete=models.CASCADE, related_name='+', null=True)
     previous_aka_fight = models.OneToOneField('self', on_delete=models.CASCADE, related_name='+', null=True)
