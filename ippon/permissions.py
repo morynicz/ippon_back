@@ -252,3 +252,13 @@ class IsTeamOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, team):
         return is_user_admin_of_the_tournament(request, team.tournament)
+
+
+class IsTournamentAdmin(permissions.BasePermission):
+    def has_permission(self, request, view) -> bool:
+        try:
+            pk = view.kwargs["pk"]
+            tournament = Tournament.objects.get(pk=pk)
+            return is_user_admin_of_the_tournament(request, tournament)
+        except (KeyError, Tournament.DoesNotExist):
+            return False

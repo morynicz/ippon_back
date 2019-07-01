@@ -5,6 +5,7 @@ import unittest.mock
 
 import django.test
 from django.contrib.auth.models import User
+from rest_framework.test import APIClient
 
 import ippon.permissions as permissions
 import ippon.serializers as serializers
@@ -107,8 +108,9 @@ class PlayerPermissionTestsAdmin(PlayerPermissionsTest):
         self.assertEqual(result, True)
 
 
-class TournamentPermissions(django.test.TestCase):
+class TournamentPermissionTests(django.test.TestCase):
     def setUp(self):
+        self.client = APIClient()
         self.admin = User.objects.create(username='admin', password='password')
         self.user = User.objects.create(username='user', password='password')
         self.tournament = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
@@ -121,12 +123,17 @@ class TournamentPermissions(django.test.TestCase):
         self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict(pk=self.tournament.id)
+
+
+class TournamentAdminOrReadOnlyPermissions(TournamentPermissionTests):
+    def setUp(self):
+        super(TournamentAdminOrReadOnlyPermissions, self).setUp()
         self.permission = permissions.IsTournamentAdminOrReadOnlyTournament()
 
 
-class TournamentPermissionTestsNotAdmin(TournamentPermissions):
+class TournamentAdminOrReadOnlyPermissionTestsNotAdmin(TournamentAdminOrReadOnlyPermissions):
     def setUp(self):
-        super(TournamentPermissionTestsNotAdmin, self).setUp()
+        super(TournamentAdminOrReadOnlyPermissionTestsNotAdmin, self).setUp()
 
     def test_permits_when_safe_method(self):
         self.request.method = 'GET'
@@ -139,15 +146,48 @@ class TournamentPermissionTestsNotAdmin(TournamentPermissions):
         self.assertEqual(result, False)
 
 
-class TournamentPermissionTestsAdmin(TournamentPermissions):
+class TournamentAdminOrReadOnlyPermissionTestsAdmin(TournamentAdminOrReadOnlyPermissions):
     def setUp(self):
-        super(TournamentPermissionTestsAdmin, self).setUp()
+        super(TournamentAdminOrReadOnlyPermissionTestsAdmin, self).setUp()
         self.tournament_admin = self.tournament.admins.create(user=self.user, is_master=True)
 
     def test_permits_when_unsafe_method(self):
         self.request.method = 'PUT'
         result = self.permission.has_object_permission(self.request, self.view, self.tournament)
         self.assertEqual(result, True)
+
+
+class TournamentAdminTests(TournamentPermissionTests):
+    def setUp(self):
+        super(TournamentAdminTests, self).setUp()
+        self.permission = permissions.IsTournamentAdmin()
+
+    def test_returns_false_when_not_authenticated(self):
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, False)
+
+    def returns_false_when_not_authorized(self):
+        self.client.force_authenticate(user=self.user)
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, False)
+
+    def test_returns_false_when_view_has_no_pk(self):
+        self.view.kwargs=dict()
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, False)
+
+    def test_returns_true_when_is_tournament_admin(self):
+        self.client.force_authenticate(user=self.user)
+        self.tournament.admins.create(user=self.user, is_master=False)
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, True)
+
+    def test_returns_true_when_is_tournament_owner(self):
+        self.client.force_authenticate(user=self.user)
+        self.tournament.admins.create(user=self.user, is_master=True)
+        result = self.permission.has_permission(self.request, self.view)
+        self.assertEqual(result, True)
+
 
 
 class TournamentDependentOrReadOnlyPermissions(django.test.TestCase):
@@ -345,6 +385,7 @@ class TestClubOwnerPermissionsNotAdmin(TestClubOwnerPermissions):
         result = self.permission.has_permission(self.request, self.view)
         self.assertFalse(result)
 
+
 class TestClubOwnerAdminCreationPermissions(django.test.TestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='password')
@@ -521,6 +562,7 @@ class TestTournamentOwnerParticipantCreationPermissionsOwner(TestTournamentOwner
         result = self.permission.has_permission(self.request, self.view)
         self.assertTrue(result)
 
+
 class TestTournamentOwnerParticipantCreationPermissionsAdmin(TestTournamentOwnerParticipantCreationPermissions):
     def setUp(self):
         super(TestTournamentOwnerParticipantCreationPermissionsAdmin, self).setUp()
@@ -533,7 +575,6 @@ class TestTournamentOwnerParticipantCreationPermissionsAdmin(TestTournamentOwner
     def test_permits_when_is_admin(self):
         result = self.permission.has_permission(self.request, self.view)
         self.assertTrue(result)
-
 
 
 class TestTournamentOwnerParticipantCreationPermissionsNotAdmin(TestTournamentOwnerParticipantCreationPermissions):

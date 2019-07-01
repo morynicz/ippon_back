@@ -559,7 +559,7 @@ class TournamentCupPhasesUnauthenticatedTests(TournamentViewTest):
             'fight_length': 3,
             'name': 'cp1',
             'final_fight_length': 4,
-            'number_of_positions':16
+            'number_of_positions': 16
         }
         cp2_json = {
             'id': cp2.id,
@@ -567,7 +567,7 @@ class TournamentCupPhasesUnauthenticatedTests(TournamentViewTest):
             'fight_length': 5,
             'name': 'cp2',
             'final_fight_length': 6,
-            'number_of_positions':15
+            'number_of_positions': 15
         }
 
         expected = [cp1_json, cp2_json]
@@ -578,3 +578,66 @@ class TournamentCupPhasesUnauthenticatedTests(TournamentViewTest):
     def test_get_cup_phases_for_invalid_tournament_returns_not_found(self):
         response = self.client.get(reverse('tournament-cup_phases', kwargs={'pk': BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TournamentUnassignedPlayersTests(TournamentViewTest):
+    def setUp(self):
+        super(TournamentUnassignedPlayersTests, self).setUp()
+        self.t1 = Team.objects.create(tournament=self.to1, name='t1')
+        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.par1 = self.to1.participations.create(player=self.p1, is_qualified=True)
+        self.t1.team_members.create(player=self.p1)
+        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.par2 = self.to1.participations.create(player=self.p2)
+        self.t1.team_members.create(player=self.p2)
+        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.par3 = self.to1.participations.create(player=self.p3)
+        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.par4 = self.to1.participations.create(player=self.p4)
+
+    def test_calling_get_on_not_assigned_participants_when_not_authenticated_returns_unauthorised(self):
+        response = self.client.get(reverse('tournament-not_assigned', kwargs={'pk': self.to1.id}))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_calling_get_on_not_assigned_participants_when_not_authorized_returns_forbidden(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(reverse('tournament-not_assigned', kwargs={'pk': self.to1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_calling_get_on_not_assigned_participants_when_admin_returns_list_of_unassigned(self):
+        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=False)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(reverse('tournament-not_assigned', kwargs={'pk': self.to1.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [
+            {
+                'id': self.p3.id,
+                'name': 'pn3',
+                'surname': 'ps3'
+            },
+            {
+                'id': self.p4.id,
+                'name': 'pn4',
+                'surname': 'ps4'
+            }])
+
+    def test_calling_get_on_not_assigned_participants_when_owner_returns_list_of_unassigned(self):
+        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(reverse('tournament-not_assigned', kwargs={'pk': self.to1.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [
+            {
+                'id': self.p3.id,
+                'name': 'pn3',
+                'surname': 'ps3'
+            },
+            {
+                'id': self.p4.id,
+                'name': 'pn4',
+                'surname': 'ps4'
+            }])
