@@ -146,12 +146,11 @@ class CupFightSiblingTests(TestCupFights):
         self.cf_aka = self.cup_phase.cup_fights.create(team_fight=self.tf_aka)
         self.cf_parent = self.cup_phase.cup_fights.create(previous_aka_fight=self.cf_aka,
                                                           previous_shiro_fight=self.cup_fight)
-        self.cf_aka.team_fight.winner = 1
-        self.cf_aka.team_fight.save()
 
-        self.cup_phase.cup_fights.create()
 
     def test_cup_fight_when_winner_is_set_and_sibling_has_winner_already_set_creates_team_fight_in_parent(self):
+        self.cf_aka.team_fight.winner = 1
+        self.cf_aka.team_fight.save()
         self.cup_fight.team_fight.winner = 2
         self.cup_fight.team_fight.save()
         self.cf_parent.refresh_from_db()
@@ -159,8 +158,34 @@ class CupFightSiblingTests(TestCupFights):
         self.assertEqual(self.cf_parent.team_fight.aka_team, self.t3)
         self.assertEqual(self.cf_parent.team_fight.shiro_team, self.t2)
 
-    def test_when_fight_winner_is_set_and_sibling_doesnt_have_winner_yet_doesnt_change_parent(self):
+    def test_when_aka_fight_winner_is_set_and_shiro_sibling_doesnt_have_winner_yet_doesnt_change_parent(self):
+        self.cf_aka.team_fight.winner = 1
+        self.cf_aka.team_fight.save()
+        self.cf_parent.refresh_from_db()
         self.assertIsNone(self.cf_parent.team_fight)
+
+    def test_when_shiro_fight_winner_is_set_and_aka_sibling_doesnt_have_winner_yet_doesnt_change_parent(self):
+        self.cup_fight.team_fight.winner = 1
+        self.cup_fight.team_fight.save()
+        self.cf_parent.refresh_from_db()
+        self.assertIsNone(self.cf_parent.team_fight)
+
+    def test_when_shiro_fight_winner_is_changed_and_parent_was_laready_created_but_still_in_prep_change_parent(self):
+        self.cf_aka.team_fight.winner = 1
+        self.cf_aka.team_fight.save()
+        self.cup_fight.team_fight.winner = 2
+        self.cup_fight.team_fight.save()
+        self.cf_parent.refresh_from_db()
+        old_parent_tf_id=self.cf_parent.team_fight.id
+        self.cf_aka.team_fight.winner = 2
+        self.cf_aka.team_fight.save()
+        self.cf_parent.refresh_from_db()
+        current_parent_tf = self.cf_parent.team_fight
+
+        self.assertEqual(old_parent_tf_id, current_parent_tf.id)
+        self.assertEqual(current_parent_tf.aka_team, self.t4)
+        self.assertEqual(current_parent_tf.shiro_team, self.t2)
+
 
 class TestTeamFights(TestCase):
     def setUp(self):
