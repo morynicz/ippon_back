@@ -1,12 +1,11 @@
 import os
-import subprocess
+import random
 
+from cryptography.hazmat.backends import default_backend as crypto_default_backend
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.backends import default_backend as crypto_default_backend
 
-
-TEMPLATE="""
+TEMPLATE = """
 #!/bin/bash
 
 export SECRET_KEY='{key}'
@@ -25,6 +24,7 @@ export MAIL_USE_TLS='True'
 export MAIL_USE_SSL=''
 export MAIL_SSL_KEYFILE=''
 export MAIL_SSL_CERTFILE=''"""
+
 
 def gen_ssh(dir):
     key = rsa.generate_private_key(
@@ -49,12 +49,12 @@ def gen_ssh(dir):
 
 
 def gen_key():
-    return "1234"
+    return "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)])
 
 
 def generate():
     with open("secrets2.sh", "w") as file:
-        dir = os.path.join(os.getcwd(),"keys")
+        dir = os.path.join(os.getcwd(), "keys")
         if not os.path.exists(dir):
             os.mkdir(dir)
         # keygen_invokation = ["ssh-keygen", "-f {}".format(os.path.join(dir, "id_rsa")), '-q', '-P' ,str()]
