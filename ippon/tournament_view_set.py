@@ -89,7 +89,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
         serializer = CupPhaseSerializer(CupPhase.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
-
     @action(
         methods=['get'],
         detail=True,
@@ -100,6 +99,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
         ]
     )
     def not_assigned(self, request, pk=None):
-        players = Player.objects.filter(participations__tournament=pk).exclude(team_member__team__tournament=pk)
+        players = Player.objects.filter(participations__tournament=pk, participations__is_qualified=True).exclude(
+            team_member__team__tournament=pk)
         serializer = serializers.ShallowPlayerSerializer(players, many=True)
         return Response(serializer.data)

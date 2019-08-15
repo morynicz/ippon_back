@@ -133,6 +133,7 @@ STATUS = [
     (2, 'Finished')
 ]
 
+
 class TeamFight(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='team_fights', on_delete=models.PROTECT)
     aka_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
@@ -141,9 +142,10 @@ class TeamFight(models.Model):
     status = models.IntegerField(choices=STATUS, default=0)
 
     def __str__(self):
-        return "TeamFight {{id: {id}, aka_team: {aka}, shiro_team: {shiro}, winner: {win} }}".format(id=self.id, aka=self.aka_team,
-                                                                                      shiro=self.shiro_team,
-                                                                                      win=self.winner)
+        return "TeamFight {{id: {id}, aka_team: {aka}, shiro_team: {shiro}, winner: {win} }}".format(id=self.id,
+                                                                                                     aka=self.aka_team,
+                                                                                                     shiro=self.shiro_team,
+                                                                                                     win=self.winner)
 
     def get_teams_points(self, team):
         return Point.objects.filter(player__team_member__team=team, fight__team_fight=self).exclude(type=4).count()
@@ -267,7 +269,7 @@ def winner_change_handler(sender, **kwargs):
         sibling = parent.previous_aka_fight if parent.previous_aka_fight.id is not cup_fight.id else parent.previous_shiro_fight
         if sibling.team_fight.winner is not 0:
             tournament = parent.cup_phase.tournament
-            if(parent.team_fight is None):
+            if (parent.team_fight is None):
                 parent.team_fight = tournament.team_fights.create(aka_team=get_winner(parent.previous_aka_fight),
                                                                   shiro_team=get_winner(parent.previous_shiro_fight))
                 parent.save()
