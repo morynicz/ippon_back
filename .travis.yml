@@ -13,7 +13,7 @@ before_script:
 
 script:
  - ./manage.py migrate
- - ./manage.py test
+ - ./manage.py test ippon
 
 addons:
   postgresql: "9.6"
