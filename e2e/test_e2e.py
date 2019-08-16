@@ -27,8 +27,9 @@ class MySeleniumTests(LiveServerTestCase):
         self.user = User.objects.create_user(username=self.username, password=self.password, email=self.email)
 
     def log_in(self):
-        print(self.selenium.page_source)
         self.selenium.get('%s%s' % ('localhost:4231', '/login/'))
+        self.selenium.save_screenshot("screen.png")
+        print(self.selenium.page_source)
         self.selenium.implicitly_wait(10)
 
         username_input = self.selenium.find_element_by_name("email")
