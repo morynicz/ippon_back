@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'auth_server.apps.AuthServerConfig',
-    'ippon.apps.IpponConfig'
+    'ippon.apps.IpponConfig',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
