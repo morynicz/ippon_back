@@ -1,6 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, action
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
@@ -300,15 +301,23 @@ class GroupPhaseViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def register_user(request):
-    serializer = UserRegistrationSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = serializer.save(password=make_password(serializer.validated_data["password"]))
-    user.email_user(
-        subject="You have been registered",
-        message="You have been successfully registered in ippon with username {}".format(
-            user.username))
+    """
+    Validate input data
+    if validation passes it registers the user and returns the sent data
+    if validations fails if returns a list of errors in the data
+    """
 
-    return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+    serializer = UserRegistrationSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=False):
+        user = serializer.save(password=make_password(serializer.validated_data["password"]))
+        user.email_user(
+            subject="You have been registered",
+            message=f"You have been successfully registered in ippon with username {user.username}")
+        return Response(status=status.HTTP_201_CREATED, data=serializer.data, content_type="application/json")
+    else:
+        response = [str(err[0]) for err in serializer.errors.values()]
+        print(json.dumps(response))
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=response, content_type="application/json")
 
 
 class ShallowPlayerListView(generics.ListAPIView):
