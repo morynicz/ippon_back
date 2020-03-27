@@ -316,7 +316,6 @@ def register_user(request):
         return Response(status=status.HTTP_201_CREATED, data=serializer.data, content_type="application/json")
     else:
         response = [str(err[0]) for err in serializer.errors.values()]
-        print(json.dumps(response))
         return Response(status=status.HTTP_400_BAD_REQUEST, data=response, content_type="application/json")
 
 
