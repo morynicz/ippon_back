@@ -40,7 +40,7 @@ class RegistrationViewsetTests(TestCase):
             message="You have been successfully registered in ippon with username {}".format(
                 self.valid_payload["username"]))
 
-    def test_non_unique_username_response(self):
+    def test_non_unique_username_responds_with_400_and_unique_username_error(self):
         User.objects.create_user(
             username=self.valid_payload["username"],
             email='a' + self.valid_payload["email"],
@@ -52,7 +52,7 @@ class RegistrationViewsetTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.content, self.unique_name_error)
 
-    def test_invalid_email_format_response(self):
+    def test_invalid_email_format_responds_with_400_and_email_format_error(self):
         response = self.client.post(reverse('register-user'),
                                     data=json.dumps(self.invalid_email_payload),
                                     content_type='application/json')
