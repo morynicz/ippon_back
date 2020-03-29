@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -29,7 +29,7 @@ try:
 except KeyError:
     DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.9', '192.168.1.11', 'ippon-backend.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = json.loads(os.environ['ALLOWED_HOSTS'])
 
 # Application definition
 
