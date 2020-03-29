@@ -31,6 +31,7 @@ except KeyError:
 
 ALLOWED_HOSTS = json.loads(os.environ['ALLOWED_HOSTS'])
 
+
 # Application definition
 
 INSTALLED_APPS = [
