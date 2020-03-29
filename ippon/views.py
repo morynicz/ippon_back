@@ -1,4 +1,5 @@
 from django.contrib.auth.hashers import make_password
+from django.http.request import HttpRequest
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import ErrorDetail
@@ -310,9 +311,9 @@ def register_user(request):
     serializer = UserRegistrationSerializer(data=request.data)
     if serializer.is_valid(raise_exception=False):
         user = serializer.save(password=make_password(serializer.validated_data["password"]))
-        user.email_user(
-            subject="You have been registered",
-            message=f"You have been successfully registered in ippon with username {user.username}")
+        # user.email_user(
+        #     subject="You have been registered",
+        #     message=f"You have been successfully registered in ippon with username {user.username}")
         return Response(status=status.HTTP_201_CREATED, data=serializer.data, content_type="application/json")
     else:
         response = [str(err[0]) for err in serializer.errors.values()]
@@ -350,3 +351,23 @@ class CupFightViewSet(viewsets.ModelViewSet):
     serializer_class = CupFightSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsCupFightOwnerOrReadOnly)
+
+
+@api_view(["get"])
+def user_data(request: HttpRequest):
+    """
+    Endpoint for returning basic data about the user currently:
+    id, first_name, last_name, username and email
+    """
+    user: User = request.user
+    if user.is_authenticated:
+        return Response({
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+            "email": user.email
+        })
+    return Response({
+        "error": "You are not logged in."
+    })
