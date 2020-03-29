@@ -17,15 +17,6 @@ class RegistrationViewsetTests(TestCase):
             "password": "longandcomplicated"
         }
 
-        self.invalid_email_payload = {
-            "email": "emailemail.com",
-            "username": "user1",
-            "password": "longandcomplicated"
-        }
-
-        self.unique_name_error = b'["A user with that username already exists."]'
-        self.email_error = b'["Enter a valid email address."]'
-
     @patch('django.contrib.auth.models.User.email_user')
     def test_register_unique_user_with_valid_payload_creates_new_user(self, email_user_mock):
         response = self.client.post(reverse('register-user'),
@@ -40,7 +31,7 @@ class RegistrationViewsetTests(TestCase):
             message="You have been successfully registered in ippon with username {}".format(
                 self.valid_payload["username"]))
 
-    def test_non_unique_username_responds_with_400_and_unique_username_error(self):
+    def test_register_with_not_unique_username_does_not_create_new_user(self):
         User.objects.create_user(
             username=self.valid_payload["username"],
             email='a' + self.valid_payload["email"],
@@ -48,14 +39,4 @@ class RegistrationViewsetTests(TestCase):
         response = self.client.post(reverse('register-user'),
                                     data=json.dumps(self.valid_payload),
                                     content_type='application/json')
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.content, self.unique_name_error)
-
-    def test_invalid_email_format_responds_with_400_and_email_format_error(self):
-        response = self.client.post(reverse('register-user'),
-                                    data=json.dumps(self.invalid_email_payload),
-                                    content_type='application/json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.content, self.email_error)
