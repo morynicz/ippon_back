@@ -23,7 +23,9 @@ export MAIL_PORT=''
 export MAIL_USE_TLS='True'
 export MAIL_USE_SSL=''
 export MAIL_SSL_KEYFILE=''
-export MAIL_SSL_CERTFILE=''"""
+export MAIL_SSL_CERTFILE=''
+export ALLOWED_HOSTS='["localhost"]'
+"""
 
 
 def gen_ssh(dir):

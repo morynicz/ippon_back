@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -24,9 +24,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+try:
+    DEBUG = os.environ['IS_PROD']
+except KeyError:
+    DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.9', '192.168.1.11','192.168.8.102', 'ippon-backend.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = json.loads(os.environ['ALLOWED_HOSTS'])
+
 
 # Application definition
 
