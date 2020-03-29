@@ -24,7 +24,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+try:
+    DEBUG = os.environ['IS_PROD']
+except KeyError:
+    DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.1.9', '192.168.1.11', 'ippon-backend.herokuapp.com', 'localhost']
 
