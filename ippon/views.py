@@ -368,6 +368,4 @@ def user_data(request: HttpRequest):
             "username": user.username,
             "email": user.email
         })
-    return Response({
-        "error": "You are not logged in."
-    })
+    return Response(data={"error": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
