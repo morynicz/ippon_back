@@ -29,6 +29,7 @@ router.register(r'cup_fights', views.CupFightViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'user-data/', views.user_data, name="user-data"),
     url(r'^schema/', schema_view),
     url(r'^authorization/clubs/(?P<pk>[0-9]+)/$', ippon.authorization_views.club_authorization, name='club-authorization'),
     url(r'^authorization/tournaments/staff/(?P<pk>[0-9]+)/$', ippon.authorization_views.tournament_staff_authorization,
