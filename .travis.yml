@@ -12,7 +12,7 @@ before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
 
 script:
- - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./on_pr.sh; fi'
+ - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then source ./on_pr.sh; fi'
  - ./manage.py migrate
  - ./manage.py test ippon
 

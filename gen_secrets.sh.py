@@ -59,9 +59,6 @@ def generate():
         dir = os.path.join(os.getcwd(), "keys")
         if not os.path.exists(dir):
             os.mkdir(dir)
-        # keygen_invokation = ["ssh-keygen", "-f {}".format(os.path.join(dir, "id_rsa")), '-q', '-P' ,str()]
-        # # print(subprocess.check_output(keygen_invokation))
-        # subprocess.run(keygen_invokation)
         gen_ssh(dir)
         file.write(TEMPLATE.format(key=gen_key(), dbname="dbname", dbuser="dbuser", dbpass="dbpass", keypath=dir))
 
