@@ -33,7 +33,6 @@ mypy-extensions==0.4.3
 packaging==20.3
 permission==0.4.1
 Pillow==7.1.0
-pkg-resources==0.0.0
 pluggy==0.13.1
 psycopg2==2.8.4
 py==1.8.1
