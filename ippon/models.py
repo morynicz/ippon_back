@@ -1,6 +1,7 @@
 import datetime
 from math import floor
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -322,3 +323,27 @@ class Tournament(models.Model):
     rank_constraint_value = models.IntegerField(choices=RANK_CHOICES)
     age_constraint_value = models.IntegerField()
     finals_depth = models.IntegerField()
+
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, null=True)
+
+
+class Event(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    event_owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+
+    icon = models.ImageField(blank=True, null=True)
+    banner = models.ImageField(blank=True, null=True)
+
+    start_time = models.DateTimeField()
+    registration_start_time = models.DateTimeField()
+    registration_end_time = models.DateTimeField()
+
+    # TODO: add fields for storing location (I don't know the format for now)
+
+    def registration_is_open(self):
+        now = datetime.datetime.now()
+        if self.registration_start_time < now < self.registration_end_time:
+            return True
+        else:
+            return False

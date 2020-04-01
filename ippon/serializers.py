@@ -278,3 +278,18 @@ class TournamentSerializer(serializers.ModelSerializer):
             'rank_constraint_value',
             'age_constraint_value'
         )
+
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Event
+        fields = (
+            'name',
+            'description',
+            'event_owner',
+            'icon',
+            'banner',
+            'start_time',
+            'registration_start_time',
+            'registration_end_time'
+        )

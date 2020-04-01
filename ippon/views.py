@@ -369,3 +369,13 @@ def user_data(request: HttpRequest):
             "email": user.email
         })
     return Response(data={"error": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [IsEventOwnerOrReadOnly]
+
+    # def create(self, request: Request, *args, **kwargs) -> Response:
+    #     event = Event()
+
