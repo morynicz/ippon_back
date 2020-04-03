@@ -47,10 +47,10 @@ class EventModelTest(APITestCase):
         )
 
     def test_late_event_registration_is_open_to_be_false(self):
-        self.assertEqual(self.late_event.registration_is_open(), False)
+        self.assertEqual(self.late_event.registration_is_open, False)
 
     def test_early_event_registration_is_open_to_be_false(self):
-        self.assertEqual(self.early_event.registration_is_open(), False)
+        self.assertEqual(self.early_event.registration_is_open, False)
 
     def test_current_event_registration_is_open_to_be_true(self):
-        self.assertEqual(self.current_event.registration_is_open(), True)
+        self.assertEqual(self.current_event.registration_is_open, True)

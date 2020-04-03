@@ -272,7 +272,10 @@ class IsEventOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         elif request.method == "POST":
-            return True if request.user.is_authenticated else False
+            try:
+                return request.user.pk == int(request.data["event_owner"])
+            except (KeyError, ValueError):
+                return False
         else:
             pk = view.kwargs["pk"]
             if request.user == Event.objects.get(pk=pk).event_owner:

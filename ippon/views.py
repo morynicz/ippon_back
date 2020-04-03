@@ -311,9 +311,9 @@ def register_user(request):
     serializer = UserRegistrationSerializer(data=request.data)
     if serializer.is_valid(raise_exception=False):
         user = serializer.save(password=make_password(serializer.validated_data["password"]))
-        user.email_user(
-            subject="You have been registered",
-            message=f"You have been successfully registered in ippon with username {user.username}")
+        # user.email_user(
+        #     subject="You have been registered",
+        #     message=f"You have been successfully registered in ippon with username {user.username}")
         return Response(status=status.HTTP_201_CREATED, data=serializer.data, content_type="application/json")
     else:
         response = [str(err[0]) for err in serializer.errors.values()]
@@ -376,6 +376,13 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     permission_classes = [IsEventOwnerOrReadOnly]
 
-    # def create(self, request: Request, *args, **kwargs) -> Response:
-    #     event = Event()
-
+    @action(
+        methods=["GET"],
+        detail=False,
+        url_name='my_tournaments')
+    def my_tournaments(self, request: Request):
+        if request.user.is_authenticated:
+            model = Event.objects.filter(event_owner=request.user.pk)
+            return Response(data=self.serializer_class(model, many=True).data)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={"error": "You are not logged in."})

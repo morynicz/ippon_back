@@ -284,6 +284,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
         fields = (
+            'id',
             'name',
             'description',
             'event_owner',
@@ -291,5 +292,7 @@ class EventSerializer(serializers.ModelSerializer):
             'banner',
             'start_time',
             'registration_start_time',
-            'registration_end_time'
+            'registration_end_time',
+            'registration_is_open',
+            'has_started'
         )
