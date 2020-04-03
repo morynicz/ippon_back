@@ -1,6 +1,7 @@
 import datetime
 from math import floor
 
+import pytz
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
@@ -336,14 +337,25 @@ class Event(models.Model):
     banner = models.ImageField(blank=True, null=True)
 
     start_time = models.DateTimeField()
+    end_time = models.DateTimeField(blank=True, null=True)
+
     registration_start_time = models.DateTimeField()
     registration_end_time = models.DateTimeField()
 
     # TODO: add fields for storing location (I don't know the format for now)
 
-    def registration_is_open(self):
+    @property
+    def registration_is_open(self) -> bool:
         now = datetime.datetime.now()
-        if self.registration_start_time < now < self.registration_end_time:
+        if self.registration_start_time.replace(tzinfo=pytz.UTC) < now.replace(tzinfo=pytz.UTC) < self.registration_end_time.replace(tzinfo=pytz.UTC):
+            return True
+        else:
+            return False
+
+    @property
+    def has_started(self) -> bool:
+        now = datetime.datetime.now()
+        if self.start_time.replace(tzinfo=pytz.UTC) < now.replace(tzinfo=pytz.UTC) < self.end_time.replace(tzinfo=pytz.UTC):
             return True
         else:
             return False
