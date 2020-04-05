@@ -6,6 +6,7 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from ippon.event_models import Event
 from ippon.models import *
 from ippon.permissions import *
 from ippon.serializers import *
@@ -375,6 +376,15 @@ class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [IsEventOwnerOrReadOnly]
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        res = super(EventViewSet, self).create(request, *args, **kwargs)
+        admin = EventAdmins(
+            user=request.user,
+            event=Event.objects.get(pk=res.data['id'])
+        )
+        admin.save()
+        return res
 
     @action(
         methods=["GET"],

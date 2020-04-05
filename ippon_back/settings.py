@@ -172,6 +172,3 @@ EMAIL_PORT = os.environ['MAIL_PORT']
 EMAIL_HOST_USER = os.environ['MAIL_USER']
 EMAIL_HOST_PASSWORD = os.environ['MAIL_PASSWORD']
 EMAIL_USE_TLS = os.environ['MAIL_USE_TLS'] == 'True'
-
-
-

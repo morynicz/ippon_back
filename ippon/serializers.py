@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 
 import ippon.models
 import ippon.models as models
+import ippon.event_models as event_models
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -282,12 +283,11 @@ class TournamentSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Event
+        model = event_models.Event
         fields = (
             'id',
             'name',
             'description',
-            'event_owner',
             'icon',
             'banner',
             'start_time',

@@ -1,12 +1,11 @@
 import datetime
-
 import django.test
 import pytz
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from ippon.models import Event
+from ippon.event_models import Event, EventAdmins
 
 
 class TestFightPermissions(django.test.TestCase):
@@ -23,13 +22,18 @@ class TestFightPermissions(django.test.TestCase):
         self.event: Event = Event(
             name="Tournament",
             description="It's very cool",
-            event_owner=self.user,
             registration_start_time=datetime.datetime.now(pytz.UTC),
             registration_end_time=datetime.datetime.now(pytz.UTC),
             start_time=datetime.datetime.now(pytz.UTC),
             end_time=datetime.datetime.now(pytz.UTC)
         )
         self.event.save()
+
+        self.event_admin: EventAdmins = EventAdmins(
+            event=self.event,
+            user=self.user
+        )
+        self.event_admin.save()
 
     def test_event_get_with_unauthorized_user_return_200(self):
         response = self.client.get("/ippon/events/")
@@ -81,7 +85,7 @@ class TestFightPermissions(django.test.TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_event_delete_with_valid_owner_return_200(self):
+    def test_event_delete_with_valid_owner_return_204(self):
         self.client.force_authenticate(self.user)
         response = self.client.delete(f"/ippon/events/{self.event.pk}/")
 
