@@ -392,7 +392,7 @@ class EventViewSet(viewsets.ModelViewSet):
         url_name='my_tournaments')
     def my_tournaments(self, request: Request):
         if request.user.is_authenticated:
-            model = Event.objects.filter(event_owner=request.user.pk)
+            model = [i.event for i in EventAdmin.objects.filter(user=request.user)]
             return Response(data=self.serializer_class(model, many=True).data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, data={"error": "You are not logged in."})
