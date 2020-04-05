@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from ippon.event_models import Event, EventAdmins
 
 
-class TestFightPermissions(django.test.TestCase):
+class TestEventPermissions(django.test.TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
