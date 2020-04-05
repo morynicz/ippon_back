@@ -37,6 +37,6 @@ class Event(models.Model):
             return False
 
 
-class EventAdmins(models.Model):
+class EventAdmin(models.Model):
     event = models.ForeignKey("Event", on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

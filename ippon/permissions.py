@@ -7,7 +7,7 @@ from rest_framework.request import Request
 from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight, Team, Fight, Tournament, \
     Club
 
-from ippon.event_models import Event, EventAdmins
+from ippon.event_models import Event, EventAdmin
 from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer, FightSerializer, \
     PointSerializer, PlayerSerializer
 
@@ -281,6 +281,6 @@ class IsEventOwnerOrReadOnly(permissions.BasePermission):
         else:
             pk = view.kwargs["pk"]
             try:
-                return any([i.user == request.user for i in EventAdmins.objects.filter(event=Event.objects.get(pk=pk))])
+                return any([i.user == request.user for i in EventAdmin.objects.filter(event=Event.objects.get(pk=pk))])
             except Exception:
                 return False

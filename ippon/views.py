@@ -379,7 +379,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         res = super(EventViewSet, self).create(request, *args, **kwargs)
-        admin = EventAdmins(
+        admin = EventAdmin(
             user=request.user,
             event=Event.objects.get(pk=res.data['id'])
         )
