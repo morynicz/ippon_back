@@ -1,9 +1,13 @@
 import json
 
+from django.views.generic.base import View
 from rest_framework import permissions
+from rest_framework.request import Request
 
 from ippon.models import ClubAdmin, TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight, Team, Fight, Tournament, \
     Club
+
+from ippon.event_models import Event, EventAdmin
 from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer, FightSerializer, \
     PointSerializer, PlayerSerializer
 
@@ -135,6 +139,7 @@ class IsTournamentOwnerAdminCreation(permissions.BasePermission):
     def has_object_permission(self, request, view, admin):
         return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament, is_master=True).exists()
 
+
 class IsTournamentAdminParticipantCreation(permissions.BasePermission):
     def has_permission(self, request, view):  # TODO: CCheck if this is needed
         try:
@@ -262,3 +267,20 @@ class IsTournamentAdmin(permissions.BasePermission):
             return is_user_admin_of_the_tournament(request, tournament)
         except (KeyError, Tournament.DoesNotExist):
             return False
+
+
+class IsEventOwnerOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request: Request, view: View) -> bool:
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        elif request.method == "POST":
+            try:
+                return request.user.pk == int(request.data["event_owner"])
+            except (KeyError, ValueError):
+                return False
+        else:
+            pk = view.kwargs["pk"]
+            try:
+                return any([i.user == request.user for i in EventAdmin.objects.filter(event=Event.objects.get(pk=pk))])
+            except Exception:
+                return False

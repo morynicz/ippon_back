@@ -1,6 +1,8 @@
 import datetime
 from math import floor
 
+import pytz
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -322,3 +324,5 @@ class Tournament(models.Model):
     rank_constraint_value = models.IntegerField(choices=RANK_CHOICES)
     age_constraint_value = models.IntegerField()
     finals_depth = models.IntegerField()
+
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, null=True)
