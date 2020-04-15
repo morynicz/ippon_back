@@ -291,6 +291,7 @@ class EventSerializer(serializers.ModelSerializer):
             'icon',
             'banner',
             'start_time',
+            'end_time',
             'registration_start_time',
             'registration_end_time',
             'registration_is_open',
