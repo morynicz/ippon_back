@@ -8,8 +8,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
-from .event_models import Event
+from ippon.event_models import Event
 
 
 class Club(models.Model):
