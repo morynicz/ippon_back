@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Team, TournamentAdmin, Tournament
+from ippon.models import Player, Team, TournamentAdmin, Tournament
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -22,7 +23,7 @@ class TeamsViewTest(APITestCase):
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.c = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
+        self.c = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c)
         self.to.participations.create(player=self.p1)
@@ -201,7 +202,7 @@ class TeamViewSetUnauthenticatedTests(TeamsViewTest):
 class TeamMembersViewTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.club = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
+        self.club = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
         self.admin = User.objects.create(username='admin', password='password')
         self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                             date=datetime.date(year=2021, month=1, day=1), address='a1',

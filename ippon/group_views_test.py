@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import TournamentAdmin, Team, TeamFight, Tournament, Club, Player
+from ippon.models import TournamentAdmin, Team, TeamFight, Tournament, Player
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -233,7 +234,7 @@ class GroupViewSetMembersUnauthenticatedTests(GroupViewSetMembersTests):
 class GroupMemberViewSetScoreCountingTests(GroupViewTest):
     def setUp(self):
         super(GroupMemberViewSetScoreCountingTests, self).setUp()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',

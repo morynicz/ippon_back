@@ -2,11 +2,10 @@ from django.contrib.auth.hashers import make_password
 from django.http.request import HttpRequest
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, action
-from rest_framework.exceptions import ErrorDetail
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.event_models import Event
+import ippon.club.permissisons as clp
 from ippon.models import *
 from ippon.permissions import *
 from ippon.serializers import *
@@ -16,38 +15,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsClubAdminOrReadOnlyDependent)
-
-
-class ClubViewSet(viewsets.ModelViewSet):
-    queryset = Club.objects.all()
-    serializer_class = ClubSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsClubAdminOrReadOnlyClub)
-
-    def perform_create(self, serializer):
-        club = serializer.save()
-        ca = ClubAdmin(user=self.request.user, club=club)
-        ca.save()
-
-    @action(methods=['get'], detail=True)
-    def players(self, request, pk=None):
-        serializer = PlayerSerializer(Player.objects.filter(club_id=pk), many=True)
-        return Response(serializer.data)
-
-    @action(methods=['get'],
-            detail=True,
-            permission_classes=(permissions.IsAuthenticated, IsClubOwner))
-    def admins(self, request, pk=None):
-        serializer = ClubAdminSerializer(ClubAdmin.objects.filter(club=pk), many=True)
-        return Response(serializer.data)
-
-    @action(methods=['get'],
-            detail=True,
-            permission_classes=(permissions.IsAuthenticated, IsClubOwner))
-    def non_admins(self, request, pk=None):
-        serializer = MinimalUserSerializer(User.objects.exclude(clubs__club=pk), many=True)
-        return Response(serializer.data)
+                          clp.IsClubAdminOrReadOnlyDependent)
 
 
 class TournamentParticipationViewSet(viewsets.ModelViewSet):
@@ -62,13 +30,6 @@ class TournamentAdminViewSet(viewsets.ModelViewSet):
     serializer_class = TournamentAdminSerializer
     permission_classes = (permissions.IsAuthenticated,
                           IsTournamentOwnerAdminCreation)
-
-
-class ClubAdminViewSet(viewsets.ModelViewSet):
-    queryset = ClubAdmin.objects.all()
-    serializer_class = ClubAdminSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          IsClubOwnerAdminCreation)
 
 
 class TeamViewSet(viewsets.ModelViewSet):

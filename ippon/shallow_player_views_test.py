@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club
+from ippon.models import Player
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -15,7 +16,7 @@ class ShallowPlayerViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.u1 = User.objects.create(username='a1', password='password1')
-        self.c1 = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
+        self.c1 = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=1,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
         self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=2,

@@ -7,9 +7,11 @@ import django.test
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
+import ippon.club.permissisons
 import ippon.permissions as permissions
 import ippon.serializers as serializers
-from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournament
+from ippon.models import Team, Player, TeamFight, TournamentAdmin, Tournament
+import ippon.club.models as cl
 from ippon.serializers import PointSerializer
 
 
@@ -17,7 +19,7 @@ class ClubPermissionsTests(django.test.TestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='password')
         self.admin = User.objects.create(username='admin', password='password')
-        self.club = Club.objects.create(
+        self.club = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -25,7 +27,7 @@ class ClubPermissionsTests(django.test.TestCase):
         self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
         self.club_admin = self.club.admins.create(user=self.admin)
-        self.permission = permissions.IsClubAdminOrReadOnlyClub()
+        self.permission = ippon.club.permissisons.IsClubAdminOrReadOnlyClub()
 
 
 class ClubPermissionTestsNotAdmin(ClubPermissionsTests):
@@ -58,7 +60,7 @@ class PlayerPermissionsTest(django.test.TestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='password')
         self.admin = User.objects.create(username='admin', password='password')
-        self.club = Club.objects.create(
+        self.club = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -66,7 +68,7 @@ class PlayerPermissionsTest(django.test.TestCase):
         self.player = self.club.players.create(name='pn1', surname='ps1', rank=7,
                                                birthday=datetime.date(year=2001, month=1, day=1), sex=1,
                                                club_id=self.club)
-        self.permission = permissions.IsClubAdminOrReadOnlyDependent()
+        self.permission = ippon.club.permissisons.IsClubAdminOrReadOnlyDependent()
         self.request = unittest.mock.Mock(user=self.user, data=serializers.PlayerSerializer(self.player).data)
         self.view = unittest.mock.Mock()
         self.club_admin = self.club.admins.create(user=self.admin)
@@ -172,7 +174,7 @@ class TournamentAdminTests(TournamentPermissionTests):
         self.assertEqual(result, False)
 
     def test_returns_false_when_view_has_no_pk(self):
-        self.view.kwargs=dict()
+        self.view.kwargs = dict()
         result = self.permission.has_permission(self.request, self.view)
         self.assertEqual(result, False)
 
@@ -187,7 +189,6 @@ class TournamentAdminTests(TournamentPermissionTests):
         self.tournament.admins.create(user=self.user, is_master=True)
         result = self.permission.has_permission(self.request, self.view)
         self.assertEqual(result, True)
-
 
 
 class TournamentDependentOrReadOnlyPermissions(django.test.TestCase):
@@ -347,12 +348,12 @@ class TestClubOwnerPermissions(django.test.TestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='password')
         self.admin = User.objects.create(username='admin', password='password')
-        self.club = Club.objects.create(
+        self.club = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
-        self.permission = permissions.IsClubOwner()
+        self.permission = ippon.club.permissisons.IsClubOwner()
         self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict(pk=self.club.id)
@@ -391,12 +392,12 @@ class TestClubOwnerAdminCreationPermissions(django.test.TestCase):
         self.user = User.objects.create(username='user', password='password')
         self.admin = User.objects.create(username='admin', password='password')
         self.new_admin = User.objects.create(username='newguy', password='password')
-        self.club = Club.objects.create(
+        self.club = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
-        self.permission = permissions.IsClubOwnerAdminCreation()
+        self.permission = ippon.club.permissisons.IsClubOwnerAdminCreation()
         self.request = unittest.mock.Mock(user=self.user)
         self.request.body = json.dumps({
             "id": -1,
@@ -519,7 +520,7 @@ class TestTournamentOwnerParticipantCreationPermissions(django.test.TestCase):
             final_match_length=3, finals_depth=0, age_constraint=5,
             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
             sex_constraint=1)
-        self.club = Club.objects.create(
+        self.club = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -592,7 +593,7 @@ class TestTournamentOwnerParticipantCreationPermissionsNotAdmin(TestTournamentOw
 
 class TestPointPermissions(django.test.TestCase):
     def setUp(self):
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',

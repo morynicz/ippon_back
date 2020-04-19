@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.schemas import get_schema_view
 
 import ippon.authorization_views
+import ippon.club.views
 import ippon.tournament_view_set
 from ippon import views
 
@@ -12,11 +13,11 @@ schema_view = get_schema_view(title='ippon_api')
 
 router = DefaultRouter()
 router.register(r'players', views.PlayerViewSet)
-router.register(r'clubs', views.ClubViewSet)
+router.register(r'clubs', ippon.club.views.ClubViewSet)
 router.register(r'tournaments', ippon.tournament_view_set.TournamentViewSet)
 router.register(r'participations', views.TournamentParticipationViewSet)
 router.register(r'tournament_admins', views.TournamentAdminViewSet)
-router.register(r'club_admins', views.ClubAdminViewSet)
+router.register(r'club_admins', ippon.club.views.ClubAdminViewSet)
 router.register(r'teams', views.TeamViewSet)
 router.register(r'points', views.PointViewSet)
 router.register(r'fights', views.FightViewSet)

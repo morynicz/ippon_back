@@ -4,14 +4,15 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournament
+from ippon.models import Team, Player, TeamFight, TournamentAdmin, Tournament
+import ippon.club.models as cl
 from ippon.permissions import IsFightOwnerOrReadOnly
 from ippon.serializers import FightSerializer
 
 
 class TestFightPermissions(django.test.TestCase):
     def setUp(self):
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',

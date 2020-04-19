@@ -6,14 +6,16 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Club, Tournament, TournamentAdmin
+from ippon.models import Tournament, TournamentAdmin
+import ippon.club.models as cl
 
 BAD_PK = 0
+
 
 class TournamentParticipationsViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.club = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
+        self.club = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
         self.player = self.club.players.create(name='pn1', surname='ps1', rank=7,
                                                birthday=datetime.date(year=2001, month=1, day=1), sex=1,
                                                club_id=self.club)
@@ -27,7 +29,7 @@ class TournamentParticipationsViewTest(APITestCase):
                                              sex_constraint=1)
 
         self.valid_payload = {
-                        "player": {"id": self.player.id,
+            "player": {"id": self.player.id,
                        "name": self.player.name,
                        "surname": self.player.surname
                        },
@@ -95,6 +97,7 @@ class TournamentParticipationViewSetUnauthorizedTests(TournamentParticipationsVi
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 class TournamentParticipationViewSetUnauthenticatedTests(TournamentParticipationsViewTest):
     def setUp(self):

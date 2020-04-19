@@ -6,8 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, ClubAdmin
-
+from ippon.models import Player
+import ippon.club.models as cl
 BAD_PK = 0
 
 
@@ -18,11 +18,11 @@ class ClubViewTest(APITestCase):
         self.u2 = User.objects.create(username='a2', password='password2')
         self.u3 = User.objects.create(username='u3', password='password1')
 
-        self.c1 = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
-        self.c2 = Club.objects.create(name='cn2', webpage='http://cw2.co', description='cd2', city='cc2')
-        self.c4 = Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
-        self.a1 = ClubAdmin.objects.create(user=self.u1, club=self.c1)
-        self.a2 = ClubAdmin.objects.create(user=self.u1, club=self.c2)
+        self.c1 = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
+        self.c2 = cl.Club.objects.create(name='cn2', webpage='http://cw2.co', description='cd2', city='cc2')
+        self.c4 = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
+        self.a1 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c1)
+        self.a2 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c2)
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
         self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
@@ -88,7 +88,7 @@ class ClubViewSetAuthorizedTests(ClubViewTest):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(ClubAdmin.objects.filter(club__id=response.data["id"], user=self.u1))
+        self.assertTrue(cl.ClubAdmin.objects.filter(club__id=response.data["id"], user=self.u1))
 
     def test_post_invalid_payload_returns_400(self):
         response = self.client.post(
@@ -161,7 +161,7 @@ class ClubViewSetAuthorizedTests(ClubViewTest):
 
     # TODO: Change this to sending only list of users
     def test_admins_lists_all_club_admins(self):
-        admin = ClubAdmin.objects.create(user=self.u2, club=self.c1)
+        admin = cl.ClubAdmin.objects.create(user=self.u2, club=self.c1)
         admins = [
             {
                 "id": self.a1.id,
@@ -269,7 +269,7 @@ class ClubViewSetUnauthenticatedTests(ClubViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_admins_returns_unauthorized(self):
-        ClubAdmin.objects.create(user=self.u2, club=self.c1)
+        cl.ClubAdmin.objects.create(user=self.u2, club=self.c1)
         response = self.client.get(reverse('club-admins', kwargs={'pk': self.c1.id}))
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

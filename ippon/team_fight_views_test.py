@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Team, TournamentAdmin, TeamFight, Tournament
+from ippon.models import Player, Team, TournamentAdmin, TeamFight, Tournament
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -14,7 +15,7 @@ BAD_PK = 0
 class TeamFightViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -47,8 +48,10 @@ class TeamFightViewTest(APITestCase):
         self.tf1 = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.tf2 = TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to, status=1)
 
-        self.tf1_json = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t2.id, 'tournament': self.to.id, 'status': 0, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}
-        self.tf2_json = {'id': self.tf2.id, 'aka_team': self.t3.id, 'shiro_team': self.t4.id, 'tournament': self.to.id, 'status': 1, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}
+        self.tf1_json = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t2.id, 'tournament': self.to.id,
+                         'status': 0, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}
+        self.tf2_json = {'id': self.tf2.id, 'aka_team': self.t3.id, 'shiro_team': self.t4.id, 'tournament': self.to.id,
+                         'status': 1, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}
         self.valid_payload = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t1.id,
                               'tournament': self.to.id, 'status': 0, 'winner': 0}
         self.invalid_payload = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': BAD_PK,
@@ -177,8 +180,10 @@ class UnauthorizedTeamFightsFightsTest(TeamFightViewSetUnauthorizedTests):
         self.f1 = self.tf1.fights.create(aka=self.p1, shiro=self.p2)
         self.f2 = self.tf1.fights.create(aka=self.p2, shiro=self.p1)
 
-        self.f1_json = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p2.id, 'team_fight': self.tf1.id, 'status': 0, 'winner': 0}
-        self.f2_json = {'id': self.f2.id, 'aka': self.p2.id, 'shiro': self.p1.id, 'team_fight': self.tf1.id, 'status': 0, 'winner': 0}
+        self.f1_json = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p2.id, 'team_fight': self.tf1.id,
+                        'status': 0, 'winner': 0}
+        self.f2_json = {'id': self.f2.id, 'aka': self.p2.id, 'shiro': self.p1.id, 'team_fight': self.tf1.id,
+                        'status': 0, 'winner': 0}
 
     def test_get_fights_for_valid_team_fight_returns_list_of_fights(self):
         expected = [self.f1_json, self.f2_json]

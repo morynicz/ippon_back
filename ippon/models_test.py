@@ -4,8 +4,10 @@ import django
 from django.db import IntegrityError
 from django.test import TestCase
 
+import ippon.club
 import ippon.models
-from ippon.models import Club, Team, Player, NoSuchFightException, Tournament
+from ippon.models import Team, Player, NoSuchFightException, Tournament
+import ippon.club.models as cl
 
 
 class TournamentParticipationTests(TestCase):
@@ -28,7 +30,7 @@ class TournamentParticipationTests(TestCase):
             rank_constraint_value=7,
             sex_constraint=1)
         self.tournament.save()
-        c = ippon.models.Club.objects.create(
+        c = ippon.club.models.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -73,7 +75,7 @@ class TournamentParticipationTests(TestCase):
 
 class TeamTests(TestCase):
     def test_player_and_team_combinations_are_unique(self):
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -147,7 +149,6 @@ class CupFightSiblingTests(TestCupFights):
         self.cf_parent = self.cup_phase.cup_fights.create(previous_aka_fight=self.cf_aka,
                                                           previous_shiro_fight=self.cup_fight)
 
-
     def test_cup_fight_when_winner_is_set_and_sibling_has_winner_already_set_creates_team_fight_in_parent(self):
         self.cf_aka.team_fight.winner = 1
         self.cf_aka.team_fight.save()
@@ -176,7 +177,7 @@ class CupFightSiblingTests(TestCupFights):
         self.cup_fight.team_fight.winner = 2
         self.cup_fight.team_fight.save()
         self.cf_parent.refresh_from_db()
-        old_parent_tf_id=self.cf_parent.team_fight.id
+        old_parent_tf_id = self.cf_parent.team_fight.id
         self.cf_aka.team_fight.winner = 2
         self.cf_aka.team_fight.save()
         self.cf_parent.refresh_from_db()
@@ -207,7 +208,7 @@ class TestTeamFights(TestCase):
             rank_constraint_value=7,
             sex_constraint=1)
         self.tournament.save()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -274,7 +275,6 @@ class TestTeamFights(TestCase):
         f4.winner = 2
         f4.save()
 
-
     def test_correctly_counts_aka_wins(self):
         self.assertEqual(self.team_fight1.get_aka_wins(), 2)
 
@@ -286,6 +286,7 @@ class TestTeamFights(TestCase):
 
     def test_correctly_counts_shiro_points(self):
         self.assertEqual(self.team_fight1.get_shiro_points(), 3)
+
 
 class CupPhaseTests(TestCase):
     def setUp(self) -> None:
@@ -307,7 +308,7 @@ class CupPhaseTests(TestCase):
             rank_constraint_value=7,
             sex_constraint=1)
         self.tournament.save()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',

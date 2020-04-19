@@ -1,22 +1,10 @@
 import datetime
 from math import floor
 
-import pytz
-from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-from ippon.event_models import Event
-
-
-class Club(models.Model):
-    name = models.CharField(max_length=100, blank=False)
-    webpage = models.URLField()
-    description = models.TextField()
-    city = models.CharField(max_length=100, blank=False)
-
 
 SEX_CHOICES = [
     (0, 'Male'),
@@ -49,14 +37,6 @@ class Player(models.Model):
     surname = models.CharField(max_length=100, blank=False)
     birthday = models.DateField()
     club_id = models.ForeignKey('Club', related_name='players', on_delete=models.PROTECT)
-
-
-class ClubAdmin(models.Model):
-    club = models.ForeignKey('Club', related_name='admins', on_delete=models.CASCADE)
-    user = models.ForeignKey('auth.User', related_name='clubs', on_delete=models.PROTECT)
-
-    def get_user(self):
-        return {'id': self.user.id, 'username': self.user.username}
 
 
 class TournamentAdmin(models.Model):
