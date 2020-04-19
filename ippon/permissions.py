@@ -1,10 +1,9 @@
-import json
-
 from django.views.generic.base import View
 from rest_framework import permissions
 from rest_framework.request import Request
 
-from ippon.models import TournamentAdmin, CupPhase, Group, GroupPhase, TeamFight, Team, Fight, Tournament
+from ippon.models import CupPhase, Group, GroupPhase, TeamFight, Team, Fight
+import ippon.tournament.models as tm
 
 from ippon.event_models import Event, EventAdmin
 from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer, FightSerializer, \
@@ -12,8 +11,8 @@ from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSer
 
 
 def is_user_admin_of_the_tournament(request, tournament):
-    return TournamentAdmin.objects.filter(tournament=tournament,
-                                          user=request.user).count() > 0
+    return tm.TournamentAdmin.objects.filter(tournament=tournament,
+                                             user=request.user).count() > 0
 
 
 def get_tournament_from_dependent(obj):
@@ -34,75 +33,6 @@ def has_object_creation_permission(request, serializer_class, tournament_depende
         return False
 
 
-class IsTournamentAdminOrReadOnlyTournament(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, tournament):
-        if request and request.method in permissions.SAFE_METHODS:
-            return True
-        return TournamentAdmin.objects.all().filter(user=request.user, tournament=tournament).count() > 0
-
-
-class IsTournamentAdminOrReadOnlyDependent(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method == "POST":
-            try:
-                return is_user_admin_of_the_tournament(request, request.data["tournament"])
-            except(KeyError):
-                return False
-        return True
-
-    def has_object_permission(self, request, view, dependent):
-        if request and request.method in permissions.SAFE_METHODS:
-            return True
-        return TournamentAdmin.objects.all().filter(user=request.user, tournament=dependent.tournament).count() > 0
-
-
-class IsTournamentAdminDependent(permissions.BasePermission):
-    def has_object_permission(self, request, view, dependent):
-        return TournamentAdmin.objects.all().filter(user=request.user, tournament=dependent.tournament)
-
-
-class IsTournamentOwner(permissions.BasePermission):
-    def has_permission(self, request, view):
-        try:
-            tournament = Tournament.objects.get(pk=(view.kwargs["pk"]))
-            return TournamentAdmin.objects.filter(user=request.user, tournament=tournament,
-                                                  is_master=True).count() > 0
-        except KeyError:
-            return False
-        except Tournament.DoesNotExist:
-            return True
-
-    def has_object_permission(self, request, view, admin):
-        return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament,
-                                              is_master=True).count() > 0
-
-
-class IsTournamentOwnerAdminCreation(permissions.BasePermission):
-    def has_permission(self, request, view):  # TODO: CCheck if this is needed
-        try:
-            req_body = json.loads(request.body)
-            return TournamentAdmin.objects.filter(user=request.user, tournament=req_body["tournament_id"],
-                                                  is_master=True).exists()
-        except KeyError:
-            return False
-
-    def has_object_permission(self, request, view, admin):
-        return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament, is_master=True).exists()
-
-
-class IsTournamentAdminParticipantCreation(permissions.BasePermission):
-    def has_permission(self, request, view):  # TODO: CCheck if this is needed
-        try:
-            req_body = json.loads(request.body)
-            return TournamentAdmin.objects.filter(user=request.user, tournament=req_body["tournament_id"]).exists()
-        except KeyError:
-            return False
-
-    def has_object_permission(self, request, view, admin):
-        return TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament).exists()
-
-
 def get_tournament_from_fight(fight):
     return fight.team_fight.tournament
 
@@ -117,8 +47,8 @@ class IsPointOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, point):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return TournamentAdmin.objects.filter(tournament=point.fight.team_fight.tournament,
-                                              user=request.user).count() > 0
+        return tm.TournamentAdmin.objects.filter(tournament=point.fight.team_fight.tournament,
+                                                 user=request.user).count() > 0
 
 
 class IsFightOwnerOrReadOnly(permissions.BasePermission):
@@ -130,7 +60,7 @@ class IsFightOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, fight):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return TournamentAdmin.objects.filter(tournament=fight.team_fight.tournament, user=request.user).count() > 0
+        return tm.TournamentAdmin.objects.filter(tournament=fight.team_fight.tournament, user=request.user).count() > 0
 
 
 class IsGroupOwnerOrReadOnly(permissions.BasePermission):
@@ -208,16 +138,6 @@ class IsTeamOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, team):
         return is_user_admin_of_the_tournament(request, team.tournament)
-
-
-class IsTournamentAdmin(permissions.BasePermission):
-    def has_permission(self, request, view) -> bool:
-        try:
-            pk = view.kwargs["pk"]
-            tournament = Tournament.objects.get(pk=pk)
-            return is_user_admin_of_the_tournament(request, tournament)
-        except (KeyError, Tournament.DoesNotExist):
-            return False
 
 
 class IsEventOwnerOrReadOnly(permissions.BasePermission):

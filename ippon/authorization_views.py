@@ -2,10 +2,13 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import TournamentAdmin, Fight, TeamFight, Team, Group, GroupPhase, CupPhase
+from ippon.models import Fight, TeamFight, Team, Group, GroupPhase, CupPhase
+import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
 
+
+# TODO cut this file into pieces
 
 @api_view(['GET'])
 def club_authorization(request, pk, format=None):
@@ -42,7 +45,7 @@ def has_tournament_authorization(allowed_master_statuses, pk, request):
     try:
         if not isinstance(allowed_master_statuses, list):
             allowed_master_statuses = [allowed_master_statuses]
-        admin = TournamentAdmin.objects.get(
+        admin = tm.TournamentAdmin.objects.get(
             user=request.user.id,
             tournament=pk,
             is_master__in=allowed_master_statuses)
@@ -53,7 +56,7 @@ def has_tournament_authorization(allowed_master_statuses, pk, request):
             'isAuthorized': is_admin
         })
 
-    except TournamentAdmin.DoesNotExist:
+    except tm.TournamentAdmin.DoesNotExist:
         return Response({
             'isAuthorized': False
         })

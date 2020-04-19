@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Tournament, TournamentAdmin
+import ippon.tournament.models as tm
 import ippon.club.models as cl
 
 BAD_PK = 0
@@ -21,12 +21,12 @@ class TournamentParticipationsViewTest(APITestCase):
                                                club_id=self.club)
         self.user = User.objects.create(username='admin', password='password')
         self.user2 = User.objects.create(username='nonadmin', password='password')
-        self.to1 = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
-                                             date=datetime.date(year=2021, month=1, day=1), address='a1',
-                                             team_size=1, group_match_length=3, ko_match_length=3,
-                                             final_match_length=3, finals_depth=0, age_constraint=5,
-                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                             sex_constraint=1)
+        self.to1 = tm.Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
+                                                date=datetime.date(year=2021, month=1, day=1), address='a1',
+                                                team_size=1, group_match_length=3, ko_match_length=3,
+                                                final_match_length=3, finals_depth=0, age_constraint=5,
+                                                age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                                sex_constraint=1)
 
         self.valid_payload = {
             "player": {"id": self.player.id,
@@ -56,7 +56,7 @@ class TournamentParticipationsViewTest(APITestCase):
 class TournamentParticipationViewSetAuthorizedTests(TournamentParticipationsViewTest):
     def setUp(self):
         super(TournamentParticipationViewSetAuthorizedTests, self).setUp()
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user)
 
     def test_post_invalid_payload_returns_400(self):
@@ -79,7 +79,7 @@ class TournamentParticipationViewSetAuthorizedTests(TournamentParticipationsView
 class TournamentParticipationViewSetUnauthorizedTests(TournamentParticipationsViewTest):
     def setUp(self):
         super(TournamentParticipationViewSetUnauthorizedTests, self).setUp()
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user2)
 
     def test_post_invalid_payload_returns_403(self):
@@ -102,7 +102,7 @@ class TournamentParticipationViewSetUnauthorizedTests(TournamentParticipationsVi
 class TournamentParticipationViewSetUnauthenticatedTests(TournamentParticipationsViewTest):
     def setUp(self):
         super(TournamentParticipationViewSetUnauthenticatedTests, self).setUp()
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
 
     def test_post_invalid_payload_returns_401(self):
         response = self.client.post(

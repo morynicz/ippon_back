@@ -3,12 +3,13 @@ import datetime
 from django.test import TestCase
 
 import ippon.models
+import ippon.tournament.models as tm
 from ippon import models
 
 
 class TournamentDependentClasses(TestCase):
     def setUp(self):
-        self.tournament = ippon.models.Tournament.objects.create(
+        self.tournament = tm.Tournament.objects.create(
             name='T1',
             webpage='http://w1.co',
             description='d1',

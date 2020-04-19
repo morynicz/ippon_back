@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Tournament, TournamentAdmin, Team
+from ippon.models import Team
+import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
 
@@ -18,18 +19,18 @@ class TournamentViewTest(APITestCase):
         self.client = APIClient()
         self.club = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
         self.user = User.objects.create(username='admin', password='password')
-        self.to1 = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
-                                             date=datetime.date(year=2021, month=1, day=1), address='a1',
-                                             team_size=1, group_match_length=3, ko_match_length=3,
-                                             final_match_length=3, finals_depth=0, age_constraint=5,
-                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                             sex_constraint=1)
-        self.to2 = Tournament.objects.create(name='T2', webpage='http://w2.co', description='d2', city='c2',
-                                             date=datetime.date(year=2022, month=2, day=2), address='a2',
-                                             team_size=2, group_match_length=3, ko_match_length=3,
-                                             final_match_length=3, finals_depth=0, age_constraint=5,
-                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                             sex_constraint=1)
+        self.to1 = tm.Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
+                                                date=datetime.date(year=2021, month=1, day=1), address='a1',
+                                                team_size=1, group_match_length=3, ko_match_length=3,
+                                                final_match_length=3, finals_depth=0, age_constraint=5,
+                                                age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                                sex_constraint=1)
+        self.to2 = tm.Tournament.objects.create(name='T2', webpage='http://w2.co', description='d2', city='c2',
+                                                date=datetime.date(year=2022, month=2, day=2), address='a2',
+                                                team_size=2, group_match_length=3, ko_match_length=3,
+                                                final_match_length=3, finals_depth=0, age_constraint=5,
+                                                age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                                sex_constraint=1)
 
         self.to1_json = {
             'id': self.to1.id,
@@ -112,7 +113,7 @@ class TournamentViewTest(APITestCase):
 class TournamentViewSetAuthorizedTests(TournamentViewTest):
     def setUp(self):
         super(TournamentViewSetAuthorizedTests, self).setUp()
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user)
 
     def test_post_invalid_payload_returns_400(self):
@@ -223,7 +224,7 @@ class TournamentAdminTest(TournamentViewTest):
         self.user2 = User.objects.create(username='user2', password='password')
         self.user3 = User.objects.create(username='user3', password='password')
         self.user4 = User.objects.create(username='user4', password='password')
-        self.adm2 = TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
+        self.adm2 = tm.TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
 
 
 class UnauthorizedTournamentAdminTest(TournamentAdminTest):
@@ -256,7 +257,7 @@ class UnauthenticatedTournamentAdminTest(TournamentAdminTest):
 class AuthorizedTournamentAdminTest(TournamentAdminTest):
     def setUp(self):
         super(AuthorizedTournamentAdminTest, self).setUp()
-        self.adm1 = TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        self.adm1 = tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user)
 
     def test_get_admins_for_valid_fight_returns_list_of_tournaments_admins(self):
@@ -344,7 +345,7 @@ class UnauthenticatedParticipantsTest(TournamentParticipantsTest):
 class AuthorizedParticipantsTest(TournamentParticipantsTest):
     def setUp(self):
         super(AuthorizedParticipantsTest, self).setUp()
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user)
 
     def test_get_participants_for_valid_tournament_returns_list_of_participants(self):
@@ -474,7 +475,7 @@ class TournamentTeamTests(TournamentViewTest):
 class TournamentAdminAuthorizationsTest(TournamentViewTest):
     def setUp(self):
         super(TournamentAdminAuthorizationsTest, self).setUp()
-        self.adm1 = TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        self.adm1 = tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
 
     def test_admin_auth_admin_returns_200_and_isAuthorized_true(self):
         self.client.force_authenticate(user=self.user)
@@ -490,7 +491,7 @@ class TournamentAdminAuthorizationsTest(TournamentViewTest):
 
     def test_staff_auth_admin_returns_200_and_isAuthorized_false(self):
         self.user2 = User.objects.create(username='user2', password='password')
-        self.adm2 = TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
+        self.adm2 = tm.TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
         self.client.force_authenticate(user=self.user2)
         response = self.client.get(reverse('tournament-admin-authorization', kwargs={'pk': self.to1.pk}))
         self.assertEqual({"isAuthorized": False}, response.data)
@@ -498,7 +499,7 @@ class TournamentAdminAuthorizationsTest(TournamentViewTest):
 
     def test_staff_auth_staff_returns_200_and_isAuthorized_true(self):
         self.user2 = User.objects.create(username='user2', password='password')
-        self.adm2 = TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
+        self.adm2 = tm.TournamentAdmin.objects.create(user=self.user2, tournament=self.to1, is_master=False)
         self.client.force_authenticate(user=self.user2)
         response = self.client.get(reverse('tournament-staff-authorization', kwargs={'pk': self.to1.pk}))
         self.assertEqual({"isAuthorized": True}, response.data)
@@ -611,7 +612,7 @@ class TournamentUnassignedPlayersTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_calling_get_on_not_assigned_participants_when_admin_returns_list_of_unassigned(self):
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=False)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=False)
         self.client.force_authenticate(user=self.user)
         response = self.client.get(reverse('tournament-not_assigned', kwargs={'pk': self.to1.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -628,7 +629,7 @@ class TournamentUnassignedPlayersTests(TournamentViewTest):
             }])
 
     def test_calling_get_on_not_assigned_participants_when_owner_returns_list_of_unassigned(self):
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user)
         response = self.client.get(reverse('tournament-not_assigned', kwargs={'pk': self.to1.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -645,7 +646,7 @@ class TournamentUnassignedPlayersTests(TournamentViewTest):
             }])
 
     def test_calling_get_un_unassigned_participants_when_authorized_returns_only_qualified_players(self):
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=False)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=False)
         p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         par5 = self.to1.participations.create(player=self.p4)
