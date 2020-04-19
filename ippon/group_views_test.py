@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import Team, TeamFight
+from ippon.models import TeamFight
+import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
@@ -150,9 +151,9 @@ class GroupViewSetUnauthenticatedTests(GroupViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_group_fights_for_valid_group_returns_list_of_fights(self):
-        t1 = Team.objects.create(tournament=self.to, name='t1')
-        t2 = Team.objects.create(tournament=self.to, name='t2')
-        t3 = Team.objects.create(tournament=self.to, name='t3')
+        t1 = tem.Team.objects.create(tournament=self.to, name='t1')
+        t2 = tem.Team.objects.create(tournament=self.to, name='t2')
+        t3 = tem.Team.objects.create(tournament=self.to, name='t3')
 
         self.group1.group_members.create(team=t1)
         self.group1.group_members.create(team=t2)
@@ -189,10 +190,10 @@ class GroupViewSetUnauthenticatedTests(GroupViewTest):
 class GroupViewSetMembersTests(GroupViewTest):
     def setUp(self):
         super(GroupViewSetMembersTests, self).setUp()
-        self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.t2 = Team.objects.create(tournament=self.to, name='t2')
-        self.t3 = Team.objects.create(tournament=self.to, name='t3')
-        self.t4 = Team.objects.create(tournament=self.to, name='t4')
+        self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
+        self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
+        self.t3 = tem.Team.objects.create(tournament=self.to, name='t3')
+        self.t4 = tem.Team.objects.create(tournament=self.to, name='t4')
 
         self.group1.group_members.create(team=self.t1)
         self.group1.group_members.create(team=self.t2)
@@ -255,9 +256,9 @@ class GroupMemberViewSetScoreCountingTests(GroupViewTest):
         self.p6 = plm.Player.objects.create(name='pn6', surname='ps6', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
 
-        self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.t2 = Team.objects.create(tournament=self.to, name='t2')
-        self.t3 = Team.objects.create(tournament=self.to, name='t3')
+        self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
+        self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
+        self.t3 = tem.Team.objects.create(tournament=self.to, name='t3')
 
         self.group1.group_members.create(team=self.t1)
         self.group1.group_members.create(team=self.t2)
@@ -403,7 +404,7 @@ class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
         super(InvalidIdsGroupMemberViewTests, self).setUp()
 
     def test_groups_post_invalid_group_member_returns_forbidden(self):
-        t3 = Team.objects.create(tournament=self.to, name='t3')
+        t3 = tem.Team.objects.create(tournament=self.to, name='t3')
 
         response = self.client.post(
             reverse('group-members', kwargs={'pk': BAD_PK, 'team_id': t3.id}),
@@ -420,7 +421,7 @@ class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_not_existing_group_member_returns_bad_request(self):
-        t3 = Team.objects.create(tournament=self.to, name='t3')
+        t3 = tem.Team.objects.create(tournament=self.to, name='t3')
         response = self.client.delete(reverse('group-members', kwargs={'pk': self.group1.id, 'team_id': t3.id}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

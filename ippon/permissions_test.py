@@ -8,7 +8,9 @@ from django.contrib.auth.models import User
 
 import ippon.club.permissisons
 import ippon.permissions as permissions
-from ippon.models import Team, TeamFight
+import ippon.team.permissions
+from ippon.models import TeamFight
+import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
@@ -124,11 +126,11 @@ class TestPointPermissions(django.test.TestCase):
                                                final_match_length=3, finals_depth=0, age_constraint=5,
                                                age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                                sex_constraint=1)
-        self.t1 = Team.objects.create(tournament=self.to, name='t1')
+        self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
         self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t1.team_members.create(player=self.p1)
-        self.t2 = Team.objects.create(tournament=self.to, name='t2')
+        self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
         self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t2.team_members.create(player=self.p2)
@@ -183,51 +185,3 @@ class TestPointPermissionAdmin(TestPointPermissions):
         self.request.method = 'PUT'
         result = self.permission.has_permission(self.request, self.view)
         self.assertEqual(result, True)
-
-
-class IsTeamOwnerTests(django.test.TestCase):
-    def setUp(self):
-        self.user = User.objects.create(username='admin', password='password')
-        self.to = tm.Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
-                                               date=datetime.date(year=2021, month=1, day=1), address='a1',
-                                               team_size=1, group_match_length=3, ko_match_length=3,
-                                               final_match_length=3, finals_depth=0, age_constraint=5,
-                                               age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                               sex_constraint=1)
-        self.team = self.to.teams.create(name="a")
-        self.request = unittest.mock.Mock()
-        self.view = unittest.mock.Mock()
-        self.view.kwargs = dict()
-        self.request.user = self.user
-        self.permission = permissions.IsTeamOwner()
-
-
-class IsTeamOwnerAdminTests(IsTeamOwnerTests):
-    def setUp(self):
-        super(IsTeamOwnerAdminTests, self).setUp()
-        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
-        self.view.kwargs = dict(pk=self.team.pk)
-
-    def test_does_permit_when_unsafe_method(self):
-        self.request.method = 'PUT'
-        result = self.permission.has_object_permission(self.request, self.view, self.team)
-        self.assertEqual(result, True)
-
-    def test_does_permit_general(self):
-        self.request.method = 'PUT'
-        result = self.permission.has_permission(self.request, self.view)
-        self.assertEqual(result, True)
-
-
-class IsTeamOwnerNotAdminTests(IsTeamOwnerTests):
-    def setUp(self):
-        super(IsTeamOwnerNotAdminTests, self).setUp()
-
-    def test_doesnt_permit_when_unsafe_method(self):
-        self.request.method = 'PUT'
-        result = self.permission.has_object_permission(self.request, self.view, self.team)
-        self.assertEqual(result, False)
-
-    def test_doesnt_permit_general(self):
-        result = self.permission.has_permission(self.request, self.view)
-        self.assertEqual(result, False)

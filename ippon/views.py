@@ -8,74 +8,9 @@ from rest_framework.response import Response
 from ippon.models import *
 from ippon.permissions import *
 from ippon.serializers import *
-import ippon.player.serializers as pls
 import ippon.tournament.permissions as tp
-
-
-class TeamViewSet(viewsets.ModelViewSet):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          tp.IsTournamentAdminOrReadOnlyDependent)
-
-    # TODO: check when will DRF finally release the multiple actions for single url improvement
-    @action(
-        methods=['post', 'delete'],
-        detail=True,
-        url_name='members',
-        url_path='members/(?P<player_id>[0-9]+)',
-        permission_classes=(permissions.IsAuthenticated,
-                            IsTeamOwner))
-    def handle_members(self, request, pk=None, player_id=None):
-        return {
-            'post': self.create_member,
-            'delete': self.delete_member
-        }[request.method.lower()](request, pk, player_id)
-
-    # @action(
-    #     methods=['post'],
-    #     detail=True,
-    #     url_name='members',
-    #     url_path='members/(?P<player_id>[0-9]+)')
-    def create_member(self, request, pk=None, player_id=None):
-        try:
-            player = plm.Player.objects.get(pk=player_id)
-            team = Team.objects.get(pk=pk)
-            team.team_members.create(player=player)
-            return Response(status=status.HTTP_201_CREATED)
-        except plm.Player.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except Team.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    # @action(
-    #     methods=['delete'],
-    #     detail=True,
-    #     url_name='members',
-    #     url_path='members/(?P<player_id>[0-9]+)')
-    def delete_member(self, request, pk=None, player_id=None):
-        try:
-            player = plm.Player.objects.get(pk=player_id)
-            team = Team.objects.get(pk=pk)
-            membership = TeamMember.objects.filter(player=player, team=team)
-            membership.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except (plm.Player.DoesNotExist, Team.DoesNotExist, TeamMember.DoesNotExist):
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    @action(methods=['get'], detail=True)
-    def members(self, request, pk=None):
-        serializer = pls.PlayerSerializer(plm.Player.objects.filter(team_member__team=pk), many=True)
-        return Response(serializer.data)
-
-    @action(methods=['get'], detail=True, permission_classes=[
-        permissions.IsAuthenticated,
-        tp.IsTournamentAdminDependent])
-    def not_assigned(self, request, pk=None):
-        serializer = pls.PlayerSerializer(
-            plm.Player.objects.filter(participations__tournament__teams=pk)
-                .exclude(team_member__team__tournament__teams=pk), many=True)
-        return Response(serializer.data)
+import ippon.team.models as tem
+import ippon.team.serializers as tes
 
 
 class PointViewSet(viewsets.ModelViewSet):
@@ -150,13 +85,13 @@ class GroupViewSet(viewsets.ModelViewSet):
     #     url_path='members/(?P<team_id>[0-9]+)')
     def create_member(self, request, pk=None, team_id=None):
         try:
-            team = Team.objects.get(pk=team_id)
+            team = tem.Team.objects.get(pk=team_id)
             group = Group.objects.get(pk=pk)
             group.group_members.create(team=team)
             return Response(status=status.HTTP_201_CREATED)
         except Group.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except Team.DoesNotExist:
+        except tem.Team.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     # @action(
@@ -167,19 +102,19 @@ class GroupViewSet(viewsets.ModelViewSet):
     def delete_member(self, request, pk=None, team_id=None):
         try:
             group = Group.objects.get(pk=pk)
-            team = Team.objects.get(pk=team_id)
+            team = tem.Team.objects.get(pk=team_id)
             membership = GroupMember.objects.filter(group=group, team=team)
             if membership:
                 membership.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-        except (Group.DoesNotExist, Team.DoesNotExist, GroupMember.DoesNotExist):
+        except (Group.DoesNotExist, tem.Team.DoesNotExist, GroupMember.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['get'], detail=True)
     def members(self, request, pk=None):
-        serializer = TeamSerializer(Team.objects.filter(group_member__group=pk), many=True)
+        serializer = tes.TeamSerializer(tem.Team.objects.filter(group_member__group=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=['get'],
@@ -189,8 +124,8 @@ class GroupViewSet(viewsets.ModelViewSet):
                 IsGroupOwner])
     def not_assigned(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = TeamSerializer(
-            Team.objects.filter(tournament__group_phases__groups=pk)
+        serializer = tes.TeamSerializer(
+            tem.Team.objects.filter(tournament__group_phases__groups=pk)
                 .exclude(group_member__group__group_phase__groups=pk), many=True)
         return Response(serializer.data)
 
@@ -211,7 +146,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     )
     def member_score(self, request, pk=None, team_id=None):
         group = get_object_or_404(self.queryset, pk=pk)
-        team = get_object_or_404(Team.objects.all(), pk=team_id)
+        team = get_object_or_404(tem.Team.objects.all(), pk=team_id)
         fights = (TeamFight.objects.filter(group_fight__group=pk, aka_team=team_id) \
                   | TeamFight.objects.filter(group_fight__group=pk, shiro_team=team_id)).filter(status=2)
         wins = (fights.filter(aka_team=team_id, winner=1) \

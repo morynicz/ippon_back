@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Team, TeamFight
+from ippon.models import TeamFight
+import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
@@ -29,11 +30,11 @@ class FightViewTest(APITestCase):
                                                final_match_length=3, finals_depth=0, age_constraint=5,
                                                age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                                sex_constraint=1)
-        self.t1 = Team.objects.create(tournament=self.to, name='t1')
+        self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
         self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t1.team_members.create(player=self.p1)
-        self.t2 = Team.objects.create(tournament=self.to, name='t2')
+        self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
         self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t2.team_members.create(player=self.p2)

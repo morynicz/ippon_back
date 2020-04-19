@@ -2,7 +2,7 @@ from django.views.generic.base import View
 from rest_framework import permissions
 from rest_framework.request import Request
 
-from ippon.models import CupPhase, Group, GroupPhase, TeamFight, Team, Fight
+from ippon.models import CupPhase, Group, GroupPhase, TeamFight, Fight
 import ippon.tournament.models as tm
 
 from ippon.event_models import Event, EventAdmin
@@ -125,19 +125,6 @@ class IsGroupOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, group):
         return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
-
-
-class IsTeamOwner(permissions.BasePermission):
-    def has_permission(self, request, view):
-        try:
-            pk = view.kwargs["pk"]
-            team = Team.objects.get(pk=pk)
-            return is_user_admin_of_the_tournament(request, team.tournament)
-        except (KeyError, Team.DoesNotExist):
-            return False
-
-    def has_object_permission(self, request, view, team):
-        return is_user_admin_of_the_tournament(request, team.tournament)
 
 
 class IsEventOwnerOrReadOnly(permissions.BasePermission):

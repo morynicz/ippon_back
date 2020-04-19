@@ -14,20 +14,6 @@ class MinimalUserSerializer(serializers.ModelSerializer):
         )
 
 
-class TeamSerializer(serializers.ModelSerializer):
-    members = serializers.ListField(read_only=True, source='get_member_ids',
-                                    child=serializers.IntegerField(min_value=1))
-
-    class Meta:
-        model = models.Team
-        fields = (
-            'id',
-            'name',
-            'tournament',
-            'members'
-        )
-
-
 class PointSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Point

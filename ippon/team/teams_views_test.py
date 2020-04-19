@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Team
+import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
@@ -24,13 +24,13 @@ class TeamsViewTest(APITestCase):
                                                final_match_length=3, finals_depth=0, age_constraint=5,
                                                age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                                sex_constraint=1)
-        self.t1 = Team.objects.create(tournament=self.to, name='t1')
+        self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
         self.c = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
         self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c)
         self.to.participations.create(player=self.p1)
         self.t1.team_members.create(player=self.p1)
-        self.t2 = Team.objects.create(tournament=self.to, name='t2')
+        self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
         self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c)
         self.to.participations.create(player=self.p2)
@@ -224,7 +224,7 @@ class AuthorizedTeamMembersViewTests(TeamMembersViewTests):
 class ValidIdsTeamMembersViewTests(AuthorizedTeamMembersViewTests):
     def setUp(self):
         super(ValidIdsTeamMembersViewTests, self).setUp()
-        self.t1 = Team.objects.create(tournament=self.to, name='t1')
+        self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
         self.p1 = plm.Player.objects.create(name='pnn1', surname='pss1', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
 
@@ -257,7 +257,7 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_teams_post_invalid_player_returns_404(self):
-        t1 = Team.objects.create(tournament=self.to, name='t1')
+        t1 = tem.Team.objects.create(tournament=self.to, name='t1')
         response = self.client.post(
             reverse('team-members', kwargs={'pk': t1.id, 'player_id': BAD_PK}),
             content_type='application/json'
