@@ -4,10 +4,12 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import Team, GroupPhase, CupPhase
+from ippon.models import GroupPhase, CupPhase
+import ippon.team.models as tem
 import ippon.player.serializers as pls
 import ippon.player.models as plm
-from ippon.serializers import MinimalUserSerializer, TeamSerializer, GroupPhaseSerializer, CupPhaseSerializer
+from ippon.serializers import MinimalUserSerializer, GroupPhaseSerializer, CupPhaseSerializer
+import ippon.team.serializers as tes
 import ippon.tournament.models as tm
 import ippon.tournament.seralizers as ts
 import ippon.tournament.permissions as tp
@@ -83,8 +85,8 @@ class TournamentViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True)
     def teams(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = TeamSerializer(
-            Team.objects.filter(tournament=pk), many=True)
+        serializer = tes.TeamSerializer(
+            tem.Team.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(

@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Team
+import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
@@ -444,9 +444,9 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
 class TournamentTeamTests(TournamentViewTest):
     def setUp(self):
         super(TournamentTeamTests, self).setUp()
-        self.t1 = Team.objects.create(tournament=self.to1, name='t1')
-        self.t2 = Team.objects.create(tournament=self.to1, name='t2')
-        self.t3 = Team.objects.create(tournament=self.to2, name='t3')
+        self.t1 = tem.Team.objects.create(tournament=self.to1, name='t1')
+        self.t2 = tem.Team.objects.create(tournament=self.to1, name='t2')
+        self.t3 = tem.Team.objects.create(tournament=self.to2, name='t3')
 
     def test_get_teams_returns_list_of_tournament_teams(self):
         expected = [
@@ -586,7 +586,7 @@ class TournamentCupPhasesUnauthenticatedTests(TournamentViewTest):
 class TournamentUnassignedPlayersTests(TournamentViewTest):
     def setUp(self):
         super(TournamentUnassignedPlayersTests, self).setUp()
-        self.t1 = Team.objects.create(tournament=self.to1, name='t1')
+        self.t1 = tem.Team.objects.create(tournament=self.to1, name='t1')
         self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par1 = self.to1.participations.create(player=self.p1, is_qualified=True)

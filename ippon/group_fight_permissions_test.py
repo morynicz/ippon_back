@@ -4,7 +4,8 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import Team, TeamFight, GroupPhase, Group
+from ippon.models import TeamFight, GroupPhase, Group
+import ippon.team.models as tem
 import ippon.tournament.models as tm
 from ippon.permissions import IsGroupFightOwnerOrReadOnly
 from ippon.serializers import GroupFightSerializer
@@ -19,8 +20,8 @@ class TestGroupFightPermissions(django.test.TestCase):
                                                final_match_length=3, finals_depth=0, age_constraint=5,
                                                age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                                sex_constraint=1)
-        self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.t2 = Team.objects.create(tournament=self.to, name='t2')
+        self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
+        self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
 
         self.tf = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.permission = IsGroupFightOwnerOrReadOnly()
