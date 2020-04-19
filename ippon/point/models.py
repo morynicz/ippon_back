@@ -1,6 +1,5 @@
 from django.db import models
 import ippon.player.models as plm
-import ippon.models as im
 
 POINT_TYPE = [
     (0, 'Men'),
