@@ -31,4 +31,4 @@ services:
   - postgresql
 
 notifications:
-  slack: ipponforge:POZIxDUMmeddHxK10Ub78v8j
+  slack: ${SLACK_KEY}
