@@ -4,7 +4,8 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import Team, Player, TeamFight, TournamentAdmin, Tournament
+from ippon.models import Team, TeamFight, TournamentAdmin, Tournament
+import ippon.player.models as plm
 import ippon.club.models as cl
 from ippon.permissions import IsFightOwnerOrReadOnly
 from ippon.serializers import FightSerializer
@@ -25,11 +26,11 @@ class TestFightPermissions(django.test.TestCase):
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t1.team_members.create(player=self.p1)
         self.t2 = Team.objects.create(tournament=self.to, name='t2')
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t2.team_members.create(player=self.p2)
 

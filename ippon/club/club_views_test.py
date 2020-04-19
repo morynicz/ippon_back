@@ -6,8 +6,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player
+import ippon.player.models as plm
 import ippon.club.models as cl
+
 BAD_PK = 0
 
 
@@ -23,14 +24,14 @@ class ClubViewTest(APITestCase):
         self.c4 = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         self.a1 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c1)
         self.a2 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c2)
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
-        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
-        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c4)
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
+        self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
+        self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c4)
         self.valid_payload = {
             "name": "cn3",
             "webpage": "http://cw1.co",

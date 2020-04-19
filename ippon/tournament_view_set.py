@@ -4,11 +4,12 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon import serializers
-from ippon.models import TournamentParticipation, Player, TournamentAdmin, Team, GroupPhase, CupPhase, Tournament
+from ippon.models import TournamentParticipation, TournamentAdmin, Team, GroupPhase, CupPhase, Tournament
+import ippon.player.models as plm
+import ippon.player.serializers as pls
 import ippon.permissions as perms
-from ippon.serializers import TournamentParticipationSerializer, PlayerSerializer, \
-    TournamentAdminSerializer, MinimalUserSerializer, TeamSerializer, GroupPhaseSerializer, CupPhaseSerializer, \
+from ippon.serializers import TournamentParticipationSerializer, TournamentAdminSerializer, MinimalUserSerializer, \
+    TeamSerializer, GroupPhaseSerializer, CupPhaseSerializer, \
     TournamentSerializer
 
 
@@ -31,7 +32,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
             perms.IsTournamentOwner))
     def non_participants(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = PlayerSerializer(Player.objects.exclude(participations__tournament=pk), many=True)
+        serializer = pls.PlayerSerializer(plm.Player.objects.exclude(participations__tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=['get'], detail=True, permission_classes=(
@@ -39,8 +40,8 @@ class TournamentViewSet(viewsets.ModelViewSet):
             perms.IsTournamentOwner))
     def participants(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = PlayerSerializer(
-            Player.objects.filter(participations__tournament=pk, participations__is_qualified=True), many=True)
+        serializer = pls.PlayerSerializer(
+            plm.Player.objects.filter(participations__tournament=pk, participations__is_qualified=True), many=True)
         return Response(serializer.data)
 
     def perform_create(self, serializer):
@@ -99,7 +100,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
         ]
     )
     def not_assigned(self, request, pk=None):
-        players = Player.objects.filter(participations__tournament=pk, participations__is_qualified=True).exclude(
+        players = plm.Player.objects.filter(participations__tournament=pk, participations__is_qualified=True).exclude(
             team_member__team__tournament=pk)
-        serializer = serializers.ShallowPlayerSerializer(players, many=True)
+        serializer = pls.ShallowPlayerSerializer(players, many=True)
         return Response(serializer.data)

@@ -1,21 +1,15 @@
 from django.contrib.auth.hashers import make_password
 from django.http.request import HttpRequest
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.club.permissisons as clp
 from ippon.models import *
 from ippon.permissions import *
+import ippon.player.models as plm
+import ippon.player.serializers as pls
 from ippon.serializers import *
-
-
-class PlayerViewSet(viewsets.ModelViewSet):
-    queryset = Player.objects.all()
-    serializer_class = PlayerSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          clp.IsClubAdminOrReadOnlyDependent)
 
 
 class TournamentParticipationViewSet(viewsets.ModelViewSet):
@@ -59,11 +53,11 @@ class TeamViewSet(viewsets.ModelViewSet):
     #     url_path='members/(?P<player_id>[0-9]+)')
     def create_member(self, request, pk=None, player_id=None):
         try:
-            player = Player.objects.get(pk=player_id)
+            player = plm.Player.objects.get(pk=player_id)
             team = Team.objects.get(pk=pk)
             team.team_members.create(player=player)
             return Response(status=status.HTTP_201_CREATED)
-        except Player.DoesNotExist:
+        except plm.Player.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Team.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -75,25 +69,25 @@ class TeamViewSet(viewsets.ModelViewSet):
     #     url_path='members/(?P<player_id>[0-9]+)')
     def delete_member(self, request, pk=None, player_id=None):
         try:
-            player = Player.objects.get(pk=player_id)
+            player = plm.Player.objects.get(pk=player_id)
             team = Team.objects.get(pk=pk)
             membership = TeamMember.objects.filter(player=player, team=team)
             membership.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except (Player.DoesNotExist, Team.DoesNotExist, TeamMember.DoesNotExist):
+        except (plm.Player.DoesNotExist, Team.DoesNotExist, TeamMember.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['get'], detail=True)
     def members(self, request, pk=None):
-        serializer = PlayerSerializer(Player.objects.filter(team_member__team=pk), many=True)
+        serializer = pls.PlayerSerializer(plm.Player.objects.filter(team_member__team=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=['get'], detail=True, permission_classes=[
         permissions.IsAuthenticated,
         IsTournamentAdminDependent])
     def not_assigned(self, request, pk=None):
-        serializer = PlayerSerializer(
-            Player.objects.filter(participations__tournament__teams=pk)
+        serializer = pls.PlayerSerializer(
+            plm.Player.objects.filter(participations__tournament__teams=pk)
                 .exclude(team_member__team__tournament__teams=pk), many=True)
         return Response(serializer.data)
 
@@ -280,16 +274,6 @@ def register_user(request):
     else:
         response = [str(err[0]) for err in serializer.errors.values()]
         return Response(status=status.HTTP_400_BAD_REQUEST, data=response, content_type="application/json")
-
-
-class ShallowPlayerListView(generics.ListAPIView):
-    queryset = Player.objects.all()
-    serializer_class = ShallowPlayerSerializer
-
-
-class ShallowPlayerDetailView(generics.RetrieveAPIView):
-    queryset = Player.objects.all()
-    serializer_class = ShallowPlayerSerializer
 
 
 class CupPhaseViewSet(viewsets.ModelViewSet):

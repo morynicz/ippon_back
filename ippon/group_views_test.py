@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import TournamentAdmin, Team, TeamFight, Tournament, Player
+from ippon.models import TournamentAdmin, Team, TeamFight, Tournament
+import ippon.player.models as plm
 import ippon.club.models as cl
 
 BAD_PK = 0
@@ -240,17 +241,17 @@ class GroupMemberViewSetScoreCountingTests(GroupViewTest):
             description='cd1',
             city='cc1')
 
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
+        self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
+        self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p5 = Player.objects.create(name='pn5', surname='ps5', rank=7,
+        self.p5 = plm.Player.objects.create(name='pn5', surname='ps5', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p6 = Player.objects.create(name='pn6', surname='ps6', rank=7,
+        self.p6 = plm.Player.objects.create(name='pn6', surname='ps6', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
 
         self.t1 = Team.objects.create(tournament=self.to, name='t1')

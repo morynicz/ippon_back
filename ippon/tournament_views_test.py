@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Tournament, TournamentAdmin, Team
+from ippon.models import Tournament, TournamentAdmin, Team
+import ippon.player.models as plm
 import ippon.club.models as cl
 
 BAD_PK = 0
@@ -310,17 +311,17 @@ class AuthorizedTournamentAdminTest(TournamentAdminTest):
 class TournamentParticipantsTest(TournamentViewTest):
     def setUp(self):
         super(TournamentParticipantsTest, self).setUp()
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par1 = self.to1.participations.create(player=self.p1, is_qualified=True)
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par2 = self.to1.participations.create(player=self.p2)
 
-        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
-        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
 
 
 class UnauthenticatedParticipantsTest(TournamentParticipantsTest):
@@ -585,19 +586,19 @@ class TournamentUnassignedPlayersTests(TournamentViewTest):
     def setUp(self):
         super(TournamentUnassignedPlayersTests, self).setUp()
         self.t1 = Team.objects.create(tournament=self.to1, name='t1')
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par1 = self.to1.participations.create(player=self.p1, is_qualified=True)
         self.t1.team_members.create(player=self.p1)
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par2 = self.to1.participations.create(player=self.p2, is_qualified=True)
         self.t1.team_members.create(player=self.p2)
-        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par3 = self.to1.participations.create(player=self.p3, is_qualified=True)
-        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         self.par4 = self.to1.participations.create(player=self.p4, is_qualified=True)
 
     def test_calling_get_on_not_assigned_participants_when_not_authenticated_returns_unauthorised(self):
@@ -645,8 +646,8 @@ class TournamentUnassignedPlayersTests(TournamentViewTest):
 
     def test_calling_get_un_unassigned_participants_when_authorized_returns_only_qualified_players(self):
         TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=False)
-        p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                   birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
+        p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                       birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
         par5 = self.to1.participations.create(player=self.p4)
 
         self.client.force_authenticate(user=self.user)

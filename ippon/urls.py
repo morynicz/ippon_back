@@ -6,13 +6,14 @@ from rest_framework.schemas import get_schema_view
 
 import ippon.authorization_views
 import ippon.club.views
+import ippon.player.views
 import ippon.tournament_view_set
 from ippon import views
 
 schema_view = get_schema_view(title='ippon_api')
 
 router = DefaultRouter()
-router.register(r'players', views.PlayerViewSet)
+router.register(r'players', ippon.player.views.PlayerViewSet)
 router.register(r'clubs', ippon.club.views.ClubViewSet)
 router.register(r'tournaments', ippon.tournament_view_set.TournamentViewSet)
 router.register(r'participations', views.TournamentParticipationViewSet)
@@ -53,6 +54,6 @@ urlpatterns = [
     url(r'^authorization/players/(?P<pk>[0-9]+)/$', ippon.authorization_views.player_authorization,
         name='player-authorization'),
     url(r'^registration/', views.register_user, name='register-user'),
-    url(r'^shallow_players/(?P<pk>[0-9]+)/$', views.ShallowPlayerDetailView.as_view(), name="shallow-player-detail"),
-    url(r'^shallow_players/', views.ShallowPlayerListView.as_view(), name="shallow-player-list")
+    url(r'^shallow_players/(?P<pk>[0-9]+)/$', ippon.player.views.ShallowPlayerDetailView.as_view(), name="shallow-player-detail"),
+    url(r'^shallow_players/', ippon.player.views.ShallowPlayerListView.as_view(), name="shallow-player-list")
 ]
