@@ -3,7 +3,7 @@ import json
 from rest_framework import permissions
 
 import ippon.club.models as cl
-from ippon.serializers import PlayerSerializer
+import ippon.player.serializers as pls
 
 
 class IsClubAdminOrReadOnlyClub(permissions.BasePermission):
@@ -17,7 +17,7 @@ class IsClubAdminOrReadOnlyDependent(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == "POST":
             try:
-                serializer = PlayerSerializer(data=request.data)
+                serializer = pls.PlayerSerializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 club = serializer.validated_data["club_id"].id
                 return cl.ClubAdmin.objects.all().filter(user=request.user, club=club).count() > 0

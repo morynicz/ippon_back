@@ -5,18 +5,8 @@ from rest_framework.exceptions import ValidationError
 import ippon.models
 import ippon.models as models
 import ippon.event_models as event_models
-
-
-class PlayerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Player
-        fields = ('id', 'name', 'surname', 'rank', 'sex', 'birthday', 'club_id')
-
-
-class ShallowPlayerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Player
-        fields = ('id', 'name', 'surname')
+import ippon.player.serializers as pls
+import ippon.player.models as plm
 
 
 class TournamentParticipationSerializer(serializers.ModelSerializer):
@@ -24,7 +14,7 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
     is_rank_ok = serializers.BooleanField(source='check_is_rank_ok', read_only=True)
     is_sex_ok = serializers.BooleanField(source='check_is_sex_ok', read_only=True)
     tournament_id = serializers.IntegerField(source='tournament.id')
-    player = ShallowPlayerSerializer()
+    player = pls.ShallowPlayerSerializer()
 
     class Meta:
         model = models.TournamentParticipation
@@ -44,7 +34,7 @@ class TournamentParticipationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if not isinstance(self.initial_data['player']['id'], int):
             raise ValidationError('player.id must be an integer')
-        filtered = models.Player.objects.filter(pk=self.initial_data['player']['id'])
+        filtered = plm.Player.objects.filter(pk=self.initial_data['player']['id'])
         if not filtered.exists():
             raise ValidationError('no such player')
         participation = models.TournamentParticipation.objects.create(

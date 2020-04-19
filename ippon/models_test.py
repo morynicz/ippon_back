@@ -4,9 +4,9 @@ import django
 from django.db import IntegrityError
 from django.test import TestCase
 
-import ippon.club
 import ippon.models
-from ippon.models import Team, Player, NoSuchFightException, Tournament
+from ippon.models import Team, NoSuchFightException, Tournament
+import ippon.player.models as plm
 import ippon.club.models as cl
 
 
@@ -36,7 +36,7 @@ class TournamentParticipationTests(TestCase):
             description='cd1',
             city='cc1')
         c.save()
-        p = ippon.models.Player.objects.create(
+        p = plm.Player.objects.create(
             name='pn1',
             surname='ps1',
             rank=7,
@@ -87,8 +87,8 @@ class TeamTests(TestCase):
                                             age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
                                             sex_constraint=1)
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t1.team_members.create(player=self.p1)
 
         with self.assertRaises(IntegrityError):
@@ -130,7 +130,7 @@ class CupFightFollowingFightTests(TestCupFights):
         super(CupFightFollowingFightTests, self).setUp()
 
     def test_fight_throws_no_such_fight_when_het_following_called_on_final(self):
-        with self.assertRaises(NoSuchFightException) as ex:
+        with self.assertRaises(NoSuchFightException):
             self.cup_fight.get_following_fight()
 
     def test_cup_fight_which_is_previous_on_aka_side_returns_following_fight(self):
@@ -220,22 +220,22 @@ class TestTeamFights(TestCase):
         self.t2 = self.tournament.teams.create(name='t2')
         self.team_fight1 = self.tournament.team_fights.create(aka_team=self.t1,
                                                               shiro_team=self.t2)
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p5 = Player.objects.create(name='pn5', surname='ps5', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p6 = Player.objects.create(name='pn6', surname='ps6', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p7 = Player.objects.create(name='pn7', surname='ps6', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p8 = Player.objects.create(name='pn8', surname='ps6', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p5 = plm.Player.objects.create(name='pn5', surname='ps5', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p6 = plm.Player.objects.create(name='pn6', surname='ps6', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p7 = plm.Player.objects.create(name='pn7', surname='ps6', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p8 = plm.Player.objects.create(name='pn8', surname='ps6', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
 
         self.t1.team_members.create(player=self.p1)
         self.t1.team_members.create(player=self.p2)
@@ -322,22 +322,22 @@ class CupPhaseTests(TestCase):
                                                               shiro_team=self.t2)
         self.cf1 = self.cup_phase.cup_fights.create(team_fight=self.team_fight1)
 
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p5 = Player.objects.create(name='pn5', surname='ps5', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p6 = Player.objects.create(name='pn6', surname='ps6', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p7 = Player.objects.create(name='pn7', surname='ps6', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
-        self.p8 = Player.objects.create(name='pn8', surname='ps6', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p5 = plm.Player.objects.create(name='pn5', surname='ps5', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p6 = plm.Player.objects.create(name='pn6', surname='ps6', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p7 = plm.Player.objects.create(name='pn7', surname='ps6', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+        self.p8 = plm.Player.objects.create(name='pn8', surname='ps6', rank=7,
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
 
         self.t1.team_members.create(player=self.p1)
         self.t1.team_members.create(player=self.p2)

@@ -6,37 +6,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-SEX_CHOICES = [
-    (0, 'Male'),
-    (1, 'Female')
-]
-
-RANK_CHOICES = [
-    (0, 'None'),
-    (1, 'Kyu_6'),
-    (2, 'Kyu_5'),
-    (3, 'Kyu_4'),
-    (4, 'Kyu_3'),
-    (5, 'Kyu_2'),
-    (6, 'Kyu_1'),
-    (7, 'Dan_1'),
-    (8, 'Dan_2'),
-    (9, 'Dan_3'),
-    (10, 'Dan_4'),
-    (11, 'Dan_5'),
-    (12, 'Dan_6'),
-    (13, 'Dan_7'),
-    (14, 'Dan_8')
-]
-
-
-class Player(models.Model):
-    sex = models.IntegerField(choices=SEX_CHOICES)
-    rank = models.IntegerField(choices=RANK_CHOICES)
-    name = models.CharField(max_length=100, blank=False)
-    surname = models.CharField(max_length=100, blank=False)
-    birthday = models.DateField()
-    club_id = models.ForeignKey('Club', related_name='players', on_delete=models.PROTECT)
+import ippon.player.models as plm
 
 
 class TournamentAdmin(models.Model):
@@ -94,7 +64,7 @@ class Team(models.Model):
 
     def get_member_ids(self):
         members = TeamMember.objects.filter(team__pk=self.id)
-        return [player.id for player in Player.objects.filter(pk__in=[member.player.id for member in members])]
+        return [player.id for player in plm.Player.objects.filter(pk__in=[member.player.id for member in members])]
 
 
 class TeamMember(models.Model):
@@ -303,7 +273,7 @@ class Tournament(models.Model):
     age_constraint = models.IntegerField(choices=NUMERIC_CONSTRAINT)
     rank_constraint = models.IntegerField(choices=NUMERIC_CONSTRAINT)
     sex_constraint = models.IntegerField(choices=SEX_CONSTRAINT)
-    rank_constraint_value = models.IntegerField(choices=RANK_CHOICES)
+    rank_constraint_value = models.IntegerField(choices=plm.RANK_CHOICES)
     age_constraint_value = models.IntegerField()
     finals_depth = models.IntegerField()
 

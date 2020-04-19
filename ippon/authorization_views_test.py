@@ -5,8 +5,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, TournamentAdmin, TeamFight, Team, Fight, GroupPhase, Tournament, \
+from ippon.models import TournamentAdmin, TeamFight, Team, Fight, GroupPhase, Tournament, \
     CupPhase
+import ippon.player.models as plm
 import ippon.club.models as cl
 
 
@@ -22,13 +23,13 @@ class AuthorizationViewsTest(APITestCase):
         self.c4 = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         self.a1 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c1)
         self.a2 = cl.ClubAdmin.objects.create(user=self.u2, club=self.c2)
-        self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+        self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
-        self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+        self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c2)
-        self.p3 = Player.objects.create(name='pn3', surname='ps3', rank=7,
+        self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
-        self.p4 = Player.objects.create(name='pn4', surname='ps4', rank=7,
+        self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c4)
         self.valid_payload = {
             "name": "cn3",
@@ -109,9 +110,9 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         t2 = Team.objects.create(name="t2", tournament=self.tournament)
         tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
-        p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+        p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+        p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         fight = Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
@@ -134,9 +135,9 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         t2 = Team.objects.create(name="t2", tournament=self.tournament)
         tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
-        p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+        p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+        p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         fight = Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
@@ -344,9 +345,9 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         t2 = Team.objects.create(name="t2", tournament=self.tournament)
         tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
-        p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
+        p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
+        p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                    birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         fight = Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
