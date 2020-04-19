@@ -1,7 +1,6 @@
 from django.db import models
 
 import ippon.point.models as ptm
-
 import ippon.tournament.models as tm
 import ippon.team.models as tem
 

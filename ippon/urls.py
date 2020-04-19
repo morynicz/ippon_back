@@ -5,6 +5,7 @@ from rest_framework.schemas import get_schema_view
 
 import ippon.authorization_views
 import ippon.club.views
+import ippon.fight.views
 import ippon.player.views
 import ippon.point.views
 import ippon.team.views
@@ -23,7 +24,7 @@ router.register(r'tournament_admins', ippon.tournament.views.TournamentAdminView
 router.register(r'club_admins', ippon.club.views.ClubAdminViewSet)
 router.register(r'teams', ippon.team.views.TeamViewSet)
 router.register(r'points', ippon.point.views.PointViewSet)
-router.register(r'fights', views.FightViewSet)
+router.register(r'fights', ippon.fight.views.FightViewSet)
 router.register(r'team_fights', ippon.team_fight.views.TeamFightViewSet)
 router.register(r'groups', views.GroupViewSet)
 router.register(r'group_phases', views.GroupPhaseViewSet)

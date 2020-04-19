@@ -5,7 +5,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Fight, GroupPhase, CupPhase
+import ippon.models
+from ippon.models import GroupPhase, CupPhase
+import ippon.fight.models as fm
 import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
@@ -117,7 +119,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = ippon.models.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": False
         }
@@ -142,7 +144,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = ippon.models.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": True
         }
@@ -353,7 +355,7 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = ippon.models.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": False
         }
