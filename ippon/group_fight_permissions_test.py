@@ -4,7 +4,8 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import TeamFight, GroupPhase, Group
+from ippon.models import GroupPhase, Group
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 from ippon.permissions import IsGroupFightOwnerOrReadOnly
@@ -23,7 +24,7 @@ class TestGroupFightPermissions(django.test.TestCase):
         self.t1 = tem.Team.objects.create(tournament=self.to, name='t1')
         self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
 
-        self.tf = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
+        self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.permission = IsGroupFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()

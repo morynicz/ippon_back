@@ -14,17 +14,6 @@ class MinimalUserSerializer(serializers.ModelSerializer):
         )
 
 
-class PointSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Point
-        fields = (
-            'id',
-            'type',
-            'player',
-            'fight'
-        )
-
-
 class FightSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Fight
@@ -35,24 +24,6 @@ class FightSerializer(serializers.ModelSerializer):
             'team_fight',
             'winner',
             'status'
-        )
-
-
-class TeamFightSerializer(serializers.ModelSerializer):
-    aka_score = serializers.IntegerField(source='get_aka_wins', read_only=True)
-    shiro_score = serializers.IntegerField(source='get_shiro_wins', read_only=True)
-
-    class Meta:
-        model = models.TeamFight
-        fields = (
-            'id',
-            'aka_team',
-            'shiro_team',
-            'tournament',
-            'winner',
-            'status',
-            'aka_score',
-            'shiro_score'
         )
 
 

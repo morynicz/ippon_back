@@ -2,7 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import Fight, TeamFight, Group, GroupPhase, CupPhase
+from ippon.models import Fight, Group, GroupPhase, CupPhase
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
@@ -71,7 +72,7 @@ def fight_authorization(request, pk, format=None):
 
 @api_view(['GET'])
 def team_fight_authorization(request, pk, format=None):
-    team_fight = TeamFight.objects.get(pk=pk)
+    team_fight = tfm.TeamFight.objects.get(pk=pk)
     return has_tournament_authorization([True, False], team_fight.tournament.id, request)
 
 

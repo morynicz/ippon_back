@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import TeamFight
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
@@ -39,7 +39,7 @@ class FightViewTest(APITestCase):
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t2.team_members.create(player=self.p2)
 
-        self.tf = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
+        self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.f1 = self.tf.fights.create(aka=self.p1, shiro=self.p2)
         self.f2 = self.tf.fights.create(aka=self.p2, shiro=self.p1)
 

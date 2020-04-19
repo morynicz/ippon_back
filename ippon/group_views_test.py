@@ -6,13 +6,12 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import TeamFight
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
-
-BAD_PK = 0
+from ippon.utils import BAD_PK
 
 
 class GroupViewTest(APITestCase):
@@ -159,8 +158,8 @@ class GroupViewSetUnauthenticatedTests(GroupViewTest):
         self.group1.group_members.create(team=t2)
         self.group1.group_members.create(team=t3)
 
-        tf1 = TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
-        tf2 = TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
+        tf1 = tfm.TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
+        tf2 = tfm.TeamFight.objects.create(aka_team=t1, shiro_team=t2, tournament=self.to)
 
         gf1 = self.group1.group_fights.create(team_fight=tf1)
         gf2 = self.group1.group_fights.create(team_fight=tf2)

@@ -4,7 +4,9 @@ from math import floor
 from django.db import models
 
 import ippon.player.models as plm
-
+# TODO IF db error starts to appear, uncomment
+# from ippon.event_models import Event
+# from ippon.player.models import Player
 
 class TournamentAdmin(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='admins', on_delete=models.CASCADE)
