@@ -2,6 +2,9 @@ from django.db import models
 
 import ippon.point.models as ptm
 
+import ippon.tournament.models as tm
+import ippon.team.models as tem
+
 WINNER = [
     (0, 'None'),
     (1, 'Aka'),
@@ -15,9 +18,9 @@ STATUS = [
 
 
 class TeamFight(models.Model):
-    tournament = models.ForeignKey('Tournament', related_name='team_fights', on_delete=models.PROTECT)
-    aka_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
-    shiro_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
+    tournament = models.ForeignKey(tm.Tournament, related_name='team_fights', on_delete=models.PROTECT)
+    aka_team = models.ForeignKey(tem.Team, on_delete=models.PROTECT, related_name='+')
+    shiro_team = models.ForeignKey(tem.Team, on_delete=models.PROTECT, related_name='+')
     winner = models.IntegerField(choices=WINNER, default=0)
     status = models.IntegerField(choices=STATUS, default=0)
 

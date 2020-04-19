@@ -10,7 +10,8 @@ class IsPointOwnerOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.method == "POST":
-            return ip.has_object_creation_permission(request, pts.PointSerializer, "fight", Fight, ip.get_tournament_from_fight)
+            return ip.has_object_creation_permission(request, pts.PointSerializer, "fight", Fight,
+                                                     ip.get_tournament_from_fight)
         return True
 
     def has_object_permission(self, request, view, point):
