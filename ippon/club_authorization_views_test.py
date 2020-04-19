@@ -1,7 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
 
-from ippon.test_authorization_views import AuthorizationViewsSetAuthenticatedTests, \
+from ippon.authorization_views_test import AuthorizationViewsSetAuthenticatedTests, \
     AuthorizationViewsSetUnauthenticatedTests
 
 
