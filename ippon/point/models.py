@@ -1,5 +1,8 @@
 from django.db import models
+
+import ippon.models
 import ippon.player.models as plm
+import ippon.fight.models as fm
 
 POINT_TYPE = [
     (0, 'Men'),

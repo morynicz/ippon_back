@@ -4,6 +4,7 @@ import django
 from django.db import IntegrityError
 from django.test import TestCase
 
+import ippon.fight.models
 import ippon.models
 import ippon.team_fight.models as tfm
 from ippon.models import NoSuchFightException

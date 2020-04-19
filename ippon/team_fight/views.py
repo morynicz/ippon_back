@@ -4,7 +4,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from ippon.models import Fight
-from ippon.serializers import FightSerializer
+import ippon.fight.serializers as fs
 import ippon.team_fight.models as tfm
 import ippon.team_fight.serializers as tfs
 import ippon.tournament.permissions as tp
@@ -22,5 +22,5 @@ class TeamFightViewSet(viewsets.ModelViewSet):
         url_name='fights')
     def fights(self, request, pk=None):
         team_fight = get_object_or_404(self.queryset, pk=pk)
-        serializer = FightSerializer(Fight.objects.filter(team_fight=team_fight), many=True)
+        serializer = fs.FightSerializer(Fight.objects.filter(team_fight=team_fight), many=True)
         return Response(serializer.data)

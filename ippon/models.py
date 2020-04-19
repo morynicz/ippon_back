@@ -4,15 +4,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 import ippon.team_fight.models as tfm
+from ippon.player import models as plm
 
-
-class Fight(models.Model):
-    aka = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
-    shiro = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
-    team_fight = models.ForeignKey('TeamFight', on_delete=models.CASCADE, related_name='fights')
-    ordering_number = models.IntegerField(default=0)
-    winner = models.IntegerField(choices=tfm.WINNER, default=0)
-    status = models.IntegerField(choices=tfm.STATUS, default=0)
+from ippon.player.models import Player
+from ippon.club.models import Club, ClubAdmin
+from ippon.tournament.models import Tournament, TournamentAdmin, TournamentParticipation
+from ippon.team.models import Team, TeamMember
+from ippon.team_fight.models import TeamFight, WINNER, STATUS
 
 
 class Location(models.Model):
@@ -54,10 +52,6 @@ class CupPhase(models.Model):
     final_fight_length = models.IntegerField()
     name = models.CharField(max_length=100, blank=False)
     number_of_positions = models.IntegerField(default=2)
-
-
-class NoSuchFightException(Exception):
-    pass
 
 
 class CupFight(models.Model):
@@ -113,3 +107,16 @@ def winner_change_handler(sender, **kwargs):
 def get_winner(cup_fight):
     team_fight = cup_fight.team_fight
     return team_fight.aka_team if team_fight.winner is 1 else team_fight.shiro_team
+
+
+class NoSuchFightException(Exception):
+    pass
+
+
+class Fight(models.Model):
+    aka = models.ForeignKey(plm.Player, on_delete=models.CASCADE, related_name='+')
+    shiro = models.ForeignKey(plm.Player, on_delete=models.CASCADE, related_name='+')
+    team_fight = models.ForeignKey('TeamFight', on_delete=models.CASCADE, related_name='fights')
+    ordering_number = models.IntegerField(default=0)
+    winner = models.IntegerField(choices=WINNER, default=0)
+    status = models.IntegerField(choices=STATUS, default=0)

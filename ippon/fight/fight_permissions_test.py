@@ -9,8 +9,8 @@ import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
-from ippon.permissions import IsFightOwnerOrReadOnly
-from ippon.serializers import FightSerializer
+import ippon.fight.permissions as fp
+import ippon.fight.serializers as fs
 
 
 class TestFightPermissions(django.test.TestCase):
@@ -38,11 +38,11 @@ class TestFightPermissions(django.test.TestCase):
 
         self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.fight = self.tf.fights.create(aka=self.p1, shiro=self.p2)
-        self.permission = IsFightOwnerOrReadOnly()
+        self.permission = fp.IsFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
         self.request.user = self.admin
-        self.request.data = FightSerializer(self.fight).data
+        self.request.data = fs.FightSerializer(self.fight).data
 
 
 class TestFightPermissionNotAdmin(TestFightPermissions):

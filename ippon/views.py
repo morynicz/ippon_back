@@ -8,27 +8,10 @@ from rest_framework.response import Response
 import ippon.point.models as ptm
 from ippon.models import *
 from ippon.permissions import *
-import ippon.point.serializers as pts
 from ippon.serializers import *
 import ippon.tournament.permissions as tp
 import ippon.team.models as tem
 import ippon.team.serializers as tes
-
-
-class FightViewSet(viewsets.ModelViewSet):
-    queryset = Fight.objects.all()
-    serializer_class = FightSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsFightOwnerOrReadOnly)
-
-    @action(
-        methods=['get'],
-        detail=True,
-        url_name='points')
-    def points(self, request, pk=None):
-        fight = get_object_or_404(self.queryset, pk=pk)
-        serializer = pts.PointSerializer(ptm.Point.objects.filter(fight=fight), many=True)
-        return Response(serializer.data)
 
 
 class GroupFightViewSet(viewsets.ModelViewSet):

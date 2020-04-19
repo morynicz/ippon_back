@@ -3,11 +3,10 @@ from rest_framework import permissions
 from rest_framework.request import Request
 
 from ippon.models import CupPhase, Group, GroupPhase
-import ippon.team_fight.models as tfm
 import ippon.tournament.models as tm
 
 from ippon.event_models import Event, EventAdmin
-from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer, FightSerializer
+from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer
 
 
 def is_user_admin_of_the_tournament(request, tournament):
@@ -35,18 +34,6 @@ def has_object_creation_permission(request, serializer_class, tournament_depende
 
 def get_tournament_from_fight(fight):
     return fight.team_fight.tournament
-
-
-class IsFightOwnerOrReadOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method == "POST":
-            return has_object_creation_permission(request, FightSerializer, "team_fight", tfm.TeamFight)
-        return True
-
-    def has_object_permission(self, request, view, fight):
-        if request and request.method in permissions.SAFE_METHODS:
-            return True
-        return tm.TournamentAdmin.objects.filter(tournament=fight.team_fight.tournament, user=request.user).count() > 0
 
 
 class IsGroupOwnerOrReadOnly(permissions.BasePermission):

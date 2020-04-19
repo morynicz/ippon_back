@@ -14,19 +14,6 @@ class MinimalUserSerializer(serializers.ModelSerializer):
         )
 
 
-class FightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Fight
-        fields = (
-            'id',
-            'aka',
-            'shiro',
-            'team_fight',
-            'winner',
-            'status'
-        )
-
-
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Group
