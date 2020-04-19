@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import TeamFight, CupFight
+from ippon.models import CupFight
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
@@ -47,8 +48,8 @@ class CupFightViewTest(APITestCase):
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t4.team_members.create(player=self.p4)
 
-        self.tf1 = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
-        self.tf2 = TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to)
+        self.tf1 = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
+        self.tf2 = tfm.TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to)
 
         self.phase = self.to.cup_phases.create(name='phase', fight_length=3, final_fight_length=4)
 
@@ -113,8 +114,8 @@ class CupFightViewSetAuthorizedTests(CupFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(CupFight.DoesNotExist):
             CupFight.objects.get(pk=self.cf1.id)
-        with self.assertRaises(TeamFight.DoesNotExist):
-            TeamFight.objects.get(pk=self.cf1.team_fight.id)
+        with self.assertRaises(tfm.TeamFight.DoesNotExist):
+            tfm.TeamFight.objects.get(pk=self.cf1.team_fight.id)
 
     def test_delete_existing_cup_fight_without_teamfight_deletes_it(self):
         response = self.client.delete(reverse('cupfight-detail', kwargs={'pk': self.cf3.pk}))

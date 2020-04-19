@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import TeamFight
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
@@ -48,8 +48,8 @@ class TeamFightViewTest(APITestCase):
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t4.team_members.create(player=self.p4)
 
-        self.tf1 = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
-        self.tf2 = TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to, status=1)
+        self.tf1 = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
+        self.tf2 = tfm.TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to, status=1)
 
         self.tf1_json = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t2.id, 'tournament': self.to.id,
                          'status': 0, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}

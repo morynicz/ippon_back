@@ -5,19 +5,14 @@ from rest_framework.decorators import api_view, action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+import ippon.point.models as ptm
 from ippon.models import *
 from ippon.permissions import *
+import ippon.point.serializers as pts
 from ippon.serializers import *
 import ippon.tournament.permissions as tp
 import ippon.team.models as tem
 import ippon.team.serializers as tes
-
-
-class PointViewSet(viewsets.ModelViewSet):
-    queryset = Point.objects.all()
-    serializer_class = PointSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsPointOwnerOrReadOnly)
 
 
 class FightViewSet(viewsets.ModelViewSet):
@@ -32,23 +27,7 @@ class FightViewSet(viewsets.ModelViewSet):
         url_name='points')
     def points(self, request, pk=None):
         fight = get_object_or_404(self.queryset, pk=pk)
-        serializer = PointSerializer(Point.objects.filter(fight=fight), many=True)
-        return Response(serializer.data)
-
-
-class TeamFightViewSet(viewsets.ModelViewSet):
-    queryset = TeamFight.objects.all()
-    serializer_class = TeamFightSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          tp.IsTournamentAdminOrReadOnlyDependent)
-
-    @action(
-        methods=['get'],
-        detail=True,
-        url_name='fights')
-    def fights(self, request, pk=None):
-        team_fight = get_object_or_404(self.queryset, pk=pk)
-        serializer = FightSerializer(Fight.objects.filter(team_fight=team_fight), many=True)
+        serializer = pts.PointSerializer(ptm.Point.objects.filter(fight=fight), many=True)
         return Response(serializer.data)
 
 
@@ -147,13 +126,13 @@ class GroupViewSet(viewsets.ModelViewSet):
     def member_score(self, request, pk=None, team_id=None):
         group = get_object_or_404(self.queryset, pk=pk)
         team = get_object_or_404(tem.Team.objects.all(), pk=team_id)
-        fights = (TeamFight.objects.filter(group_fight__group=pk, aka_team=team_id) \
-                  | TeamFight.objects.filter(group_fight__group=pk, shiro_team=team_id)).filter(status=2)
+        fights = (tfm.TeamFight.objects.filter(group_fight__group=pk, aka_team=team_id) \
+                  | tfm.TeamFight.objects.filter(group_fight__group=pk, shiro_team=team_id)).filter(status=2)
         wins = (fights.filter(aka_team=team_id, winner=1) \
                 | fights.filter(shiro_team=team_id, winner=2)).count()
 
         draws = fights.filter(winner=0, status=2).count()
-        points = Point.objects.exclude(type=4) \
+        points = ptm.Point.objects.exclude(type=4) \
             .filter(fight__team_fight__group_fight__group=pk, fight__team_fight__status=2) \
             .filter(Q(fight__team_fight__aka_team=team_id) | Q(fight__team_fight__shiro_team=team_id)) \
             .filter(player__in=team.get_member_ids()).count()

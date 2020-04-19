@@ -3,46 +3,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-WINNER = [
-    (0, 'None'),
-    (1, 'Aka'),
-    (2, 'Shiro')
-]
-
-STATUS = [
-    (0, 'Prepared'),
-    (1, 'Started'),
-    (2, 'Finished')
-]
-
-
-class TeamFight(models.Model):
-    tournament = models.ForeignKey('Tournament', related_name='team_fights', on_delete=models.PROTECT)
-    aka_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
-    shiro_team = models.ForeignKey('Team', on_delete=models.PROTECT, related_name='+')
-    winner = models.IntegerField(choices=WINNER, default=0)
-    status = models.IntegerField(choices=STATUS, default=0)
-
-    def __str__(self):
-        return "TeamFight {{id: {id}, aka_team: {aka}, shiro_team: {shiro}, winner: {win} }}".format(id=self.id,
-                                                                                                     aka=self.aka_team,
-                                                                                                     shiro=self.shiro_team,
-                                                                                                     win=self.winner)
-
-    def get_teams_points(self, team):
-        return Point.objects.filter(player__team_member__team=team, fight__team_fight=self).exclude(type=4).count()
-
-    def get_aka_points(self):
-        return self.get_teams_points(self.aka_team)
-
-    def get_aka_wins(self):
-        return self.fights.filter(winner=1).count()
-
-    def get_shiro_points(self):
-        return self.get_teams_points(self.shiro_team)
-
-    def get_shiro_wins(self):
-        return self.fights.filter(winner=2).count()
+import ippon.team_fight.models as tfm
 
 
 class Fight(models.Model):
@@ -50,25 +11,8 @@ class Fight(models.Model):
     shiro = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='+')
     team_fight = models.ForeignKey('TeamFight', on_delete=models.CASCADE, related_name='fights')
     ordering_number = models.IntegerField(default=0)
-    winner = models.IntegerField(choices=WINNER, default=0)
-    status = models.IntegerField(choices=STATUS, default=0)
-
-
-POINT_TYPE = [
-    (0, 'Men'),
-    (1, 'Kote'),
-    (2, 'Do'),
-    (3, 'Tsuki'),
-    (4, 'Foul'),
-    (5, 'Hansoku'),
-    (6, 'Other')
-]
-
-
-class Point(models.Model):
-    player = models.ForeignKey('Player', on_delete=models.PROTECT, related_name='points')
-    fight = models.ForeignKey('Fight', on_delete=models.PROTECT, related_name='points')
-    type = models.IntegerField(choices=POINT_TYPE)
+    winner = models.IntegerField(choices=tfm.WINNER, default=0)
+    status = models.IntegerField(choices=tfm.STATUS, default=0)
 
 
 class Location(models.Model):
@@ -143,7 +87,7 @@ class CupFight(models.Model):
         )
 
 
-@receiver(post_save, sender=TeamFight)
+@receiver(post_save, sender=tfm.TeamFight)
 def winner_change_handler(sender, **kwargs):
     try:
         cup_fight = CupFight.objects.get(team_fight=kwargs['instance'].id)

@@ -6,15 +6,14 @@ import unittest.mock
 import django.test
 from django.contrib.auth.models import User
 
-import ippon.club.permissisons
-import ippon.permissions as permissions
-import ippon.team.permissions
-from ippon.models import TeamFight
+import ippon.club.permissisons as clp
+import ippon.point.permissions as ptp
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
-from ippon.serializers import PointSerializer
+import ippon.point.serializers as pts
 
 
 class TestClubOwnerPermissions(django.test.TestCase):
@@ -26,7 +25,7 @@ class TestClubOwnerPermissions(django.test.TestCase):
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
-        self.permission = ippon.club.permissisons.IsClubOwner()
+        self.permission = clp.IsClubOwner()
         self.request = unittest.mock.Mock(user=self.user)
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict(pk=self.club.id)
@@ -70,7 +69,7 @@ class TestClubOwnerAdminCreationPermissions(django.test.TestCase):
             webpage='http://cw1.co',
             description='cd1',
             city='cc1')
-        self.permission = ippon.club.permissisons.IsClubOwnerAdminCreation()
+        self.permission = clp.IsClubOwnerAdminCreation()
         self.request = unittest.mock.Mock(user=self.user)
         self.request.body = json.dumps({
             "id": -1,
@@ -135,12 +134,12 @@ class TestPointPermissions(django.test.TestCase):
                                             birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t2.team_members.create(player=self.p2)
 
-        self.tf = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
+        self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.f = self.tf.fights.create(aka=self.p1, shiro=self.p2)
         self.point = self.f.points.create(player=self.p1, type=0)
-        self.permission = permissions.IsPointOwnerOrReadOnly()
+        self.permission = ptp.IsPointOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
-        self.request.data = PointSerializer(self.point).data
+        self.request.data = pts.PointSerializer(self.point).data
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict()
         self.request.user = self.admin

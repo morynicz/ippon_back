@@ -5,7 +5,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import TeamFight, Fight, GroupPhase, CupPhase
+from ippon.models import Fight, GroupPhase, CupPhase
+import ippon.team_fight.models as tfm
 import ippon.team.models as tem
 import ippon.tournament.models as tm
 import ippon.player.models as plm
@@ -111,7 +112,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
         club = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         t1 = tem.Team.objects.create(name="t1", tournament=self.tournament)
         t2 = tem.Team.objects.create(name="t2", tournament=self.tournament)
-        tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
+        tf = tfm.TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
         p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
@@ -136,7 +137,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
         club = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         t1 = tem.Team.objects.create(name="t1", tournament=self.tournament)
         t2 = tem.Team.objects.create(name="t2", tournament=self.tournament)
-        tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
+        tf = tfm.TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
         p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
@@ -157,7 +158,7 @@ class TournamentTeamFightAuthorizationAuthenticatedTests(TournamentAuthorization
     def test_tournament_team_fight_authorization_returns_negative_auth_if_not_authorized(self):
         t1 = tem.Team.objects.create(name="t1", tournament=self.tournament)
         t2 = tem.Team.objects.create(name="t2", tournament=self.tournament)
-        tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
+        tf = tfm.TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
         expected = {
             "isAuthorized": False
         }
@@ -176,7 +177,7 @@ class TournamentTeamFightAuthorizationAuthenticatedTests(TournamentAuthorization
         tm.TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=is_admin)
         t1 = tem.Team.objects.create(name="t1", tournament=self.tournament)
         t2 = tem.Team.objects.create(name="t2", tournament=self.tournament)
-        tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
+        tf = tfm.TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
         expected = {
             "isAuthorized": True
         }
@@ -347,7 +348,7 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
         club = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         t1 = tem.Team.objects.create(name="t1", tournament=self.tournament)
         t2 = tem.Team.objects.create(name="t2", tournament=self.tournament)
-        tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
+        tf = tfm.TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
         p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
@@ -364,7 +365,7 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
     def test_tournament_team_fight_authorization_returns_negative_auth(self):
         t1 = tem.Team.objects.create(name="t1", tournament=self.tournament)
         t2 = tem.Team.objects.create(name="t2", tournament=self.tournament)
-        tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
+        tf = tfm.TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
         expected = {
             "isAuthorized": False
         }
