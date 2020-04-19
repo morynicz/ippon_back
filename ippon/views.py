@@ -7,30 +7,16 @@ from rest_framework.response import Response
 
 from ippon.models import *
 from ippon.permissions import *
-import ippon.player.models as plm
-import ippon.player.serializers as pls
 from ippon.serializers import *
-
-
-class TournamentParticipationViewSet(viewsets.ModelViewSet):
-    queryset = TournamentParticipation.objects.all()
-    serializer_class = TournamentParticipationSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          IsTournamentAdminParticipantCreation)
-
-
-class TournamentAdminViewSet(viewsets.ModelViewSet):
-    queryset = TournamentAdmin.objects.all()
-    serializer_class = TournamentAdminSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          IsTournamentOwnerAdminCreation)
+import ippon.player.serializers as pls
+import ippon.tournament.permissions as tp
 
 
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsTournamentAdminOrReadOnlyDependent)
+                          tp.IsTournamentAdminOrReadOnlyDependent)
 
     # TODO: check when will DRF finally release the multiple actions for single url improvement
     @action(
@@ -84,7 +70,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True, permission_classes=[
         permissions.IsAuthenticated,
-        IsTournamentAdminDependent])
+        tp.IsTournamentAdminDependent])
     def not_assigned(self, request, pk=None):
         serializer = pls.PlayerSerializer(
             plm.Player.objects.filter(participations__tournament__teams=pk)
@@ -119,7 +105,7 @@ class TeamFightViewSet(viewsets.ModelViewSet):
     queryset = TeamFight.objects.all()
     serializer_class = TeamFightSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsTournamentAdminOrReadOnlyDependent)
+                          tp.IsTournamentAdminOrReadOnlyDependent)
 
     @action(
         methods=['get'],
@@ -244,7 +230,7 @@ class GroupPhaseViewSet(viewsets.ModelViewSet):
     queryset = GroupPhase.objects.all()
     serializer_class = GroupPhaseSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsTournamentAdminOrReadOnlyDependent)
+                          tp.IsTournamentAdminOrReadOnlyDependent)
 
     @action(
         methods=['get'],
@@ -280,7 +266,7 @@ class CupPhaseViewSet(viewsets.ModelViewSet):
     queryset = CupPhase.objects.all()
     serializer_class = CupPhaseSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsTournamentAdminOrReadOnlyDependent)
+                          tp.IsTournamentAdminOrReadOnlyDependent)
 
     @action(
         methods=['get'],

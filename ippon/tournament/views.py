@@ -4,32 +4,47 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import TournamentParticipation, TournamentAdmin, Team, GroupPhase, CupPhase, Tournament
-import ippon.player.models as plm
+from ippon.models import Team, GroupPhase, CupPhase
 import ippon.player.serializers as pls
-import ippon.permissions as perms
-from ippon.serializers import TournamentParticipationSerializer, TournamentAdminSerializer, MinimalUserSerializer, \
-    TeamSerializer, GroupPhaseSerializer, CupPhaseSerializer, \
-    TournamentSerializer
+import ippon.player.models as plm
+from ippon.serializers import MinimalUserSerializer, TeamSerializer, GroupPhaseSerializer, CupPhaseSerializer
+import ippon.tournament.models as tm
+import ippon.tournament.seralizers as ts
+import ippon.tournament.permissions as tp
+
+
+class TournamentParticipationViewSet(viewsets.ModelViewSet):
+    queryset = tm.TournamentParticipation.objects.all()
+    serializer_class = ts.TournamentParticipationSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          tp.IsTournamentAdminParticipantCreation)
+
+
+class TournamentAdminViewSet(viewsets.ModelViewSet):
+    queryset = tm.TournamentAdmin.objects.all()
+    serializer_class = ts.TournamentAdminSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          tp.IsTournamentOwnerAdminCreation)
 
 
 class TournamentViewSet(viewsets.ModelViewSet):
-    queryset = Tournament.objects.all()
-    serializer_class = TournamentSerializer
+    queryset = tm.Tournament.objects.all()
+    serializer_class = ts.TournamentSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          perms.IsTournamentAdminOrReadOnlyTournament)
+                          tp.IsTournamentAdminOrReadOnlyTournament)
 
     @action(methods=['get'], detail=True, permission_classes=(
             permissions.IsAuthenticated,
-            perms.IsTournamentOwner))
+            tp.IsTournamentOwner))
     def participations(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = TournamentParticipationSerializer(TournamentParticipation.objects.filter(tournament=pk), many=True)
+        serializer = ts.TournamentParticipationSerializer(tm.TournamentParticipation.objects.filter(tournament=pk),
+                                                          many=True)
         return Response(serializer.data)
 
     @action(methods=['get'], detail=True, permission_classes=(
             permissions.IsAuthenticated,
-            perms.IsTournamentOwner))
+            tp.IsTournamentOwner))
     def non_participants(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
         serializer = pls.PlayerSerializer(plm.Player.objects.exclude(participations__tournament=pk), many=True)
@@ -37,7 +52,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True, permission_classes=(
             permissions.IsAuthenticated,
-            perms.IsTournamentOwner))
+            tp.IsTournamentOwner))
     def participants(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
         serializer = pls.PlayerSerializer(
@@ -46,20 +61,20 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         tournament = serializer.save()
-        ta = TournamentAdmin(user=self.request.user, tournament=tournament, is_master=True)
+        ta = tm.TournamentAdmin(user=self.request.user, tournament=tournament, is_master=True)
         ta.save()
 
     @action(methods=['get'], detail=True, permission_classes=(
             permissions.IsAuthenticated,
-            perms.IsTournamentOwner))
+            tp.IsTournamentOwner))
     def admins(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = TournamentAdminSerializer(TournamentAdmin.objects.filter(tournament=pk), many=True)
+        serializer = ts.TournamentAdminSerializer(tm.TournamentAdmin.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=['get'], detail=True, permission_classes=(
             permissions.IsAuthenticated,
-            perms.IsTournamentOwner))
+            tp.IsTournamentOwner))
     def non_admins(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
         serializer = MinimalUserSerializer(User.objects.exclude(tournaments__tournament=pk), many=True)
@@ -96,7 +111,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
         url_name='not_assigned',
         permission_classes=[
             permissions.IsAuthenticated,
-            perms.IsTournamentAdmin
+            tp.IsTournamentAdmin
         ]
     )
     def not_assigned(self, request, pk=None):

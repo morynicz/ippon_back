@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Team, TournamentAdmin, TeamFight, GroupFight, GroupPhase, Group, Tournament
+from ippon.models import Team, TeamFight, GroupFight, GroupPhase, Group
+import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
 
@@ -22,28 +23,28 @@ class GroupFightViewTest(APITestCase):
             description='cd1',
             city='cc1')
         self.user = User.objects.create(username='admin', password='password')
-        self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
-                                            date=datetime.date(year=2021, month=1, day=1), address='a1',
-                                            team_size=1, group_match_length=3, ko_match_length=3,
-                                            final_match_length=3, finals_depth=0, age_constraint=5,
-                                            age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                            sex_constraint=1)
+        self.to = tm.Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
+                                               date=datetime.date(year=2021, month=1, day=1), address='a1',
+                                               team_size=1, group_match_length=3, ko_match_length=3,
+                                               final_match_length=3, finals_depth=0, age_constraint=5,
+                                               age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                               sex_constraint=1)
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
         self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t1.team_members.create(player=self.p1)
         self.t2 = Team.objects.create(tournament=self.to, name='t2')
         self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t2.team_members.create(player=self.p2)
 
         self.t3 = Team.objects.create(tournament=self.to, name='t3')
         self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t3.team_members.create(player=self.p3)
         self.t4 = Team.objects.create(tournament=self.to, name='t4')
         self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.t4.team_members.create(player=self.p4)
 
         self.tf1 = TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
@@ -65,7 +66,7 @@ class GroupFightViewTest(APITestCase):
 class GroupFightViewSetAuthorizedTests(GroupFightViewTest):
     def setUp(self):
         super(GroupFightViewSetAuthorizedTests, self).setUp()
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_group_fight(self):

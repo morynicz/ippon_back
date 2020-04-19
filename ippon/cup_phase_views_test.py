@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import TournamentAdmin, Tournament
+import ippon.tournament.models as tm
 from ippon.utils import BAD_PK
 
 
@@ -14,12 +14,12 @@ class CupPhasesViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create(username='admin', password='password')
-        self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
-                                            date=datetime.date(year=2021, month=1, day=1), address='a1',
-                                            team_size=1, group_match_length=3, ko_match_length=3,
-                                            final_match_length=3, finals_depth=0, age_constraint=5,
-                                            age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                            sex_constraint=1)
+        self.to = tm.Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
+                                               date=datetime.date(year=2021, month=1, day=1), address='a1',
+                                               team_size=1, group_match_length=3, ko_match_length=3,
+                                               final_match_length=3, finals_depth=0, age_constraint=5,
+                                               age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                               sex_constraint=1)
 
         self.cp1 = self.to.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4, number_of_positions=16)
         self.cp2 = self.to.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6, number_of_positions=15)
@@ -30,7 +30,7 @@ class CupPhasesViewTest(APITestCase):
             'fight_length': 3,
             'name': 'cp1',
             'final_fight_length': 4,
-            'number_of_positions':16
+            'number_of_positions': 16
         }
         self.cp2_json = {
             'id': self.cp2.id,
@@ -38,7 +38,7 @@ class CupPhasesViewTest(APITestCase):
             'fight_length': 5,
             'name': 'cp2',
             'final_fight_length': 6,
-            'number_of_positions':15
+            'number_of_positions': 15
         }
         self.valid_payload = {
             'id': self.cp1.id,
@@ -46,7 +46,7 @@ class CupPhasesViewTest(APITestCase):
             'fight_length': 3,
             'name': 'cp1',
             'final_fight_length': 4,
-            'number_of_positions':16
+            'number_of_positions': 16
         }
         self.invalid_payload = {
             'id': self.cp1.id,
@@ -59,7 +59,7 @@ class CupPhasesViewTest(APITestCase):
 class CupPhasesViewSetAuthorizedTests(CupPhasesViewTest):
     def setUp(self):
         super(CupPhasesViewSetAuthorizedTests, self).setUp()
-        TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_cup_phase(self):

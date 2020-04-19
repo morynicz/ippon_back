@@ -23,7 +23,8 @@ class Event(models.Model):
     @property
     def registration_is_open(self) -> bool:
         now = datetime.datetime.now()
-        if self.registration_start_time.replace(tzinfo=pytz.UTC) < now.replace(tzinfo=pytz.UTC) < self.registration_end_time.replace(tzinfo=pytz.UTC):
+        if self.registration_start_time.replace(tzinfo=pytz.UTC) < now.replace(
+                tzinfo=pytz.UTC) < self.registration_end_time.replace(tzinfo=pytz.UTC):
             return True
         else:
             return False
@@ -31,7 +32,8 @@ class Event(models.Model):
     @property
     def has_started(self) -> bool:
         now = datetime.datetime.now()
-        if self.start_time.replace(tzinfo=pytz.UTC) < now.replace(tzinfo=pytz.UTC) < self.end_time.replace(tzinfo=pytz.UTC):
+        if self.start_time.replace(tzinfo=pytz.UTC) < now.replace(tzinfo=pytz.UTC) < self.end_time.replace(
+                tzinfo=pytz.UTC):
             return True
         else:
             return False

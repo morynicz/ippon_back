@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import json
 
-from ippon.models import TournamentAdmin, Team, TeamFight, Tournament
+from ippon.models import Team, TeamFight
+import ippon.tournament.models as tm
 import ippon.player.models as plm
 import ippon.club.models as cl
 
@@ -18,13 +19,13 @@ class GroupViewTest(APITestCase):
         self.client = APIClient()
         self.admin = User.objects.create(username='admin', password='password')
         self.not_admin = User.objects.create(username='user', password='password')
-        self.to = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
-                                            date=datetime.date(year=2021, month=1, day=1), address='a1',
-                                            team_size=1, group_match_length=3, ko_match_length=3,
-                                            final_match_length=3, finals_depth=0, age_constraint=5,
-                                            age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
-                                            sex_constraint=1)
-        TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
+        self.to = tm.Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
+                                               date=datetime.date(year=2021, month=1, day=1), address='a1',
+                                               team_size=1, group_match_length=3, ko_match_length=3,
+                                               final_match_length=3, finals_depth=0, age_constraint=5,
+                                               age_constraint_value=20, rank_constraint=5, rank_constraint_value=7,
+                                               sex_constraint=1)
+        tm.TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
         self.group_phase = self.to.group_phases.create(fight_length=3)
         self.group1 = self.group_phase.groups.create(name='G1')
         self.group2 = self.group_phase.groups.create(name='G2')
@@ -242,17 +243,17 @@ class GroupMemberViewSetScoreCountingTests(GroupViewTest):
             city='cc1')
 
         self.p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.p3 = plm.Player.objects.create(name='pn3', surname='ps3', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.p4 = plm.Player.objects.create(name='pn4', surname='ps4', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.p5 = plm.Player.objects.create(name='pn5', surname='ps5', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
         self.p6 = plm.Player.objects.create(name='pn6', surname='ps6', rank=7,
-                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
+                                            birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=c)
 
         self.t1 = Team.objects.create(tournament=self.to, name='t1')
         self.t2 = Team.objects.create(tournament=self.to, name='t2')
