@@ -4,9 +4,8 @@ from math import floor
 from django.db import models
 
 import ippon.player.models as plm
-# TODO IF db error starts to appear, uncomment
-# from ippon.event_models import Event
-# from ippon.player.models import Player
+import ippon.event_models as em
+
 
 class TournamentAdmin(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='admins', on_delete=models.CASCADE)
@@ -19,7 +18,7 @@ class TournamentAdmin(models.Model):
 
 class TournamentParticipation(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='participations', on_delete=models.PROTECT)
-    player = models.ForeignKey('Player', related_name='participations', on_delete=models.PROTECT)
+    player = models.ForeignKey(plm.Player, related_name='participations', on_delete=models.PROTECT)
     is_paid = models.BooleanField(default=False)
     is_registered = models.BooleanField(default=False)
     is_qualified = models.BooleanField(default=False)
@@ -91,4 +90,4 @@ class Tournament(models.Model):
     age_constraint_value = models.IntegerField()
     finals_depth = models.IntegerField()
 
-    event = models.ForeignKey("Event", on_delete=models.CASCADE, null=True)
+    event = models.ForeignKey(em.Event, on_delete=models.CASCADE, null=True)
