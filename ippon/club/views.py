@@ -4,17 +4,18 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 import ippon.club.models as cl
-from ippon.models import Player
-from ippon.club.permissisons import IsClubAdminOrReadOnlyClub, IsClubOwner, IsClubOwnerAdminCreation
-from ippon.serializers import PlayerSerializer, MinimalUserSerializer
-from ippon.club.serializers import ClubSerializer, ClubAdminSerializer
+import ippon.player.models as plm
+import ippon.club.permissisons as clp
+from ippon.serializers import MinimalUserSerializer
+import ippon.player.serializers as pls
+import ippon.club.serializers as cls
 
 
 class ClubViewSet(viewsets.ModelViewSet):
     queryset = cl.Club.objects.all()
-    serializer_class = ClubSerializer
+    serializer_class = cls.ClubSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsClubAdminOrReadOnlyClub)
+                          clp.IsClubAdminOrReadOnlyClub)
 
     def perform_create(self, serializer):
         club = serializer.save()
@@ -23,19 +24,19 @@ class ClubViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True)
     def players(self, request, pk=None):
-        serializer = PlayerSerializer(Player.objects.filter(club_id=pk), many=True)
+        serializer = pls.PlayerSerializer(plm.Player.objects.filter(club_id=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=['get'],
             detail=True,
-            permission_classes=(permissions.IsAuthenticated, IsClubOwner))
+            permission_classes=(permissions.IsAuthenticated, clp.IsClubOwner))
     def admins(self, request, pk=None):
-        serializer = ClubAdminSerializer(cl.ClubAdmin.objects.filter(club=pk), many=True)
+        serializer = cls.ClubAdminSerializer(cl.ClubAdmin.objects.filter(club=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=['get'],
             detail=True,
-            permission_classes=(permissions.IsAuthenticated, IsClubOwner))
+            permission_classes=(permissions.IsAuthenticated, clp.IsClubOwner))
     def non_admins(self, request, pk=None):
         serializer = MinimalUserSerializer(User.objects.exclude(clubs__club=pk), many=True)
         return Response(serializer.data)
@@ -43,6 +44,6 @@ class ClubViewSet(viewsets.ModelViewSet):
 
 class ClubAdminViewSet(viewsets.ModelViewSet):
     queryset = cl.ClubAdmin.objects.all()
-    serializer_class = ClubAdminSerializer
+    serializer_class = cls.ClubAdminSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          IsClubOwnerAdminCreation)
+                          clp.IsClubOwnerAdminCreation)
