@@ -4,7 +4,7 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, Tournament
+from ippon.models import Team, Player, TeamFight, TournamentAdmin, Tournament
 from ippon.permissions import IsCupFightOwnerOrReadOnly
 from ippon.serializers import CupFightSerializer
 

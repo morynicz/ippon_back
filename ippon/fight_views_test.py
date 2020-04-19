@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Team, TournamentAdmin, TeamFight, Tournament
+from ippon.models import Player, Team, TournamentAdmin, TeamFight, Tournament
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -14,7 +15,7 @@ BAD_PK = 0
 class FightViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -39,10 +40,14 @@ class FightViewTest(APITestCase):
         self.f1 = self.tf.fights.create(aka=self.p1, shiro=self.p2)
         self.f2 = self.tf.fights.create(aka=self.p2, shiro=self.p1)
 
-        self.f1_json = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p2.id, 'team_fight': self.tf.id, 'status': 0, 'winner': 0}
-        self.f2_json = {'id': self.f2.id, 'aka': self.p2.id, 'shiro': self.p1.id, 'team_fight': self.tf.id, 'status': 0, 'winner': 0}
-        self.valid_payload = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p1.id, 'team_fight': self.tf.id, 'status': 1, 'winner': 0}
-        self.invalid_payload = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': BAD_PK, 'team_fight': self.tf.id, 'status': 0, 'winner': 0}
+        self.f1_json = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p2.id, 'team_fight': self.tf.id, 'status': 0,
+                        'winner': 0}
+        self.f2_json = {'id': self.f2.id, 'aka': self.p2.id, 'shiro': self.p1.id, 'team_fight': self.tf.id, 'status': 0,
+                        'winner': 0}
+        self.valid_payload = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p1.id, 'team_fight': self.tf.id,
+                              'status': 1, 'winner': 0}
+        self.invalid_payload = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': BAD_PK, 'team_fight': self.tf.id,
+                                'status': 0, 'winner': 0}
 
 
 class FightViewSetAuthorizedTests(FightViewTest):
@@ -75,7 +80,7 @@ class FightViewSetAuthorizedTests(FightViewTest):
         )
         expected = self.f1_json.copy()
         expected['shiro'] = self.valid_payload['shiro']
-        expected['status'] =self.valid_payload['status']
+        expected['status'] = self.valid_payload['status']
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

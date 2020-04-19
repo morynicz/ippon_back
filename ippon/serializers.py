@@ -7,12 +7,6 @@ import ippon.models as models
 import ippon.event_models as event_models
 
 
-class ClubSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Club
-        fields = ('id', 'name', 'webpage', 'description', 'city')
-
-
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Player
@@ -105,29 +99,6 @@ class TournamentAdminSerializer(serializers.ModelSerializer):
         instance.is_master = validated_data['is_master']
         instance.save()
         return instance
-
-
-class ClubAdminSerializer(serializers.ModelSerializer):
-    club_id = serializers.IntegerField(source='club.id')
-    user = serializers.DictField(source='get_user')
-
-    class Meta:
-        model = models.ClubAdmin
-        fields = (
-            'id',
-            'club_id',
-            'user'
-        )
-        read_only_fields = ('user',)
-
-    def create(self, validated_data):
-        if not isinstance(self.initial_data['user']['id'], int):
-            raise ValidationError('user id must be an integer')
-        admin = models.ClubAdmin.objects.create(
-            user=User.objects.get(pk=self.initial_data['user']['id']),
-            club=models.Club.objects.get(pk=validated_data['club']['id']),
-        )
-        return admin
 
 
 class TeamSerializer(serializers.ModelSerializer):

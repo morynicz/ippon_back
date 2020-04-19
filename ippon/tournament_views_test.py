@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Tournament, TournamentAdmin, Team
+from ippon.models import Player, Tournament, TournamentAdmin, Team
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -14,7 +15,7 @@ BAD_PK = 0
 class TournamentViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.club = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
+        self.club = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
         self.user = User.objects.create(username='admin', password='password')
         self.to1 = Tournament.objects.create(name='T1', webpage='http://w1.co', description='d1', city='c1',
                                              date=datetime.date(year=2021, month=1, day=1), address='a1',

@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Team, TournamentAdmin, TeamFight, Tournament
+from ippon.models import Player, Team, TournamentAdmin, TeamFight, Tournament
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -14,7 +15,7 @@ BAD_PK = 0
 class PointsViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',

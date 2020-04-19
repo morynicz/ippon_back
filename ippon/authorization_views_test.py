@@ -5,8 +5,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, ClubAdmin, TournamentAdmin, TeamFight, Team, Fight, GroupPhase, Tournament, \
+from ippon.models import Player, TournamentAdmin, TeamFight, Team, Fight, GroupPhase, Tournament, \
     CupPhase
+import ippon.club.models as cl
 
 
 class AuthorizationViewsTest(APITestCase):
@@ -16,11 +17,11 @@ class AuthorizationViewsTest(APITestCase):
         self.u2 = User.objects.create(username='a2', password='password2')
         self.u3 = User.objects.create(username='u3', password='password1')
 
-        self.c1 = Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
-        self.c2 = Club.objects.create(name='cn2', webpage='http://cw2.co', description='cd2', city='cc2')
-        self.c4 = Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
-        self.a1 = ClubAdmin.objects.create(user=self.u1, club=self.c1)
-        self.a2 = ClubAdmin.objects.create(user=self.u2, club=self.c2)
+        self.c1 = cl.Club.objects.create(name='cn1', webpage='http://cw1.co', description='cd1', city='cc1')
+        self.c2 = cl.Club.objects.create(name='cn2', webpage='http://cw2.co', description='cd2', city='cc2')
+        self.c4 = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
+        self.a1 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c1)
+        self.a2 = cl.ClubAdmin.objects.create(user=self.u2, club=self.c2)
         self.p1 = Player.objects.create(name='pn1', surname='ps1', rank=7,
                                         birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.c1)
         self.p2 = Player.objects.create(name='pn2', surname='ps2', rank=7,
@@ -104,7 +105,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
         super(TournamentFightAuthorizationAuthenticatedTests, self).setUp()
 
     def test_tournament_fight_authorization_returns_negative_auth_if_not_authorized(self):
-        club = Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
+        club = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         t2 = Team.objects.create(name="t2", tournament=self.tournament)
         tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
@@ -129,7 +130,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
 
     def parametrized_fight_authorization_returns_positive_auth_if_authorized(self, is_admin):
         TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=is_admin)
-        club = Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
+        club = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         t2 = Team.objects.create(name="t2", tournament=self.tournament)
         tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
@@ -273,10 +274,12 @@ class TournamentGroupPhaseAuthorizationAuthenticatedTests(TournamentAuthorizatio
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
 class TournamentCupPhaseAuthorizationAuthenticatedTests(TournamentAuthorizationAuthenticatedTests):
     def setUp(self):
         super(TournamentCupPhaseAuthorizationAuthenticatedTests, self).setUp()
-        self.cup_phase = CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3, final_fight_length=5)
+        self.cup_phase = CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3,
+                                                 final_fight_length=5)
 
     def test_tournament_cup_phase_authorization_returns_negative_auth_if_not_authorized(self):
         expected = {
@@ -301,6 +304,7 @@ class TournamentCupPhaseAuthorizationAuthenticatedTests(TournamentAuthorizationA
         response = self.client.get(reverse('cup-phase-authorization', kwargs={'pk': self.cup_phase.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class AuthorizationViewsSetUnauthenticatedTests(AuthorizationViewsTest):
     def setUp(self):
@@ -336,7 +340,7 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_tournament_fight_authorization_returns_negative_auth(self):
-        club = Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
+        club = cl.Club.objects.create(name='cn4', webpage='http://cw4.co', description='cd4', city='cc4')
         t1 = Team.objects.create(name="t1", tournament=self.tournament)
         t2 = Team.objects.create(name="t2", tournament=self.tournament)
         tf = TeamFight.objects.create(tournament=self.tournament, aka_team=t1, shiro_team=t2)
@@ -397,7 +401,8 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_tournament_cup_phase_authorization_returns_negative_auth_if_not_authorized(self):
-        cup_phase = CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3, final_fight_length=5)
+        cup_phase = CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3,
+                                            final_fight_length=5)
         expected = {
             "isAuthorized": False
         }

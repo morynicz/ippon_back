@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Team, TournamentAdmin, TeamFight, GroupFight, GroupPhase, Group, Tournament
+from ippon.models import Player, Team, TournamentAdmin, TeamFight, GroupFight, GroupPhase, Group, Tournament
+import ippon.club.models as cl
 
 BAD_PK = 0
 
@@ -14,7 +15,7 @@ BAD_PK = 0
 class GroupFightViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
@@ -148,7 +149,6 @@ class GroupFightViewSetUnauthenticatedTests(GroupFightViewTest):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
 
     def test_delete_gets_unauthorized(self):
         response = self.client.delete(reverse('groupfight-detail', kwargs={'pk': self.gf1.id}))

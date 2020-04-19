@@ -4,7 +4,7 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import Club, Team, Player, TeamFight, TournamentAdmin, GroupPhase, Group, Tournament
+from ippon.models import Team, TeamFight, TournamentAdmin, GroupPhase, Group, Tournament
 from ippon.permissions import IsGroupFightOwnerOrReadOnly
 from ippon.serializers import GroupFightSerializer
 
@@ -30,6 +30,7 @@ class TestGroupFightPermissions(django.test.TestCase):
         self.group = Group.objects.create(name="g1", group_phase=self.group_phase)
         self.group_fight = self.group.group_fights.create(team_fight=self.tf)
         self.request.data = GroupFightSerializer(self.group_fight).data
+
 
 class TestGroupFightPermissionNotAdmin(TestGroupFightPermissions):
     def setUp(self):

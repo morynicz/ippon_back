@@ -2,7 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import ClubAdmin, TournamentAdmin, Fight, TeamFight, Team, Group, GroupPhase, Player, CupPhase
+from ippon.models import TournamentAdmin, Fight, TeamFight, Team, Group, GroupPhase, Player, CupPhase
+import ippon.club.models as cl
 
 
 @api_view(['GET'])
@@ -12,7 +13,7 @@ def club_authorization(request, pk, format=None):
 
 def has_club_authorization(club_id, request):
     try:
-        admin = ClubAdmin.objects.get(user=request.user.id, club=club_id)
+        admin = cl.ClubAdmin.objects.get(user=request.user.id, club=club_id)
         is_admin = False
         if admin is not None:
             is_admin = True
@@ -20,7 +21,7 @@ def has_club_authorization(club_id, request):
             'isAuthorized': is_admin
         })
 
-    except ClubAdmin.DoesNotExist:
+    except cl.ClubAdmin.DoesNotExist:
         return Response({
             'isAuthorized': False
         })
@@ -86,10 +87,12 @@ def group_phase_authorization(request, pk, format=None):
     group_phase = get_object_or_404(GroupPhase.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], group_phase.tournament.id, request)
 
+
 @api_view(['GET'])
 def cup_phase_authorization(request, pk, format=None):
     cup_phase = get_object_or_404(CupPhase.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], cup_phase.tournament.id, request)
+
 
 @api_view(['GET'])
 def player_authorization(request, pk, format=None):

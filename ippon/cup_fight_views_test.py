@@ -6,15 +6,16 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import Player, Club, Team, TournamentAdmin, TeamFight, Tournament, \
+from ippon.models import Player, Team, TournamentAdmin, TeamFight, Tournament, \
     CupFight
+import ippon.club.models as cl
 from ippon.utils import BAD_PK
 
 
 class CupFightViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = Club.objects.create(
+        c = cl.Club.objects.create(
             name='cn1',
             webpage='http://cw1.co',
             description='cd1',
