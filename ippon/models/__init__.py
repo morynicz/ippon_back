@@ -11,3 +11,4 @@ from ippon.models.point import Point
 from ippon.models.team import Team, TeamMember
 from ippon.models.team_fight import TeamFight
 from ippon.models.club import Club, ClubAdmin
+from ippon.models.event import Event, EventAdmin
