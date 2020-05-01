@@ -9,9 +9,9 @@ import ippon.models.cup_phase as cpm
 import ippon.models.team as tem
 import ippon.player.serializers as pls
 import ippon.models.player as plm
-from ippon.tournament.authorizations import has_tournament_authorization
-from ippon.user.serailzers import MinimalUserSerializer
-from ippon.group_phase.serializers import GroupPhaseSerializer
+import ippon.tournament.authorizations as ta
+import ippon.user.serailzers as us
+import ippon.group_phase.serializers as gps
 import ippon.cup_phase.serializers as cps
 import ippon.team.serializers as tes
 import ippon.models.tournament as tm
@@ -83,7 +83,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
             tp.IsTournamentOwner))
     def non_admins(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = MinimalUserSerializer(User.objects.exclude(tournaments__tournament=pk), many=True)
+        serializer = us.MinimalUserSerializer(User.objects.exclude(tournaments__tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=['get'], detail=True)
@@ -99,7 +99,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
         url_name='group_phases')
     def group_phases(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = GroupPhaseSerializer(gpm.GroupPhase.objects.filter(tournament=pk), many=True)
+        serializer = gps.GroupPhaseSerializer(gpm.GroupPhase.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -129,9 +129,9 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
 @api_view(['GET'])
 def tournament_staff_authorization(request, pk, format=None):
-    return has_tournament_authorization([True, False], pk, request)
+    return ta.has_tournament_authorization([True, False], pk, request)
 
 
 @api_view(['GET'])
 def tournament_admin_authorization(request, pk, format=None):
-    return has_tournament_authorization(True, pk, request)
+    return ta.has_tournament_authorization(True, pk, request)

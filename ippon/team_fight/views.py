@@ -8,8 +8,7 @@ import ippon.fight.serializers as fs
 import ippon.models.team_fight as tfm
 import ippon.team_fight.serializers as tfs
 import ippon.tournament.permissions as tp
-from ippon.tournament.authorizations import has_tournament_authorization
-from ippon.models import team_fight as tfm
+import ippon.tournament.authorizations as ta
 
 
 class TeamFightViewSet(viewsets.ModelViewSet):
@@ -31,4 +30,4 @@ class TeamFightViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 def team_fight_authorization(request, pk, format=None):
     team_fight = tfm.TeamFight.objects.get(pk=pk)
-    return has_tournament_authorization([True, False], team_fight.tournament.id, request)
+    return ta.has_tournament_authorization([True, False], team_fight.tournament.id, request)

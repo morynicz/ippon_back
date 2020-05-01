@@ -4,12 +4,13 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import GroupPhase, Group
+import ippon.models.group_phase as gpm
+import ippon.models.group as gm
 import ippon.models.team_fight as tfm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
-from ippon.group_fight.permissions import IsGroupFightOwnerOrReadOnly
-from ippon.group_fight.serializers import GroupFightSerializer
+import ippon.group_fight.permissions as gfp
+import ippon.group_fight.serializers as gfs
 
 
 class TestGroupFightPermissions(django.test.TestCase):
@@ -25,14 +26,14 @@ class TestGroupFightPermissions(django.test.TestCase):
         self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
 
         self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
-        self.permission = IsGroupFightOwnerOrReadOnly()
+        self.permission = gfp.IsGroupFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
         self.request.user = self.admin
-        self.group_phase = GroupPhase.objects.create(name="gp", tournament=self.to, fight_length=3)
-        self.group = Group.objects.create(name="g1", group_phase=self.group_phase)
+        self.group_phase = gpm.GroupPhase.objects.create(name="gp", tournament=self.to, fight_length=3)
+        self.group = gm.Group.objects.create(name="g1", group_phase=self.group_phase)
         self.group_fight = self.group.group_fights.create(team_fight=self.tf)
-        self.request.data = GroupFightSerializer(self.group_fight).data
+        self.request.data = gfs.GroupFightSerializer(self.group_fight).data
 
 
 class TestGroupFightPermissionNotAdmin(TestGroupFightPermissions):

@@ -5,8 +5,8 @@ import django.test
 from django.contrib.auth.models import User
 
 import ippon.models.tournament as tm
-from ippon.group.permissions import IsGroupOwnerOrReadOnly, IsGroupOwner
-from ippon.group.serializers import GroupSerializer
+import ippon.group.permissions as gp
+import ippon.group.serializers as gs
 
 
 class TestGroupPermissions(django.test.TestCase):
@@ -24,13 +24,13 @@ class TestGroupPermissions(django.test.TestCase):
         self.view = unittest.mock.Mock()
         self.view.kwargs = dict()
         self.request.user = self.admin
-        self.request.data = GroupSerializer(self.group).data
+        self.request.data = gs.GroupSerializer(self.group).data
 
 
 class TestGroupOwnerOrReadOnlyPermissions(TestGroupPermissions):
     def setUp(self):
         super(TestGroupOwnerOrReadOnlyPermissions, self).setUp()
-        self.permission = IsGroupOwnerOrReadOnly()
+        self.permission = gp.IsGroupOwnerOrReadOnly()
 
 
 class TestGroupOwnerOrReadOnlyPermissionNotAdmin(TestGroupOwnerOrReadOnlyPermissions):
@@ -77,7 +77,7 @@ class TestGroupOwnerOrReadOnlyPermissionAdmin(TestGroupOwnerOrReadOnlyPermission
 class TestGroupOwnerPermissions(TestGroupPermissions):
     def setUp(self):
         super(TestGroupOwnerPermissions, self).setUp()
-        self.permission = IsGroupOwner()
+        self.permission = gp.IsGroupOwner()
 
 
 class TestGroupOwnerPermissionNotAdmin(TestGroupOwnerPermissions):

@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 import ippon.models.team_fight as tfm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
-from ippon.cup_fight.permissions import IsCupFightOwnerOrReadOnly
-from ippon.cup_fight.serializers import CupFightSerializer
+import ippon.cup_fight.permissions as cfp
+import ippon.cup_fight.serializers as cfs
 
 
 class TestCupFightPermissions(django.test.TestCase):
@@ -24,13 +24,13 @@ class TestCupFightPermissions(django.test.TestCase):
         self.t2 = tem.Team.objects.create(tournament=self.to, name='t2')
 
         self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
-        self.permission = IsCupFightOwnerOrReadOnly()
+        self.permission = cfp.IsCupFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
         self.request.user = self.admin
         self.cup_phase = self.to.cup_phases.create(name="cp", fight_length=3, final_fight_length=4)
         self.cup_fight = self.cup_phase.cup_fights.create(team_fight=self.tf)
-        self.request.data = CupFightSerializer(self.cup_fight).data
+        self.request.data = cfs.CupFightSerializer(self.cup_fight).data
 
 
 class TestCupFightPermissionNotAdmin(TestCupFightPermissions):

@@ -3,17 +3,17 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.models
-from ippon.tournament.authorizations import has_tournament_authorization
-from ippon.cup_phase.serializers import CupPhaseSerializer
-from ippon.models import CupPhase
-from ippon.cup_fight.serializers import CupFightSerializer
-from ippon.tournament import permissions as tp
+import ippon.tournament.authorizations as ta
+import ippon.cup_phase.serializers as cps
+import ippon.models.cup_phase as cpm
+import ippon.cup_fight.serializers as cfs
+import ippon.tournament.permissions as tp
+import ippon.models.cup_fight as cfm
 
 
 class CupPhaseViewSet(viewsets.ModelViewSet):
-    queryset = CupPhase.objects.all()
-    serializer_class = CupPhaseSerializer
+    queryset = cpm.CupPhase.objects.all()
+    serializer_class = cps.CupPhaseSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           tp.IsTournamentAdminOrReadOnlyDependent)
 
@@ -23,11 +23,11 @@ class CupPhaseViewSet(viewsets.ModelViewSet):
         url_name='cup_fights')
     def cup_fights(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = CupFightSerializer(ippon.models.cup_fight.CupFight.objects.filter(cup_phase=pk), many=True)
+        serializer = cfs.CupFightSerializer(cfm.CupFight.objects.filter(cup_phase=pk), many=True)
         return Response(serializer.data)
 
 
 @api_view(['GET'])
 def cup_phase_authorization(request, pk, format=None):
-    cup_phase = get_object_or_404(CupPhase.objects.all(), pk=pk)
-    return has_tournament_authorization([True, False], cup_phase.tournament.id, request)
+    cup_phase = get_object_or_404(cpm.CupPhase.objects.all(), pk=pk)
+    return ta.has_tournament_authorization([True, False], cup_phase.tournament.id, request)

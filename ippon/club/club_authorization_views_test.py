@@ -1,11 +1,10 @@
 from django.urls import reverse
 from rest_framework import status
 
-from ippon.utils.authorization_test_fixtures import AuthorizationViewsAuthenticatedTests, \
-    AuthorizationViewsUnauthenticatedTests
+import ippon.utils.authorization_test_fixtures as iua
 
 
-class ClubAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests):
+class ClubAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):
     def setUp(self):
         super(ClubAuthorizationAuthenticatedTests, self).setUp()
 
@@ -28,7 +27,7 @@ class ClubAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class PlayerAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests):
+class PlayerAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):
     def setUp(self):
         super(PlayerAuthorizationAuthenticatedTests, self).setUp()
 
@@ -51,7 +50,7 @@ class PlayerAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ClubAuthorizationUnauthenticatedTests(AuthorizationViewsUnauthenticatedTests):
+class ClubAuthorizationUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests):
     def setUp(self):
         super(ClubAuthorizationUnauthenticatedTests, self).setUp()
 
@@ -65,7 +64,7 @@ class ClubAuthorizationUnauthenticatedTests(AuthorizationViewsUnauthenticatedTes
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class PlayerAuthorizationUnauthenticatedTests(AuthorizationViewsUnauthenticatedTests):
+class PlayerAuthorizationUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests):
     def setUp(self):
         super(PlayerAuthorizationUnauthenticatedTests, self).setUp()
 

@@ -9,8 +9,8 @@ import ippon.models.team as tem
 import ippon.team.permissions as tep
 import ippon.team.serializers as tes
 import ippon.tournament.permissions as tp
-from ippon.tournament.authorizations import has_tournament_authorization
-from ippon.models import team as tem
+import ippon.tournament.authorizations as ta
+import ippon.models.team as tem
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -82,4 +82,4 @@ class TeamViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 def team_authorization(request, pk, format=None):
     team = get_object_or_404(tem.Team.objects.all(), pk=pk)
-    return has_tournament_authorization([True, False], team.tournament.id, request)
+    return ta.has_tournament_authorization([True, False], team.tournament.id, request)

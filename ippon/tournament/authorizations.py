@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 
-from ippon.models import tournament as tm
+import ippon.models.tournament as tm
 
 
 def has_tournament_authorization(allowed_master_statuses, pk, request):

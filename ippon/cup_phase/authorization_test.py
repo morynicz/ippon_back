@@ -1,15 +1,16 @@
 from django.urls.base import reverse
 from rest_framework import status
 
-from ippon.utils.authorization_test_fixtures import AuthorizationViewsAuthenticatedTests, AuthorizationViewsUnauthenticatedTests
-from ippon.models import CupPhase, tournament as tm
+import ippon.utils.authorization_test_fixtures as iua
+import ippon.models.cup_phase as cpm
+import ippon.models.tournament as tm
 
 
-class TournamentCupPhaseAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests):
+class TournamentCupPhaseAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):
     def setUp(self):
         super(TournamentCupPhaseAuthorizationAuthenticatedTests, self).setUp()
-        self.cup_phase = CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3,
-                                                 final_fight_length=5)
+        self.cup_phase = cpm.CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3,
+                                                     final_fight_length=5)
 
     def test_tournament_cup_phase_authorization_returns_negative_auth_if_not_authorized(self):
         expected = {
@@ -36,13 +37,13 @@ class TournamentCupPhaseAuthorizationAuthenticatedTests(AuthorizationViewsAuthen
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class CupPhaseViewsUnauthenticatedTests(AuthorizationViewsUnauthenticatedTests):
+class CupPhaseViewsUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests):
     def setUp(self):
         super(CupPhaseViewsUnauthenticatedTests, self).setUp()
 
     def test_tournament_cup_phase_authorization_returns_negative_auth_if_not_authorized(self):
-        cup_phase = CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3,
-                                            final_fight_length=5)
+        cup_phase = cpm.CupPhase.objects.create(name="cp1", tournament=self.tournament, fight_length=3,
+                                                final_fight_length=5)
         expected = {
             "isAuthorized": False
         }

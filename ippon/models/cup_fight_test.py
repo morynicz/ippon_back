@@ -8,7 +8,7 @@ import ippon.models.cup_fight
 import ippon.models.fight
 import ippon.models
 import ippon.models.team_fight as tfm
-from ippon.models.cup_fight import NoSuchFightException
+import ippon.models.cup_fight as cfm
 import ippon.models.tournament as tm
 import ippon.models.player as plm
 import ippon.models.club as cl
@@ -49,7 +49,7 @@ class CupFightFollowingFightTests(TestCupFights):
         super(CupFightFollowingFightTests, self).setUp()
 
     def test_fight_throws_no_such_fight_when_het_following_called_on_final(self):
-        with self.assertRaises(NoSuchFightException):
+        with self.assertRaises(cfm.NoSuchFightException):
             self.cup_fight.get_following_fight()
 
     def test_cup_fight_which_is_previous_on_aka_side_returns_following_fight(self):

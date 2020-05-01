@@ -4,20 +4,23 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.models
-from ippon.tournament.authorizations import has_tournament_authorization
-from ippon.models import Group, team as tem, team_fight as tfm, point as ptm, group as gm
-from ippon.group.permissions import IsGroupOwnerOrReadOnly, IsGroupOwner
-from ippon.group_fight.serializers import GroupFightSerializer
-from ippon.group.serializers import GroupSerializer
-from ippon.team import serializers as tes
+import ippon.tournament.authorizations as ta
+import ippon.models.group as gm
+import ippon.models.group_fight as gfm
+import ippon.models.team as tem
+import ippon.models.team_fight as tfm
+import ippon.models.point as ptm
+import ippon.group.permissions as gp
+import ippon.group_fight.serializers as gfs
+import ippon.group.serializers as gs
+import ippon.team.serializers as tes
 
 
 class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
+    queryset = gm.Group.objects.all()
+    serializer_class = gs.GroupSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsGroupOwnerOrReadOnly)
+                          gp.IsGroupOwnerOrReadOnly)
 
     # TODO: check when will DRF finally release the multiple actions for single url improvement
     @action(
@@ -25,7 +28,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         detail=True,
         url_name='members',
         url_path='members/(?P<team_id>[0-9]+)',
-        permission_classes=[IsGroupOwner])
+        permission_classes=[gp.IsGroupOwner])
     def handle_members(self, request, pk=None, team_id=None):
         return {
             'post': self.create_member,
@@ -40,10 +43,10 @@ class GroupViewSet(viewsets.ModelViewSet):
     def create_member(self, request, pk=None, team_id=None):
         try:
             team = tem.Team.objects.get(pk=team_id)
-            group = Group.objects.get(pk=pk)
+            group = gm.Group.objects.get(pk=pk)
             group.group_members.create(team=team)
             return Response(status=status.HTTP_201_CREATED)
-        except Group.DoesNotExist:
+        except gm.Group.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except tem.Team.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -55,15 +58,15 @@ class GroupViewSet(viewsets.ModelViewSet):
     #     url_path='members/(?P<team_id>[0-9]+)')
     def delete_member(self, request, pk=None, team_id=None):
         try:
-            group = Group.objects.get(pk=pk)
+            group = gm.Group.objects.get(pk=pk)
             team = tem.Team.objects.get(pk=team_id)
-            membership = ippon.models.group.GroupMember.objects.filter(group=group, team=team)
+            membership = gm.GroupMember.objects.filter(group=group, team=team)
             if membership:
                 membership.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-        except (Group.DoesNotExist, tem.Team.DoesNotExist, ippon.models.group.GroupMember.DoesNotExist):
+        except (gm.Group.DoesNotExist, tem.Team.DoesNotExist, gm.GroupMember.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['get'], detail=True)
@@ -75,7 +78,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             detail=True,
             permission_classes=[
                 permissions.IsAuthenticated,
-                IsGroupOwner])
+                gp.IsGroupOwner])
     def not_assigned(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
         serializer = tes.TeamSerializer(
@@ -89,7 +92,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         url_name='group_fights')
     def group_fights(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = GroupFightSerializer(ippon.models.group_fight.GroupFight.objects.filter(group=pk), many=True)
+        serializer = gfs.GroupFightSerializer(gfm.GroupFight.objects.filter(group=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -118,4 +121,4 @@ class GroupViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 def group_authorization(request, pk, format=None):
     group = get_object_or_404(gm.Group.objects.all(), pk=pk)
-    return has_tournament_authorization([True, False], group.group_phase.tournament.id, request)
+    return ta.has_tournament_authorization([True, False], group.group_phase.tournament.id, request)
