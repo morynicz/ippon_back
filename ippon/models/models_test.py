@@ -177,4 +177,4 @@ class CupPhaseTests(TestCase):
             self.cup_phase.delete()
         self.assertTrue(tfm.TeamFight.objects.filter(cup_fight=self.cf1).count())
         self.assertTrue(ippon.models.models_old.CupFight.objects.filter(cup_phase=self.cup_phase).count())
-        self.assertTrue(ippon.models.models_old.Fight.objects.filter(team_fight=self.team_fight1).count())
+        self.assertTrue(ippon.models.fight.Fight.objects.filter(team_fight=self.team_fight1).count())
