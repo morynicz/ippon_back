@@ -12,7 +12,7 @@ import ippon.models.team as tem
 import ippon.models.tournament as tm
 import ippon.models.player as plm
 import ippon.models.club as cl
-from ippon.utils import BAD_PK
+import ippon.utils.values as iuv
 
 
 class CupFightViewTest(APITestCase):
@@ -65,7 +65,7 @@ class CupFightViewTest(APITestCase):
                          "previous_aka_fight": self.cf2.id, "previous_shiro_fight": None}
         self.valid_payload = {'id': self.cf1.id, 'team_fight': self.tf2.id, 'cup_phase': self.phase.id,
                               "previous_aka_fight": None, "previous_shiro_fight": None}
-        self.invalid_payload = {'id': self.cf1.id, 'group': BAD_PK}
+        self.invalid_payload = {'id': self.cf1.id, 'group': iuv.BAD_PK}
 
 
 class CupFightViewSetAuthorizedTests(CupFightViewTest):
@@ -143,7 +143,7 @@ class CupFightViewSetUnauthenticatedTests(CupFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_fight_returns_404(self):
-        response = self.client.get(reverse('cupfight-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('cupfight-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_post_gets_unauthorized(self):

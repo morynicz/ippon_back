@@ -11,7 +11,7 @@ import ippon.models.team as tem
 import ippon.models.tournament as tm
 import ippon.models.player as plm
 import ippon.models.club as cl
-from ippon.utils import BAD_PK
+import ippon.utils.values as iuv
 
 
 class GroupViewTest(APITestCase):
@@ -126,7 +126,7 @@ class GroupViewSetUnauthenticatedTests(GroupViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_fight_returns_404(self):
-        response = self.client.get(reverse('group-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('group-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_gets_unauthorized(self):
@@ -182,7 +182,7 @@ class GroupViewSetUnauthenticatedTests(GroupViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_group_fights_for_invalid_group_returns_not_found(self):
-        response = self.client.get(reverse('group-group_fights', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('group-group_fights', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -406,7 +406,7 @@ class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
         t3 = tem.Team.objects.create(tournament=self.to, name='t3')
 
         response = self.client.post(
-            reverse('group-members', kwargs={'pk': BAD_PK, 'team_id': t3.id}),
+            reverse('group-members', kwargs={'pk': iuv.BAD_PK, 'team_id': t3.id}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -414,7 +414,7 @@ class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
     def test_groups_post_invalid_groups_returns_404(self):
         g3 = self.group_phase.groups.create(name='G3')
         response = self.client.post(
-            reverse('group-members', kwargs={'pk': g3.id, 'team_id': BAD_PK}),
+            reverse('group-members', kwargs={'pk': g3.id, 'team_id': iuv.BAD_PK}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -425,5 +425,5 @@ class InvalidIdsGroupMemberViewTests(AuthorizedGroupMembersViewTests):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_groups_get_non_members_returns_forbidden(self):
-        response = self.client.get(reverse('group-not-assigned', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('group-not-assigned', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

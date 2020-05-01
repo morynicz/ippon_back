@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
 import ippon.models.tournament as tm
-from ippon.utils import BAD_PK
+import ippon.utils.values as iuv
 
 
 class CupPhasesViewTest(APITestCase):
@@ -187,5 +187,5 @@ class CupPhaseViewSetUnauthenticatedTests(CupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_fights_for_invalid_cup_phase_returns_not_found(self):
-        response = self.client.get(reverse('cupphase-cup_fights', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('cupphase-cup_fights', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
 import ippon.models.tournament as tm
-from ippon.utils import BAD_PK
+import ippon.utils.values as iuv
 
 
 class GroupPhasesViewTest(APITestCase):
@@ -122,7 +122,7 @@ class GroupPhaseViewSetUnauthenticatedTests(GroupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_group_phase_returns_404(self):
-        response = self.client.get(reverse('groupphase-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('groupphase-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):
@@ -157,5 +157,5 @@ class GroupPhaseViewSetUnauthenticatedTests(GroupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_groups_for_invalid_group_phase_returns_not_found(self):
-        response = self.client.get(reverse('groupphase-groups', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('groupphase-groups', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
