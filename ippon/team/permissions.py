@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-import ippon.permissions as ip
+import ippon.utils.permissions as ip
 import ippon.models.team as tem
 
 

@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 from ippon.group.serializers import GroupSerializer
 from ippon.models import Group, GroupPhase
-from ippon.permissions import is_user_admin_of_the_tournament, has_object_creation_permission
+from ippon.utils.permissions import is_user_admin_of_the_tournament, has_object_creation_permission
 
 
 class IsGroupOwnerOrReadOnly(permissions.BasePermission):
