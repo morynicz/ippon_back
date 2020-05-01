@@ -7,7 +7,7 @@ from rest_framework.response import Response
 import ippon.models
 from ippon.models import Group, team as tem, team_fight as tfm, point as ptm
 from ippon.group.permissions import IsGroupOwnerOrReadOnly, IsGroupOwner
-from ippon.serializers import GroupFightSerializer
+from ippon.group_fight.serializers import GroupFightSerializer
 from ippon.group.serializers import GroupSerializer
 from ippon.team import serializers as tes
 

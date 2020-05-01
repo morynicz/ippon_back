@@ -1,18 +1,10 @@
 from django.contrib.auth.hashers import make_password
 from django.http.request import HttpRequest
-from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, action
+from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from ippon.permissions import *
-from ippon.serializers import *
-
-
-class GroupFightViewSet(viewsets.ModelViewSet):
-    queryset = ippon.models.group_fight.GroupFight.objects.all()
-    serializer_class = GroupFightSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsGroupFightOwnerOrReadOnly)
+import ippon.serializers as ips
 
 
 @api_view(['POST'])
@@ -23,7 +15,7 @@ def register_user(request):
     if validations fails if returns a list of errors in the data
     """
 
-    serializer = UserRegistrationSerializer(data=request.data)
+    serializer = ips.UserRegistrationSerializer(data=request.data)
     if serializer.is_valid(raise_exception=False):
         user = serializer.save(password=make_password(serializer.validated_data["password"]))
         user.email_user(
@@ -33,13 +25,6 @@ def register_user(request):
     else:
         response = [str(err[0]) for err in serializer.errors.values()]
         return Response(status=status.HTTP_400_BAD_REQUEST, data=response, content_type="application/json")
-
-
-class CupFightViewSet(viewsets.ModelViewSet):
-    queryset = ippon.models.cup_fight.CupFight.objects.all()
-    serializer_class = CupFightSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsCupFightOwnerOrReadOnly)
 
 
 @api_view(["get"])

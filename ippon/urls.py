@@ -5,9 +5,11 @@ from rest_framework.schemas import get_schema_view
 
 import ippon.authorization_views
 import ippon.club.views
+import ippon.cup_fight.views
 import ippon.cup_phase.views
 import ippon.fight.views
 import ippon.group.views
+import ippon.group_fight.views
 import ippon.group_phase.views
 import ippon.player.views
 import ippon.point.views
@@ -31,9 +33,9 @@ router.register(r'fights', ippon.fight.views.FightViewSet)
 router.register(r'team_fights', ippon.team_fight.views.TeamFightViewSet)
 router.register(r'groups', ippon.group.views.GroupViewSet)
 router.register(r'group_phases', ippon.group_phase.views.GroupPhaseViewSet)
-router.register(r'group_fights', views.GroupFightViewSet)
+router.register(r'group_fights', ippon.group_fight.views.GroupFightViewSet)
 router.register(r'cup_phases', ippon.cup_phase.views.CupPhaseViewSet)
-router.register(r'cup_fights', views.CupFightViewSet)
+router.register(r'cup_fights', ippon.cup_fight.views.CupFightViewSet)
 router.register(r'events', views.EventViewSet)
 
 urlpatterns = [

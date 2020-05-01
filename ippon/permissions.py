@@ -6,7 +6,8 @@ from ippon.models import CupPhase, Group
 import ippon.models.tournament as tm
 
 from ippon.event_models import Event, EventAdmin
-from ippon.serializers import CupFightSerializer, GroupFightSerializer
+from ippon.group_fight.serializers import GroupFightSerializer
+from ippon.cup_fight.serializers import CupFightSerializer
 
 
 def is_user_admin_of_the_tournament(request, tournament):
@@ -34,39 +35,6 @@ def has_object_creation_permission(request, serializer_class, tournament_depende
 
 def get_tournament_from_fight(fight):
     return fight.team_fight.tournament
-
-
-class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
-    def get_tournament(self, group):
-        return group.group_phase.tournament
-
-    def has_permission(self, request, view):
-        if request.method == "POST":
-            return has_object_creation_permission(
-                request=request,
-                serializer_class=GroupFightSerializer,
-                tournament_dependent_class_field="group",
-                tournament_dependent_class=Group,
-                getter_fcn=self.get_tournament)
-        return True
-
-    def has_object_permission(self, request, view, group_fight):
-        if request and request.method in permissions.SAFE_METHODS:
-            return True
-        return is_user_admin_of_the_tournament(request, group_fight.team_fight.tournament)
-
-
-class IsCupFightOwnerOrReadOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method == "POST":
-            return has_object_creation_permission(request, CupFightSerializer, "cup_phase",
-                                                  CupPhase)
-        return True
-
-    def has_object_permission(self, request, view, cup_fight):
-        if request and request.method in permissions.SAFE_METHODS:
-            return True
-        return is_user_admin_of_the_tournament(request, cup_fight.cup_phase.tournament)
 
 
 class IsEventOwnerOrReadOnly(permissions.BasePermission):

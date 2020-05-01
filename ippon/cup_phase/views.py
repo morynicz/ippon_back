@@ -7,7 +7,7 @@ import ippon.models
 from ippon.authorization_views import has_tournament_authorization
 from ippon.cup_phase.serializers import CupPhaseSerializer
 from ippon.models import CupPhase
-from ippon.serializers import CupFightSerializer
+from ippon.cup_fight.serializers import CupFightSerializer
 from ippon.tournament import permissions as tp
 
 

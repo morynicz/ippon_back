@@ -8,8 +8,8 @@ from ippon.models import GroupPhase, Group
 import ippon.models.team_fight as tfm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
-from ippon.permissions import IsGroupFightOwnerOrReadOnly
-from ippon.serializers import GroupFightSerializer
+from ippon.group_fight.permissions import IsGroupFightOwnerOrReadOnly
+from ippon.group_fight.serializers import GroupFightSerializer
 
 
 class TestGroupFightPermissions(django.test.TestCase):
