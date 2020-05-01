@@ -4,10 +4,11 @@ import django
 from django.db import IntegrityError
 from django.test import TestCase
 
+import ippon.models.cup_fight
 import ippon.models.fight
 import ippon.models
 import ippon.models.team_fight as tfm
-from ippon.models.models_old import NoSuchFightException
+from ippon.models.cup_fight import NoSuchFightException
 import ippon.models.tournament as tm
 import ippon.models.player as plm
 import ippon.models.club as cl
@@ -176,5 +177,5 @@ class CupPhaseTests(TestCase):
         with self.assertRaises(django.db.models.ProtectedError) as pe:
             self.cup_phase.delete()
         self.assertTrue(tfm.TeamFight.objects.filter(cup_fight=self.cf1).count())
-        self.assertTrue(ippon.models.models_old.CupFight.objects.filter(cup_phase=self.cup_phase).count())
+        self.assertTrue(ippon.models.cup_fight.CupFight.objects.filter(cup_phase=self.cup_phase).count())
         self.assertTrue(ippon.models.fight.Fight.objects.filter(team_fight=self.team_fight1).count())

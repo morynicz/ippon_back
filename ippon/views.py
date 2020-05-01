@@ -6,18 +6,21 @@ from rest_framework.decorators import api_view, action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+import ippon.models.cup_fight
+import ippon.models.group
+import ippon.models.group_fight
+import ippon.models.group_phase
 import ippon.models.point as ptm
 from ippon.permissions import *
 from ippon.serializers import *
 import ippon.tournament.permissions as tp
 import ippon.models.team as tem
 import ippon.team.serializers as tes
-import ippon.models.models_old
 import ippon.models.team_fight as tfm
 
 
 class GroupFightViewSet(viewsets.ModelViewSet):
-    queryset = ippon.models.models_old.GroupFight.objects.all()
+    queryset = ippon.models.group_fight.GroupFight.objects.all()
     serializer_class = GroupFightSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsGroupFightOwnerOrReadOnly)
@@ -67,13 +70,13 @@ class GroupViewSet(viewsets.ModelViewSet):
         try:
             group = Group.objects.get(pk=pk)
             team = tem.Team.objects.get(pk=team_id)
-            membership = ippon.models.models_old.GroupMember.objects.filter(group=group, team=team)
+            membership = ippon.models.group.GroupMember.objects.filter(group=group, team=team)
             if membership:
                 membership.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-        except (Group.DoesNotExist, tem.Team.DoesNotExist, ippon.models.models_old.GroupMember.DoesNotExist):
+        except (Group.DoesNotExist, tem.Team.DoesNotExist, ippon.models.group.GroupMember.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['get'], detail=True)
@@ -99,7 +102,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         url_name='group_fights')
     def group_fights(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = GroupFightSerializer(ippon.models.models_old.GroupFight.objects.filter(group=pk), many=True)
+        serializer = GroupFightSerializer(ippon.models.group_fight.GroupFight.objects.filter(group=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -173,12 +176,12 @@ class CupPhaseViewSet(viewsets.ModelViewSet):
         url_name='cup_fights')
     def cup_fights(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = CupFightSerializer(ippon.models.models_old.CupFight.objects.filter(cup_phase=pk), many=True)
+        serializer = CupFightSerializer(ippon.models.cup_fight.CupFight.objects.filter(cup_phase=pk), many=True)
         return Response(serializer.data)
 
 
 class CupFightViewSet(viewsets.ModelViewSet):
-    queryset = ippon.models.models_old.CupFight.objects.all()
+    queryset = ippon.models.cup_fight.CupFight.objects.all()
     serializer_class = CupFightSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsCupFightOwnerOrReadOnly)

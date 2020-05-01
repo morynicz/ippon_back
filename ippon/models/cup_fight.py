@@ -1,50 +1,9 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.dispatch.dispatcher import receiver
 
-import ippon.models.team_fight as tfm
-
-
-class Location(models.Model):
-    tournament = models.ForeignKey('Tournament', related_name='locations', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, blank=False)
-
-
-class GroupPhase(models.Model):
-    tournament = models.ForeignKey('Tournament', related_name='group_phases', on_delete=models.CASCADE)
-    fight_length = models.IntegerField()
-    name = models.CharField(max_length=100, blank=False)
-
-
-class Group(models.Model):
-    name = models.CharField(max_length=100, blank=False)
-    group_phase = models.ForeignKey('GroupPhase', related_name='groups', on_delete=models.PROTECT)
-
-
-class GroupMember(models.Model):
-    group = models.ForeignKey('Group', related_name='group_members', on_delete=models.PROTECT)
-    team = models.ForeignKey('Team', related_name='group_member', on_delete=models.PROTECT)
-
-
-class GroupFight(models.Model):
-    group = models.ForeignKey('Group', related_name='group_fights', on_delete=models.PROTECT)
-    team_fight = models.ForeignKey('TeamFight', related_name='group_fight', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "group: {}\nteam_fight: {}".format(self.group, self.team_fight)
-
-    def delete(self, using=None, keep_parents=False):
-        super(GroupFight, self).delete()
-        self.team_fight.delete()
-
-
-class CupPhase(models.Model):
-    tournament = models.ForeignKey('Tournament', related_name='cup_phases', on_delete=models.PROTECT)
-    fight_length = models.IntegerField()
-    final_fight_length = models.IntegerField()
-    name = models.CharField(max_length=100, blank=False)
-    number_of_positions = models.IntegerField(default=2)
+from ippon.models import team_fight as tfm
 
 
 class CupFight(models.Model):

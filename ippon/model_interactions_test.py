@@ -2,6 +2,9 @@ import datetime
 
 from django.test import TestCase
 
+import ippon.models.cup_fight
+import ippon.models.group_fight
+import ippon.models.group_phase
 import ippon.models.team_fight as tfm
 import ippon.models.tournament as tm
 from ippon import models
@@ -50,8 +53,8 @@ class GroupFightAndTeamFightInteractionTests(TournamentDependentClasses):
 
     def test_team_fight_deletion_triggers_related_group_fight_deletion(self):
         self.team_fight.delete()
-        with self.assertRaises(models.GroupFight.DoesNotExist):
-            print(models.GroupFight.objects.get(pk=self.group_fight.id))
+        with self.assertRaises(ippon.models.group_fight.GroupFight.DoesNotExist):
+            print(ippon.models.group_fight.GroupFight.objects.get(pk=self.group_fight.id))
 
 
 class CupFightAndTeamFightInteractionTests(TournamentDependentClasses):
@@ -67,4 +70,4 @@ class CupFightAndTeamFightInteractionTests(TournamentDependentClasses):
 
     def test_team_fight_deletion_does_not_trigger_related_cup_fight_deletion(self):
         self.team_fight.delete()
-        self.assertEquals(self.cup_fight, models.CupFight.objects.get(pk=self.cup_fight.id))
+        self.assertEquals(self.cup_fight, ippon.models.cup_fight.CupFight.objects.get(pk=self.cup_fight.id))
