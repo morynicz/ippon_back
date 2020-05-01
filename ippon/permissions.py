@@ -2,11 +2,11 @@ from django.views.generic.base import View
 from rest_framework import permissions
 from rest_framework.request import Request
 
-from ippon.models import CupPhase, Group, GroupPhase
+from ippon.models import CupPhase, Group
 import ippon.models.tournament as tm
 
 from ippon.event_models import Event, EventAdmin
-from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer
+from ippon.serializers import CupFightSerializer, GroupFightSerializer
 
 
 def is_user_admin_of_the_tournament(request, tournament):
@@ -34,24 +34,6 @@ def has_object_creation_permission(request, serializer_class, tournament_depende
 
 def get_tournament_from_fight(fight):
     return fight.team_fight.tournament
-
-
-class IsGroupOwnerOrReadOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method == "POST":
-            if "pk" in view.kwargs:
-                try:
-                    group = Group.objects.get(pk=view.kwargs["pk"])
-                    return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
-                except Group.DoesNotExist:
-                    return False
-            return has_object_creation_permission(request, GroupSerializer, "group_phase", GroupPhase)
-        return True
-
-    def has_object_permission(self, request, view, group):
-        if request and request.method in permissions.SAFE_METHODS:
-            return True
-        return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
 
 
 class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
@@ -85,19 +67,6 @@ class IsCupFightOwnerOrReadOnly(permissions.BasePermission):
         if request and request.method in permissions.SAFE_METHODS:
             return True
         return is_user_admin_of_the_tournament(request, cup_fight.cup_phase.tournament)
-
-
-class IsGroupOwner(permissions.BasePermission):
-    def has_permission(self, request, view):
-        try:
-            pk = view.kwargs["pk"]
-            group = Group.objects.get(pk=pk)
-            return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
-        except (KeyError, Group.DoesNotExist):
-            return False
-
-    def has_object_permission(self, request, view, group):
-        return is_user_admin_of_the_tournament(request, group.group_phase.tournament)
 
 
 class IsEventOwnerOrReadOnly(permissions.BasePermission):

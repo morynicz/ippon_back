@@ -7,6 +7,7 @@ import ippon.authorization_views
 import ippon.club.views
 import ippon.cup_phase.views
 import ippon.fight.views
+import ippon.group.views
 import ippon.group_phase.views
 import ippon.player.views
 import ippon.point.views
@@ -28,7 +29,7 @@ router.register(r'teams', ippon.team.views.TeamViewSet)
 router.register(r'points', ippon.point.views.PointViewSet)
 router.register(r'fights', ippon.fight.views.FightViewSet)
 router.register(r'team_fights', ippon.team_fight.views.TeamFightViewSet)
-router.register(r'groups', views.GroupViewSet)
+router.register(r'groups', ippon.group.views.GroupViewSet)
 router.register(r'group_phases', ippon.group_phase.views.GroupPhaseViewSet)
 router.register(r'group_fights', views.GroupFightViewSet)
 router.register(r'cup_phases', ippon.cup_phase.views.CupPhaseViewSet)
