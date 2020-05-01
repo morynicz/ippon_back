@@ -11,8 +11,7 @@ import ippon.models.player as plm
 import ippon.models.team as tem
 import ippon.models.team_fight as tfm
 import ippon.models.tournament as tm
-
-BAD_PK = 0
+import ippon.utils.values as iuv
 
 
 class TeamFightViewTest(APITestCase):
@@ -57,7 +56,7 @@ class TeamFightViewTest(APITestCase):
                          'status': 1, 'aka_score': 0, 'shiro_score': 0, 'winner': 0}
         self.valid_payload = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': self.t1.id,
                               'tournament': self.to.id, 'status': 0, 'winner': 0}
-        self.invalid_payload = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': BAD_PK,
+        self.invalid_payload = {'id': self.tf1.id, 'aka_team': self.t1.id, 'shiro_team': iuv.BAD_PK,
                                 'tournament': self.to.id}
 
 
@@ -153,7 +152,7 @@ class TeamFightViewSetUnauthenticatedTests(TeamFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_fight_returns_404(self):
-        response = self.client.get(reverse('teamfight-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('teamfight-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):
@@ -195,5 +194,5 @@ class UnauthorizedTeamFightsFightsTest(TeamFightViewSetUnauthorizedTests):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_fights_for_invalid_team_fight_returns_not_found(self):
-        response = self.client.get(reverse('teamfight-fights', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('teamfight-fights', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

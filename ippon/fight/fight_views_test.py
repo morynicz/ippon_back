@@ -11,8 +11,7 @@ import ippon.models.player as plm
 import ippon.models.team as tem
 import ippon.models.team_fight as tfm
 import ippon.models.tournament as tm
-
-BAD_PK = 0
+import ippon.utils.values as iuv
 
 
 class FightViewTest(APITestCase):
@@ -49,7 +48,7 @@ class FightViewTest(APITestCase):
                         'winner': 0}
         self.valid_payload = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': self.p1.id, 'team_fight': self.tf.id,
                               'status': 1, 'winner': 0}
-        self.invalid_payload = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': BAD_PK, 'team_fight': self.tf.id,
+        self.invalid_payload = {'id': self.f1.id, 'aka': self.p1.id, 'shiro': iuv.BAD_PK, 'team_fight': self.tf.id,
                                 'status': 0, 'winner': 0}
 
 
@@ -167,5 +166,5 @@ class UnauthenticatedFightsPointsTest(FightViewSetUnauthenticatedTests):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_points_for_invalid_fight_returns_list_of_fights_points(self):
-        response = self.client.get(reverse('fight-points', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('fight-points', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

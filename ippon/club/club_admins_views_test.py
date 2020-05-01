@@ -7,8 +7,6 @@ from rest_framework.test import APIClient, APITestCase
 
 import ippon.models.club as cl
 
-BAD_PK = 0
-
 
 class ClubAdminViewTest(APITestCase):
     def setUp(self):

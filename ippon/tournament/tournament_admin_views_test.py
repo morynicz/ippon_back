@@ -8,8 +8,6 @@ from rest_framework.test import APIClient, APITestCase
 
 import ippon.models.tournament as tm
 
-BAD_PK = 0
-
 
 class TournamentAdminViewTest(APITestCase):
     def setUp(self):

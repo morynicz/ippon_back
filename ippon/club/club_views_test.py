@@ -9,8 +9,6 @@ from rest_framework.test import APIClient, APITestCase
 import ippon.models.club as cl
 import ippon.models.player as plm
 
-BAD_PK = 0
-
 
 class ClubViewTest(APITestCase):
     def setUp(self):
