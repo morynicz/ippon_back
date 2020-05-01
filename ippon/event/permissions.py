@@ -2,7 +2,7 @@ from django.views.generic.base import View
 from rest_framework import permissions
 from rest_framework.request import Request
 
-from ippon.models import EventAdmin, Event
+import ippon.models.event as em
 
 
 class IsEventOwnerOrReadOnly(permissions.BasePermission):
@@ -17,6 +17,6 @@ class IsEventOwnerOrReadOnly(permissions.BasePermission):
         else:
             pk = view.kwargs["pk"]
             try:
-                return any([i.user == request.user for i in EventAdmin.objects.filter(event=Event.objects.get(pk=pk))])
+                return any([i.user == request.user for i in em.EventAdmin.objects.filter(event=em.Event.objects.get(pk=pk))])
             except Exception:
                 return False

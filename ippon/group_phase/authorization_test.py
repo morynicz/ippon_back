@@ -1,14 +1,15 @@
 from django.urls.base import reverse
 from rest_framework import status
 
-from ippon.utils.authorization_test_fixtures import AuthorizationViewsAuthenticatedTests, AuthorizationViewsUnauthenticatedTests
-from ippon.models import GroupPhase, tournament as tm
+import ippon.utils.authorization_test_fixtures as iua
+import ippon.models.group_phase as gpm
+import ippon.models.tournament as tm
 
 
-class TournamentGroupPhaseAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests):
+class TournamentGroupPhaseAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):
     def setUp(self):
         super(TournamentGroupPhaseAuthorizationAuthenticatedTests, self).setUp()
-        self.group_phase = GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
+        self.group_phase = gpm.GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
 
     def test_tournament_group_phase_authorization_returns_negative_auth_if_not_authorized(self):
         expected = {
@@ -35,12 +36,12 @@ class TournamentGroupPhaseAuthorizationAuthenticatedTests(AuthorizationViewsAuth
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class GroupPhaseViewsUnauthenticatedTests(AuthorizationViewsUnauthenticatedTests):
+class GroupPhaseViewsUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests):
     def setUp(self):
         super(GroupPhaseViewsUnauthenticatedTests, self).setUp()
 
     def test_tournament_group_phase_authorization_returns_negative_auth_if_not_authorized(self):
-        group_phase = GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
+        group_phase = gpm.GroupPhase.objects.create(name="gp1", tournament=self.tournament, fight_length=3)
         expected = {
             "isAuthorized": False
         }

@@ -6,14 +6,16 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from ippon.models import GroupFight, GroupPhase, Group
+import ippon.models.group_fight as gfm
+import ippon.models.group_phase as gpm
+import ippon.models.group as gm
 import ippon.models.team_fight as tfm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
 import ippon.models.player as plm
 import ippon.models.club as cl
 
-BAD_PK = 0
+import ippon.utils.values as iuv
 
 
 class GroupFightViewTest(APITestCase):
@@ -52,17 +54,17 @@ class GroupFightViewTest(APITestCase):
         self.tf1 = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.tf2 = tfm.TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to)
 
-        self.phase = GroupPhase.objects.create(name='phase', tournament=self.to, fight_length=3)
+        self.phase = gpm.GroupPhase.objects.create(name='phase', tournament=self.to, fight_length=3)
 
-        self.g1 = Group.objects.create(name='g1', group_phase=self.phase)
+        self.g1 = gm.Group.objects.create(name='g1', group_phase=self.phase)
 
-        self.gf1 = GroupFight.objects.create(team_fight=self.tf1, group=self.g1)
-        self.gf2 = GroupFight.objects.create(team_fight=self.tf2, group=self.g1)
+        self.gf1 = gfm.GroupFight.objects.create(team_fight=self.tf1, group=self.g1)
+        self.gf2 = gfm.GroupFight.objects.create(team_fight=self.tf2, group=self.g1)
 
         self.gf1_json = {'id': self.gf1.id, 'team_fight': self.tf1.id, 'group': self.g1.id}
         self.gf2_json = {'id': self.gf2.id, 'team_fight': self.tf2.id, 'group': self.g1.id}
         self.valid_payload = {'id': self.gf1.id, 'team_fight': self.tf2.id, 'group': self.g1.id}
-        self.invalid_payload = {'id': self.gf1.id, 'aka_team': self.tf1.id, 'group': BAD_PK}
+        self.invalid_payload = {'id': self.gf1.id, 'aka_team': self.tf1.id, 'group': iuv.BAD_PK}
 
 
 class GroupFightViewSetAuthorizedTests(GroupFightViewTest):
@@ -109,8 +111,8 @@ class GroupFightViewSetAuthorizedTests(GroupFightViewTest):
     def test_delete_existing_group_fight_deletes_it(self):
         response = self.client.delete(reverse('groupfight-detail', kwargs={'pk': self.gf1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        with self.assertRaises(GroupFight.DoesNotExist):
-            GroupFight.objects.get(pk=self.gf1.id)
+        with self.assertRaises(gfm.GroupFight.DoesNotExist):
+            gfm.GroupFight.objects.get(pk=self.gf1.id)
         with self.assertRaises(tfm.TeamFight.DoesNotExist):
             tfm.TeamFight.objects.get(pk=self.gf1.team_fight.id)
 
@@ -135,7 +137,7 @@ class GroupFightViewSetUnauthenticatedTests(GroupFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_fight_returns_404(self):
-        response = self.client.get(reverse('groupfight-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('groupfight-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_gets_unauthorized(self):

@@ -2,7 +2,7 @@ import datetime
 
 from rest_framework.test import APITestCase
 
-from ippon.models.event import Event
+import ippon.models.event as em
 
 
 class EventModelTest(APITestCase):
@@ -15,7 +15,7 @@ class EventModelTest(APITestCase):
     def configure_event(start_string, end_string):
         registration_start = datetime.datetime.strptime(start_string, '%m/%d/%Y %H:%M:%S')
         registration_end = datetime.datetime.strptime(end_string, '%m/%d/%Y %H:%M:%S')
-        event: Event = Event(
+        event: em.Event = em.Event(
             name="Tournament",
             description="It's very cool",
             registration_start_time=registration_start,

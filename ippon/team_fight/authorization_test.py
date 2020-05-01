@@ -1,11 +1,13 @@
 from django.urls.base import reverse
 from rest_framework import status
 
-from ippon.utils.authorization_test_fixtures import AuthorizationViewsAuthenticatedTests, AuthorizationViewsUnauthenticatedTests
-from ippon.models import team as tem, team_fight as tfm, tournament as tm
+import ippon.utils.authorization_test_fixtures as iua
+import ippon.models.team as tem
+import ippon.models.team_fight as tfm
+import ippon.models.tournament as tm
 
 
-class TournamentTeamFightAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests):
+class TournamentTeamFightAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):
     def setUp(self):
         super(TournamentTeamFightAuthorizationAuthenticatedTests, self).setUp()
 
@@ -40,7 +42,7 @@ class TournamentTeamFightAuthorizationAuthenticatedTests(AuthorizationViewsAuthe
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class TeamFightViewsUnauthenticatedTests(AuthorizationViewsUnauthenticatedTests):
+class TeamFightViewsUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests):
     def setUp(self):
         super(TeamFightViewsUnauthenticatedTests, self).setUp()
 

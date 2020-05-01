@@ -4,8 +4,13 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-from ippon.models import club as cl, tournament as tm, team as tem, player as plm, team_fight as tfm
-from ippon.point import permissions as ptp, serializers as pts
+import ippon.models.club as cl
+import ippon.models.tournament as tm
+import ippon.models.team as tem
+import ippon.models.player as plm
+import ippon.models.team_fight as tfm
+import ippon.point.permissions as ptp
+import ippon.point.serializers as pts
 
 
 class TestPointPermissions(django.test.TestCase):

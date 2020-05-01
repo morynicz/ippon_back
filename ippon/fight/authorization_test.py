@@ -3,12 +3,16 @@ import datetime
 from django.urls.base import reverse
 from rest_framework import status
 
-import ippon.models
-from ippon.utils.authorization_test_fixtures import AuthorizationViewsAuthenticatedTests, AuthorizationViewsUnauthenticatedTests
-from ippon.models import club as cl, team as tem, team_fight as tfm, player as plm, tournament as tm
+import ippon.utils.authorization_test_fixtures as iua
+import ippon.models.club as cl
+import ippon.models.team as tem
+import ippon.models.team_fight as tfm
+import ippon.models.player as plm
+import ippon.models.tournament as tm
+import ippon.models.fight as fm
 
 
-class TournamentFightAuthorizationAuthenticatedTests(AuthorizationViewsAuthenticatedTests):
+class TournamentFightAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):
     def setUp(self):
         super(TournamentFightAuthorizationAuthenticatedTests, self).setUp()
 
@@ -21,7 +25,7 @@ class TournamentFightAuthorizationAuthenticatedTests(AuthorizationViewsAuthentic
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = ippon.models.fight.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = fm.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": False
         }
@@ -46,7 +50,7 @@ class TournamentFightAuthorizationAuthenticatedTests(AuthorizationViewsAuthentic
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = ippon.models.fight.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = fm.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": True
         }
@@ -55,7 +59,7 @@ class TournamentFightAuthorizationAuthenticatedTests(AuthorizationViewsAuthentic
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class FightViewsUnauthenticatedTests(AuthorizationViewsUnauthenticatedTests):
+class FightViewsUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests):
     def setUp(self):
         super(FightViewsUnauthenticatedTests, self).setUp()
 
@@ -68,7 +72,7 @@ class FightViewsUnauthenticatedTests(AuthorizationViewsUnauthenticatedTests):
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = ippon.models.fight.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = fm.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": False
         }

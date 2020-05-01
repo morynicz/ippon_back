@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 
-from ippon.models import club as cl
+import ippon.models.club as cl
 
 
 def has_club_authorization(club_id, request):

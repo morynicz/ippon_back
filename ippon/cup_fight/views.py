@@ -1,12 +1,12 @@
 from rest_framework import viewsets, permissions
 
-import ippon.models
-from ippon.cup_fight.serializers import CupFightSerializer
-from ippon.cup_fight.permissions import IsCupFightOwnerOrReadOnly
+import ippon.models.cup_fight as cfm
+import ippon.cup_fight.serializers as cfs
+import ippon.cup_fight.permissions as cfp
 
 
 class CupFightViewSet(viewsets.ModelViewSet):
-    queryset = ippon.models.cup_fight.CupFight.objects.all()
-    serializer_class = CupFightSerializer
+    queryset = cfm.CupFight.objects.all()
+    serializer_class = cfs.CupFightSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsCupFightOwnerOrReadOnly)
+                          cfp.IsCupFightOwnerOrReadOnly)

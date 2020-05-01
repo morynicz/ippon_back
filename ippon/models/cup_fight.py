@@ -3,7 +3,7 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
-from ippon.models import team_fight as tfm
+import ippon.models.team_fight as tfm
 
 
 class CupFight(models.Model):

@@ -3,7 +3,7 @@ import json
 from rest_framework import permissions
 
 import ippon.models.tournament as tm
-from ippon.utils.permissions import is_user_admin_of_the_tournament
+import ippon.utils.permissions as iup
 
 
 class IsTournamentAdminOrReadOnlyTournament(permissions.BasePermission):
@@ -18,7 +18,7 @@ class IsTournamentAdminOrReadOnlyDependent(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == "POST":
             try:
-                return is_user_admin_of_the_tournament(request, request.data["tournament"])
+                return iup.is_user_admin_of_the_tournament(request, request.data["tournament"])
             except(KeyError):
                 return False
         return True
@@ -81,6 +81,6 @@ class IsTournamentAdmin(permissions.BasePermission):
         try:
             pk = view.kwargs["pk"]
             tournament = tm.Tournament.objects.get(pk=pk)
-            return is_user_admin_of_the_tournament(request, tournament)
+            return iup.is_user_admin_of_the_tournament(request, tournament)
         except (KeyError, tm.Tournament.DoesNotExist):
             return False

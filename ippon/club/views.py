@@ -6,8 +6,8 @@ from rest_framework.response import Response
 import ippon.models.club as cl
 import ippon.models.player as plm
 import ippon.club.permissisons as clp
-from ippon.club.authorizations import has_club_authorization
-from ippon.user.serailzers import MinimalUserSerializer
+import ippon.club.authorizations as ca
+import ippon.user.serailzers as us
 import ippon.player.serializers as pls
 import ippon.club.serializers as cls
 
@@ -39,7 +39,7 @@ class ClubViewSet(viewsets.ModelViewSet):
             detail=True,
             permission_classes=(permissions.IsAuthenticated, clp.IsClubOwner))
     def non_admins(self, request, pk=None):
-        serializer = MinimalUserSerializer(User.objects.exclude(clubs__club=pk), many=True)
+        serializer = us.MinimalUserSerializer(User.objects.exclude(clubs__club=pk), many=True)
         return Response(serializer.data)
 
 
@@ -52,4 +52,4 @@ class ClubAdminViewSet(viewsets.ModelViewSet):
 
 @api_view(['GET'])
 def club_authorization(request, pk, format=None):
-    return has_club_authorization(pk, request)
+    return ca.has_club_authorization(pk, request)

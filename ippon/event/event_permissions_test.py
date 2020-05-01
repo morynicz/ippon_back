@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from ippon.models.event import Event, EventAdmin
+import ippon.models.event as em
 
 
 class TestEventPermissions(django.test.TestCase):
@@ -19,7 +19,7 @@ class TestEventPermissions(django.test.TestCase):
             last_name="Ripper"
         )
 
-        self.event: Event = Event(
+        self.event: em.Event = em.Event(
             name="Tournament",
             description="It's very cool",
             registration_start_time=datetime.datetime.now(pytz.UTC),
@@ -29,7 +29,7 @@ class TestEventPermissions(django.test.TestCase):
         )
         self.event.save()
 
-        self.event_admin: EventAdmin = EventAdmin(
+        self.event_admin: em.EventAdmin = em.EventAdmin(
             event=self.event,
             user=self.user
         )

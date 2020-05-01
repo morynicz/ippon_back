@@ -2,7 +2,9 @@ import datetime
 
 from django.test.testcases import TestCase
 
-from ippon.models import club as cl, player as plm, tournament as tm
+import ippon.models.club as cl
+import ippon.models.player as plm
+import ippon.models.tournament as tm
 
 
 class TestTeamFights(TestCase):

@@ -6,8 +6,6 @@ from django.contrib.auth.models import User
 
 import ippon.models.club as cl
 import ippon.club.permissisons as clp
-from ippon.club import permissisons as clp
-from ippon.models import club as cl
 
 
 class ClubPermissionsTests(django.test.TestCase):

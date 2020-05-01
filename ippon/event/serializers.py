@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from ippon.models import event as event_models
+import ippon.models.event as em
 
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = event_models.Event
+        model = em.Event
         fields = (
             'id',
             'name',
