@@ -25,17 +25,6 @@ class GroupSerializer(serializers.ModelSerializer):
         )
 
 
-class GroupPhaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ippon.models.group_phase.GroupPhase
-        fields = (
-            'id',
-            'tournament',
-            'fight_length',
-            'name'
-        )
-
-
 class GroupFightSerializer(serializers.ModelSerializer):
     class Meta:
         model = ippon.models.group_fight.GroupFight

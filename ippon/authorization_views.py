@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 import ippon.models
 import ippon.models.fight
-from ippon.models import Group, GroupPhase
+from ippon.models import Group
 import ippon.models.team_fight as tfm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
@@ -88,12 +88,6 @@ def team_authorization(request, pk, format=None):
 def group_authorization(request, pk, format=None):
     group = get_object_or_404(Group.objects.all(), pk=pk)
     return has_tournament_authorization([True, False], group.group_phase.tournament.id, request)
-
-
-@api_view(['GET'])
-def group_phase_authorization(request, pk, format=None):
-    group_phase = get_object_or_404(GroupPhase.objects.all(), pk=pk)
-    return has_tournament_authorization([True, False], group_phase.tournament.id, request)
 
 
 @api_view(['GET'])

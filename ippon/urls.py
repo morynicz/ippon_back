@@ -7,6 +7,7 @@ import ippon.authorization_views
 import ippon.club.views
 import ippon.cup_phase.views
 import ippon.fight.views
+import ippon.group_phase.views
 import ippon.player.views
 import ippon.point.views
 import ippon.team.views
@@ -28,7 +29,7 @@ router.register(r'points', ippon.point.views.PointViewSet)
 router.register(r'fights', ippon.fight.views.FightViewSet)
 router.register(r'team_fights', ippon.team_fight.views.TeamFightViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'group_phases', views.GroupPhaseViewSet)
+router.register(r'group_phases', ippon.group_phase.views.GroupPhaseViewSet)
 router.register(r'group_fights', views.GroupFightViewSet)
 router.register(r'cup_phases', ippon.cup_phase.views.CupPhaseViewSet)
 router.register(r'cup_fights', views.CupFightViewSet)
@@ -52,7 +53,7 @@ urlpatterns = [
         name='team-authorization'),
     url(r'^authorization/groups/(?P<pk>[0-9]+)/$', ippon.authorization_views.group_authorization,
         name='group-authorization'),
-    url(r'^authorization/group_phases/(?P<pk>[0-9]+)/$', ippon.authorization_views.group_phase_authorization,
+    url(r'^authorization/group_phases/(?P<pk>[0-9]+)/$', ippon.group_phase.views.group_phase_authorization,
         name='group-phase-authorization'),
     url(r'^authorization/cup_phases/(?P<pk>[0-9]+)/$', ippon.cup_phase.views.cup_phase_authorization,
         name='cup-phase-authorization'),
