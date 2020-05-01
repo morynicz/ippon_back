@@ -26,5 +26,3 @@ def has_object_creation_permission(request, serializer_class, tournament_depende
 
 def get_tournament_from_fight(fight):
     return fight.team_fight.tournament
-
-

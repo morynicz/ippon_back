@@ -17,6 +17,7 @@ class IsEventOwnerOrReadOnly(permissions.BasePermission):
         else:
             pk = view.kwargs["pk"]
             try:
-                return any([i.user == request.user for i in em.EventAdmin.objects.filter(event=em.Event.objects.get(pk=pk))])
+                return any(
+                    [i.user == request.user for i in em.EventAdmin.objects.filter(event=em.Event.objects.get(pk=pk))])
             except Exception:
                 return False

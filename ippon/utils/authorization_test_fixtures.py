@@ -53,5 +53,3 @@ class AuthorizationViewsAuthenticatedTests(AuthorizationViewsTest):
 class AuthorizationViewsUnauthenticatedTests(AuthorizationViewsTest):
     def setUp(self):
         super(AuthorizationViewsUnauthenticatedTests, self).setUp()
-
-
