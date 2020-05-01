@@ -8,8 +8,7 @@ from rest_framework.test import APIClient, APITestCase
 
 import ippon.models.club as cl
 import ippon.models.player as plm
-
-BAD_PK = 0
+import ippon.utils.values as iuv
 
 
 class ShallowPlayerViewTest(APITestCase):
@@ -69,7 +68,7 @@ class ShallowPlayerViewSetUnauthorizedTests(ShallowPlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_player_returns_404(self):
-        response = self.client.get(reverse('shallow-player-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('shallow-player-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_gets_method_not_allowed(self):

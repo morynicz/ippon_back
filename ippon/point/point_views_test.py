@@ -12,8 +12,6 @@ import ippon.models.team as tem
 import ippon.models.team_fight as tfm
 import ippon.models.tournament as tm
 
-BAD_PK = 0
-
 
 class PointsViewTest(APITestCase):
     def setUp(self):

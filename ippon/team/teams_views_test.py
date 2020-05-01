@@ -10,8 +10,7 @@ import ippon.models.club as cl
 import ippon.models.player as plm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
-
-BAD_PK = 0
+import ippon.utils.values as iuv
 
 
 class TeamsViewTest(APITestCase):
@@ -91,7 +90,7 @@ class TeamViewSetAuthorizedTests(TeamsViewTest):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_teams_delete_not_existing_team_returns_bad_request(self):
-        response = self.client.delete(reverse('team-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.delete(reverse('team-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_teams_get_non_members_returns_list_of_participants_not_assigned_to_a_team(self):
@@ -251,7 +250,7 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
 
         response = self.client.post(
-            reverse('team-members', kwargs={'pk': BAD_PK, 'player_id': p1.id}),
+            reverse('team-members', kwargs={'pk': iuv.BAD_PK, 'player_id': p1.id}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -259,7 +258,7 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
     def test_teams_post_invalid_player_returns_404(self):
         t1 = tem.Team.objects.create(tournament=self.to, name='t1')
         response = self.client.post(
-            reverse('team-members', kwargs={'pk': t1.id, 'player_id': BAD_PK}),
+            reverse('team-members', kwargs={'pk': t1.id, 'player_id': iuv.BAD_PK}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -267,5 +266,5 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
     def test_delete_not_existing_team_member_returns_bad_request(self):
         p1 = plm.Player.objects.create(name='pn1', surname='ps1', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=self.club)
-        response = self.client.delete(reverse('team-members', kwargs={'pk': BAD_PK, 'player_id': p1.pk}))
+        response = self.client.delete(reverse('team-members', kwargs={'pk': iuv.BAD_PK, 'player_id': p1.pk}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

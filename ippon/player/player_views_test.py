@@ -8,8 +8,7 @@ from rest_framework.test import APIClient, APITestCase
 
 import ippon.models.club as cl
 import ippon.models.player as plm
-
-BAD_PK = 0
+import ippon.utils.values as iuv
 
 
 class PlayerViewTest(APITestCase):
@@ -114,7 +113,7 @@ class PlayerViewSetAuthorizedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_player_returns_bad_request(self):
-        response = self.client.delete(reverse('player-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.delete(reverse('player-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -160,7 +159,7 @@ class PlayerViewSetUnauthenticatedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_player_returns_404(self):
-        response = self.client.get(reverse('player-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('player-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):

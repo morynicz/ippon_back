@@ -10,8 +10,7 @@ import ippon.models.club as cl
 import ippon.models.player as plm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
-
-BAD_PK = 0
+import ippon.utils.values as iuv
 
 
 class TournamentViewTest(APITestCase):
@@ -148,7 +147,7 @@ class TournamentViewSetAuthorizedTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_tournament_returns_bad_request(self):
-        response = self.client.delete(reverse('tournament-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.delete(reverse('tournament-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -194,7 +193,7 @@ class TournamentViewSetUnauthenticatedTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_tournament_returns_404(self):
-        response = self.client.get(reverse('tournament-detail', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-detail', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_post_gets_unauthorized(self):
@@ -286,7 +285,7 @@ class AuthorizedTournamentAdminTest(TournamentAdminTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_admins_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-admins', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-admins', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_non_admins_for_valid_fight_returns_list_of_tournaments_non_admins(self):
@@ -305,7 +304,7 @@ class AuthorizedTournamentAdminTest(TournamentAdminTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_non_admins_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-non-admins', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-non-admins', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -365,7 +364,7 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_participants_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-participants', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-participants', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_non_participants_for_valid_tournament_returns_list_of_tournaments_non_participants(self):
@@ -394,7 +393,7 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_non_participants_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-non-participants', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-non-participants', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_participations_for_valid_tournament_returns_list_of_participations(self):
@@ -437,7 +436,7 @@ class AuthorizedParticipantsTest(TournamentParticipantsTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_participations_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-participations', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-participations', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -468,7 +467,7 @@ class TournamentTeamTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_teams_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-teams', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-teams', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -544,7 +543,7 @@ class TournamentGroupPhasesUnauthenticatedTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_group_phases_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-group_phases', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-group_phases', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -579,7 +578,7 @@ class TournamentCupPhasesUnauthenticatedTests(TournamentViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_cup_phases_for_invalid_tournament_returns_not_found(self):
-        response = self.client.get(reverse('tournament-cup_phases', kwargs={'pk': BAD_PK}))
+        response = self.client.get(reverse('tournament-cup_phases', kwargs={'pk': iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
