@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 import ippon.models.team_fight as tfm
 import ippon.models.team as tem
 import ippon.models.tournament as tm
-from ippon.permissions import IsCupFightOwnerOrReadOnly
-from ippon.serializers import CupFightSerializer
+from ippon.cup_fight.permissions import IsCupFightOwnerOrReadOnly
+from ippon.cup_fight.serializers import CupFightSerializer
 
 
 class TestCupFightPermissions(django.test.TestCase):

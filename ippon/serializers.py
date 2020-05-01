@@ -15,16 +15,6 @@ class MinimalUserSerializer(serializers.ModelSerializer):
         )
 
 
-class GroupFightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ippon.models.group_fight.GroupFight
-        fields = (
-            'id',
-            'team_fight',
-            'group'
-        )
-
-
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -38,18 +28,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 'write_only': True,
             },
         }
-
-
-class CupFightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ippon.models.cup_fight.CupFight
-        fields = (
-            'id',
-            'team_fight',
-            'cup_phase',
-            'previous_shiro_fight',
-            'previous_aka_fight'
-        )
 
 
 class EventSerializer(serializers.ModelSerializer):
