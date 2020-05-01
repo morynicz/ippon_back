@@ -7,6 +7,7 @@ import ippon.authorization_views
 import ippon.club.views
 import ippon.cup_fight.views
 import ippon.cup_phase.views
+import ippon.event.views
 import ippon.fight.views
 import ippon.group.views
 import ippon.group_fight.views
@@ -36,7 +37,7 @@ router.register(r'group_phases', ippon.group_phase.views.GroupPhaseViewSet)
 router.register(r'group_fights', ippon.group_fight.views.GroupFightViewSet)
 router.register(r'cup_phases', ippon.cup_phase.views.CupPhaseViewSet)
 router.register(r'cup_fights', ippon.cup_fight.views.CupFightViewSet)
-router.register(r'events', views.EventViewSet)
+router.register(r'events', ippon.event.views.EventViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

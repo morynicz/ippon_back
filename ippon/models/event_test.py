@@ -2,7 +2,7 @@ import datetime
 
 from rest_framework.test import APITestCase
 
-from ippon.event import Event
+from ippon.models.event import Event
 
 
 class EventModelTest(APITestCase):

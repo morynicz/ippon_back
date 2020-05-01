@@ -2,12 +2,9 @@ from django.views.generic.base import View
 from rest_framework import permissions
 from rest_framework.request import Request
 
-from ippon.models import CupPhase, Group
 import ippon.models.tournament as tm
 
-from ippon.event_models import Event, EventAdmin
-from ippon.group_fight.serializers import GroupFightSerializer
-from ippon.cup_fight.serializers import CupFightSerializer
+from ippon.models.event import Event, EventAdmin
 
 
 def is_user_admin_of_the_tournament(request, tournament):

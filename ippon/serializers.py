@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-import ippon.models as models
-import ippon.event_models as event_models
-import ippon.models.group_phase
+import ippon.models.event as event_models
 
 
 class MinimalUserSerializer(serializers.ModelSerializer):
