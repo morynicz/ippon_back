@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
@@ -9,6 +9,7 @@ import ippon.models.cup_phase as cpm
 import ippon.models.team as tem
 import ippon.player.serializers as pls
 import ippon.models.player as plm
+from ippon.tournament.authorizations import has_tournament_authorization
 from ippon.user.serailzers import MinimalUserSerializer
 from ippon.group_phase.serializers import GroupPhaseSerializer
 import ippon.cup_phase.serializers as cps
@@ -124,3 +125,13 @@ class TournamentViewSet(viewsets.ModelViewSet):
             team_member__team__tournament=pk)
         serializer = pls.ShallowPlayerSerializer(players, many=True)
         return Response(serializer.data)
+
+
+@api_view(['GET'])
+def tournament_staff_authorization(request, pk, format=None):
+    return has_tournament_authorization([True, False], pk, request)
+
+
+@api_view(['GET'])
+def tournament_admin_authorization(request, pk, format=None):
+    return has_tournament_authorization(True, pk, request)

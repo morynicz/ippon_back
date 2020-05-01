@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 
 import ippon.models.club as cl
 import ippon.models.player as plm
 import ippon.club.permissisons as clp
+from ippon.club.authorizations import has_club_authorization
 from ippon.user.serailzers import MinimalUserSerializer
 import ippon.player.serializers as pls
 import ippon.club.serializers as cls
@@ -47,3 +48,8 @@ class ClubAdminViewSet(viewsets.ModelViewSet):
     serializer_class = cls.ClubAdminSerializer
     permission_classes = (permissions.IsAuthenticated,
                           clp.IsClubOwnerAdminCreation)
+
+
+@api_view(['GET'])
+def club_authorization(request, pk, format=None):
+    return has_club_authorization(pk, request)

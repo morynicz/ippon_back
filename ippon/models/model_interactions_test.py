@@ -7,7 +7,6 @@ import ippon.models.group_fight
 import ippon.models.group_phase
 import ippon.models.team_fight as tfm
 import ippon.models.tournament as tm
-from ippon import models
 
 
 class TournamentDependentClasses(TestCase):

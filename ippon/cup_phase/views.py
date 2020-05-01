@@ -4,7 +4,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 import ippon.models
-from ippon.authorization_views import has_tournament_authorization
+from ippon.tournament.authorizations import has_tournament_authorization
 from ippon.cup_phase.serializers import CupPhaseSerializer
 from ippon.models import CupPhase
 from ippon.cup_fight.serializers import CupFightSerializer

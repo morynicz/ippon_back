@@ -1,5 +1,6 @@
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 import ippon.player.serializers as pls
@@ -8,6 +9,8 @@ import ippon.models.team as tem
 import ippon.team.permissions as tep
 import ippon.team.serializers as tes
 import ippon.tournament.permissions as tp
+from ippon.tournament.authorizations import has_tournament_authorization
+from ippon.models import team as tem
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -74,3 +77,9 @@ class TeamViewSet(viewsets.ModelViewSet):
             plm.Player.objects.filter(participations__tournament__teams=pk)
                 .exclude(team_member__team__tournament__teams=pk), many=True)
         return Response(serializer.data)
+
+
+@api_view(['GET'])
+def team_authorization(request, pk, format=None):
+    team = get_object_or_404(tem.Team.objects.all(), pk=pk)
+    return has_tournament_authorization([True, False], team.tournament.id, request)
