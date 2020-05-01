@@ -9,7 +9,8 @@ import ippon.models.cup_phase as cpm
 import ippon.models.team as tem
 import ippon.player.serializers as pls
 import ippon.models.player as plm
-from ippon.serializers import MinimalUserSerializer, GroupPhaseSerializer
+from ippon.serializers import MinimalUserSerializer
+from ippon.group_phase.serializers import GroupPhaseSerializer
 import ippon.cup_phase.serializers as cps
 import ippon.team.serializers as tes
 import ippon.models.tournament as tm

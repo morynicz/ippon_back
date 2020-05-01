@@ -13,7 +13,6 @@ import ippon.models.group_phase
 import ippon.models.point as ptm
 from ippon.permissions import *
 from ippon.serializers import *
-import ippon.tournament.permissions as tp
 import ippon.models.team as tem
 import ippon.team.serializers as tes
 import ippon.models.team_fight as tfm
@@ -126,22 +125,6 @@ class GroupViewSet(viewsets.ModelViewSet):
             .filter(player__in=team.get_member_ids()).count()
 
         return Response({"wins": wins, "draws": draws, "points": points, "id": team.id})
-
-
-class GroupPhaseViewSet(viewsets.ModelViewSet):
-    queryset = GroupPhase.objects.all()
-    serializer_class = GroupPhaseSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          tp.IsTournamentAdminOrReadOnlyDependent)
-
-    @action(
-        methods=['get'],
-        detail=True,
-        url_name='groups')
-    def groups(self, request, pk=None):
-        get_object_or_404(self.queryset, pk=pk)
-        serializer = GroupSerializer(Group.objects.filter(group_phase=pk), many=True)
-        return Response(serializer.data)
 
 
 @api_view(['POST'])
