@@ -2,7 +2,7 @@ import json
 
 from rest_framework import permissions
 
-import ippon.club.models as cl
+import ippon.models.club as cl
 import ippon.player.serializers as pls
 
 

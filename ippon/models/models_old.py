@@ -3,14 +3,10 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-import ippon.team_fight.models as tfm
-from ippon.player import models as plm
+import ippon.models.team_fight as tfm
+from ippon.models import player as plm
 
-from ippon.player.models import Player
-from ippon.club.models import Club, ClubAdmin
-from ippon.tournament.models import Tournament, TournamentAdmin, TournamentParticipation
-from ippon.team.models import Team, TeamMember
-from ippon.team_fight.models import TeamFight, WINNER, STATUS
+from ippon.models.team_fight import WINNER, STATUS
 
 
 class Location(models.Model):
@@ -72,7 +68,8 @@ class CupFight(models.Model):
             self.team_fight.delete()
 
     def __str__(self):
-        return "CupFight {{id: {id}, cup_phase: {cup_phase}, team_fight: {team_fight}, previous_shiro: {previous_shiro}, previous_aka: {previous_aka} }}".format(
+        return "CupFight {{id: {id}, cup_phase: {cup_phase}, team_fight: {team_fight}, previous_shiro: {" \
+               "previous_shiro}, previous_aka: {previous_aka} }}".format(
             id=self.id,
             team_fight=self.team_fight,
             cup_phase=self.cup_phase,
@@ -89,7 +86,7 @@ def winner_change_handler(sender, **kwargs):
         sibling = parent.previous_aka_fight if parent.previous_aka_fight.id is not cup_fight.id else parent.previous_shiro_fight
         if sibling.team_fight.winner is not 0:
             tournament = parent.cup_phase.tournament
-            if (parent.team_fight is None):
+            if parent.team_fight is None:
                 parent.team_fight = tournament.team_fights.create(aka_team=get_winner(parent.previous_aka_fight),
                                                                   shiro_team=get_winner(parent.previous_shiro_fight))
                 parent.save()

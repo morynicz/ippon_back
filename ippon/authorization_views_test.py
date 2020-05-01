@@ -7,12 +7,11 @@ from rest_framework.test import APIClient, APITestCase
 
 import ippon.models
 from ippon.models import GroupPhase, CupPhase
-import ippon.fight.models as fm
-import ippon.team_fight.models as tfm
-import ippon.team.models as tem
-import ippon.tournament.models as tm
-import ippon.player.models as plm
-import ippon.club.models as cl
+import ippon.models.team_fight as tfm
+import ippon.models.team as tem
+import ippon.models.tournament as tm
+import ippon.models.player as plm
+import ippon.models.club as cl
 
 
 class AuthorizationViewsTest(APITestCase):
@@ -119,7 +118,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = ippon.models.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = ippon.models.models_old.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": False
         }
@@ -144,7 +143,7 @@ class TournamentFightAuthorizationAuthenticatedTests(TournamentAuthorizationAuth
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = ippon.models.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = ippon.models.models_old.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": True
         }
@@ -355,7 +354,7 @@ class TournamentAuthorizationUnauthenticatedTests(AuthorizationViewsSetUnauthent
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
         p2 = plm.Player.objects.create(name='pn2', surname='ps2', rank=7,
                                        birthday=datetime.date(year=2001, month=1, day=1), sex=1, club_id=club)
-        fight = ippon.models.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
+        fight = ippon.models.models_old.Fight.objects.create(team_fight=tf, aka=p1, shiro=p2)
         expected = {
             "isAuthorized": False
         }

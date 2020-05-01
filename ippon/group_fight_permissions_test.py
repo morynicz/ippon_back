@@ -5,9 +5,9 @@ import django.test
 from django.contrib.auth.models import User
 
 from ippon.models import GroupPhase, Group
-import ippon.team_fight.models as tfm
-import ippon.team.models as tem
-import ippon.tournament.models as tm
+import ippon.models.team_fight as tfm
+import ippon.models.team as tem
+import ippon.models.tournament as tm
 from ippon.permissions import IsGroupFightOwnerOrReadOnly
 from ippon.serializers import GroupFightSerializer
 

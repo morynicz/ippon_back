@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-import ippon.team.models as tem
+import ippon.models.team as tem
 
 
 class TeamSerializer(serializers.ModelSerializer):

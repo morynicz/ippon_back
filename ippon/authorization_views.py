@@ -4,12 +4,11 @@ from rest_framework.response import Response
 
 import ippon.models
 from ippon.models import Group, GroupPhase, CupPhase
-import ippon.fight.models as fm
-import ippon.team_fight.models as tfm
-import ippon.team.models as tem
-import ippon.tournament.models as tm
-import ippon.player.models as plm
-import ippon.club.models as cl
+import ippon.models.team_fight as tfm
+import ippon.models.team as tem
+import ippon.models.tournament as tm
+import ippon.models.player as plm
+import ippon.models.club as cl
 
 
 # TODO cut this file into pieces
@@ -68,7 +67,7 @@ def has_tournament_authorization(allowed_master_statuses, pk, request):
 
 @api_view(['GET'])
 def fight_authorization(request, pk, format=None):
-    fight = ippon.models.Fight.objects.get(pk=pk)
+    fight = ippon.models.models_old.Fight.objects.get(pk=pk)
     return has_tournament_authorization([True, False], fight.team_fight.tournament.id, request)
 
 

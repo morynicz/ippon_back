@@ -2,9 +2,8 @@ import datetime
 
 from django.test import TestCase
 
-import ippon.models
-import ippon.team_fight.models as tfm
-import ippon.tournament.models as tm
+import ippon.models.team_fight as tfm
+import ippon.models.tournament as tm
 from ippon import models
 
 

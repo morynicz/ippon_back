@@ -3,7 +3,7 @@ from math import floor
 
 from django.db import models
 
-import ippon.player.models as plm
+import ippon.models.player as plm
 import ippon.event_models as em
 
 

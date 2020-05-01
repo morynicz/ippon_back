@@ -5,12 +5,12 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from ippon.models import GroupPhase, CupPhase
-import ippon.team.models as tem
+import ippon.models.team as tem
 import ippon.player.serializers as pls
-import ippon.player.models as plm
+import ippon.models.player as plm
 from ippon.serializers import MinimalUserSerializer, GroupPhaseSerializer, CupPhaseSerializer
 import ippon.team.serializers as tes
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 import ippon.tournament.seralizers as ts
 import ippon.tournament.permissions as tp
 

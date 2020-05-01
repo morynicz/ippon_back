@@ -8,11 +8,11 @@ from django.contrib.auth.models import User
 
 import ippon.club.permissisons as clp
 import ippon.point.permissions as ptp
-import ippon.team_fight.models as tfm
-import ippon.team.models as tem
-import ippon.tournament.models as tm
-import ippon.player.models as plm
-import ippon.club.models as cl
+import ippon.models.team_fight as tfm
+import ippon.models.team as tem
+import ippon.models.tournament as tm
+import ippon.models.player as plm
+import ippon.models.club as cl
 import ippon.point.serializers as pts
 
 

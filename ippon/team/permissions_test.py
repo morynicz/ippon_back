@@ -5,7 +5,7 @@ import django.test
 from django.contrib.auth.models import User
 
 import ippon.team.permissions as tep
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 
 
 class IsTeamOwnerTests(django.test.TestCase):

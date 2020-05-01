@@ -1,8 +1,7 @@
 from django.db import models
 
-import ippon.player.models as plm
-import ippon.tournament.models as tm
-import ippon.team.models as tem
+import ippon.models.player as plm
+import ippon.models.tournament as tm
 
 
 class Team(models.Model):
@@ -16,7 +15,7 @@ class Team(models.Model):
 
 class TeamMember(models.Model):
     player = models.ForeignKey(plm.Player, on_delete=models.CASCADE, related_name='team_member')
-    team = models.ForeignKey(tem.Team, related_name='team_members', on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, related_name='team_members', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('player', 'team')

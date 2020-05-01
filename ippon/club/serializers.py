@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-import ippon.club.models as cl
+import ippon.models.club as cl
 
 
 class ClubSerializer(serializers.ModelSerializer):

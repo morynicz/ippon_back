@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from ippon.models import Fight
 import ippon.fight.serializers as fs
-import ippon.team_fight.models as tfm
+import ippon.models.team_fight as tfm
 import ippon.team_fight.serializers as tfs
 import ippon.tournament.permissions as tp
 

@@ -6,9 +6,9 @@ import django.test
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 import ippon.tournament.permissions as tp
-import ippon.club.models as cl
+import ippon.models.club as cl
 
 
 class TournamentPermissionTests(django.test.TestCase):
@@ -157,7 +157,7 @@ class TournamentDependentPermissions(unittest.TestCase):
         self.tournament_participation = unittest.mock.Mock()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
-        patcher = unittest.mock.patch("ippon.tournament.models.TournamentAdmin.objects")
+        patcher = unittest.mock.patch("ippon.models.tournament.TournamentAdmin.objects")
         self.tournament_admin_objects = patcher.start()
         self.addCleanup(patcher.stop)
         self.permission = tp.IsTournamentAdminDependent()

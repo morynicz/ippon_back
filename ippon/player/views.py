@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, generics
 
 from ippon.club import permissisons as clp
 import ippon.player.serializers as pls
-import ippon.player.models as plm
+import ippon.models.player as plm
 
 
 class PlayerViewSet(viewsets.ModelViewSet):

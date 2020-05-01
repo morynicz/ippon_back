@@ -1,17 +1,16 @@
 from rest_framework import permissions
 
-import ippon.fight.models as fm
 import ippon.models
 import ippon.permissions as ip
 import ippon.point.serializers as pts
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 
 
 class IsPointOwnerOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.method == "POST":
-            return ip.has_object_creation_permission(request, pts.PointSerializer, "fight", ippon.models.Fight,
+            return ip.has_object_creation_permission(request, pts.PointSerializer, "fight", ippon.models.models_old.Fight,
                                                      ip.get_tournament_from_fight)
         return True
 

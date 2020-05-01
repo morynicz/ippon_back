@@ -5,7 +5,7 @@ import ippon.point
 
 class PointSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ippon.point.models.Point
+        model = ippon.models.point.Point
         fields = (
             'id',
             'type',

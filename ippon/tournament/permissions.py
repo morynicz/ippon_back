@@ -2,7 +2,7 @@ import json
 
 from rest_framework import permissions
 
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 from ippon.permissions import is_user_admin_of_the_tournament
 
 
