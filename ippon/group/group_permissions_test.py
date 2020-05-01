@@ -5,8 +5,8 @@ import django.test
 from django.contrib.auth.models import User
 
 import ippon.models.tournament as tm
-from ippon.permissions import IsGroupOwnerOrReadOnly, IsGroupOwner
-from ippon.serializers import GroupSerializer
+from ippon.group.permissions import IsGroupOwnerOrReadOnly, IsGroupOwner
+from ippon.group.serializers import GroupSerializer
 
 
 class TestGroupPermissions(django.test.TestCase):
