@@ -3,6 +3,11 @@ from rest_framework import serializers
 
 import ippon.models as models
 import ippon.event_models as event_models
+import ippon.models.cup_fight
+import ippon.models.cup_phase
+import ippon.models.group
+import ippon.models.group_fight
+import ippon.models.group_phase
 
 
 class MinimalUserSerializer(serializers.ModelSerializer):
@@ -16,7 +21,7 @@ class MinimalUserSerializer(serializers.ModelSerializer):
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Group
+        model = ippon.models.group.Group
         fields = (
             'id',
             'name',
@@ -26,7 +31,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class GroupPhaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.GroupPhase
+        model = ippon.models.group_phase.GroupPhase
         fields = (
             'id',
             'tournament',
@@ -37,7 +42,7 @@ class GroupPhaseSerializer(serializers.ModelSerializer):
 
 class GroupFightSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.GroupFight
+        model = ippon.models.group_fight.GroupFight
         fields = (
             'id',
             'team_fight',
@@ -62,7 +67,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 class CupPhaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.CupPhase
+        model = ippon.models.cup_phase.CupPhase
         fields = (
             'id',
             'tournament',
@@ -75,7 +80,7 @@ class CupPhaseSerializer(serializers.ModelSerializer):
 
 class CupFightSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.CupFight
+        model = ippon.models.cup_fight.CupFight
         fields = (
             'id',
             'team_fight',
