@@ -6,7 +6,7 @@ from rest_framework.response import Response
 import ippon.models.club as cl
 import ippon.models.player as plm
 import ippon.club.permissisons as clp
-from ippon.serializers import MinimalUserSerializer
+from ippon.user.serailzers import MinimalUserSerializer
 import ippon.player.serializers as pls
 import ippon.club.serializers as cls
 

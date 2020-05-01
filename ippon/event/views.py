@@ -4,8 +4,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from ippon.models import Event, EventAdmin
-from ippon.permissions import IsEventOwnerOrReadOnly
-from ippon.serializers import EventSerializer
+from ippon.event.permissions import IsEventOwnerOrReadOnly
+from ippon.event.serializers import EventSerializer
 
 
 class EventViewSet(viewsets.ModelViewSet):

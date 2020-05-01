@@ -1,10 +1,10 @@
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.http.request import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-import ippon.serializers as ips
+import ippon.user.serailzers as us
 
 
 @api_view(['POST'])
@@ -15,7 +15,7 @@ def register_user(request):
     if validations fails if returns a list of errors in the data
     """
 
-    serializer = ips.UserRegistrationSerializer(data=request.data)
+    serializer = us.UserRegistrationSerializer(data=request.data)
     if serializer.is_valid(raise_exception=False):
         user = serializer.save(password=make_password(serializer.validated_data["password"]))
         user.email_user(
