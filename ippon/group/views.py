@@ -1,11 +1,12 @@
 from django.db.models.query_utils import Q
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 import ippon.models
-from ippon.models import Group, team as tem, team_fight as tfm, point as ptm
+from ippon.tournament.authorizations import has_tournament_authorization
+from ippon.models import Group, team as tem, team_fight as tfm, point as ptm, group as gm
 from ippon.group.permissions import IsGroupOwnerOrReadOnly, IsGroupOwner
 from ippon.group_fight.serializers import GroupFightSerializer
 from ippon.group.serializers import GroupSerializer
@@ -112,3 +113,9 @@ class GroupViewSet(viewsets.ModelViewSet):
             .filter(player__in=team.get_member_ids()).count()
 
         return Response({"wins": wins, "draws": draws, "points": points, "id": team.id})
+
+
+@api_view(['GET'])
+def group_authorization(request, pk, format=None):
+    group = get_object_or_404(gm.Group.objects.all(), pk=pk)
+    return has_tournament_authorization([True, False], group.group_phase.tournament.id, request)

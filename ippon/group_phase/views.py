@@ -3,7 +3,7 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.authorization_views import has_tournament_authorization
+from ippon.tournament.authorizations import has_tournament_authorization
 from ippon.models import GroupPhase, Group
 from ippon.group.serializers import GroupSerializer
 from ippon.group_phase.serializers import GroupPhaseSerializer
