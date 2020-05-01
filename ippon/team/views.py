@@ -3,8 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 import ippon.player.serializers as pls
-import ippon.player.models as plm
-import ippon.team.models as tem
+import ippon.models.player as plm
+import ippon.models.team as tem
 import ippon.team.permissions as tep
 import ippon.team.serializers as tes
 import ippon.tournament.permissions as tp

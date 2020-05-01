@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-import ippon.team_fight.models as tfm
+import ippon.models.team_fight as tfm
 
 
 class TeamFightSerializer(serializers.ModelSerializer):

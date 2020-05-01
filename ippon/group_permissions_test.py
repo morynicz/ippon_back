@@ -4,7 +4,7 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 from ippon.permissions import IsGroupOwnerOrReadOnly, IsGroupOwner
 from ippon.serializers import GroupSerializer
 

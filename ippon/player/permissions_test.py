@@ -4,7 +4,7 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-import ippon.club.models as clm
+import ippon.models.club as clm
 import ippon.club.permissisons as clp
 import ippon.player.serializers as pls
 

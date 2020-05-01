@@ -2,10 +2,9 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-import ippon.models
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 import ippon.player.serializers as pls
-import ippon.player.models as plm
+import ippon.models.player as plm
 
 
 class TournamentParticipationSerializer(serializers.ModelSerializer):

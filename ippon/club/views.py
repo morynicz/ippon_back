@@ -3,8 +3,8 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-import ippon.club.models as cl
-import ippon.player.models as plm
+import ippon.models.club as cl
+import ippon.models.player as plm
 import ippon.club.permissisons as clp
 from ippon.serializers import MinimalUserSerializer
 import ippon.player.serializers as pls

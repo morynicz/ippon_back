@@ -3,7 +3,7 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-import ippon.club.models as cl
+import ippon.models.club as cl
 import ippon.club.permissisons as clp
 
 

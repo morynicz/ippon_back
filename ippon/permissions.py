@@ -3,7 +3,7 @@ from rest_framework import permissions
 from rest_framework.request import Request
 
 from ippon.models import CupPhase, Group, GroupPhase
-import ippon.tournament.models as tm
+import ippon.models.tournament as tm
 
 from ippon.event_models import Event, EventAdmin
 from ippon.serializers import CupFightSerializer, GroupFightSerializer, GroupSerializer

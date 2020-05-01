@@ -3,10 +3,10 @@ import datetime
 from django.db.utils import IntegrityError
 from django.test.testcases import TestCase
 
-import ippon.club.models as cl
-import ippon.player.models as plm
-import ippon.team.models as tem
-import ippon.tournament.models as tm
+import ippon.models.club as cl
+import ippon.models.player as plm
+import ippon.models.team as tem
+import ippon.models.tournament as tm
 
 
 class TeamTests(TestCase):

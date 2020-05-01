@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 import ippon.permissions as ip
-import ippon.team.models as tem
+import ippon.models.team as tem
 
 
 class IsTeamOwner(permissions.BasePermission):
