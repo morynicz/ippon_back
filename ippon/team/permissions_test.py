@@ -4,8 +4,8 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-import ippon.team.permissions as tep
 import ippon.models.tournament as tm
+import ippon.team.permissions as tep
 
 
 class IsTeamOwnerTests(django.test.TestCase):

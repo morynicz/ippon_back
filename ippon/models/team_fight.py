@@ -1,8 +1,8 @@
 from django.db import models
 
 import ippon.models.point as ptm
-import ippon.models.tournament as tm
 import ippon.models.team as tem
+import ippon.models.tournament as tm
 
 WINNER = [
     (0, 'None'),

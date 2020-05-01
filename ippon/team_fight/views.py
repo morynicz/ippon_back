@@ -3,12 +3,12 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.models.fight as fm
 import ippon.fight.serializers as fs
+import ippon.models.fight as fm
 import ippon.models.team_fight as tfm
 import ippon.team_fight.serializers as tfs
-import ippon.tournament.permissions as tp
 import ippon.tournament.authorizations as ta
+import ippon.tournament.permissions as tp
 
 
 class TeamFightViewSet(viewsets.ModelViewSet):

@@ -4,13 +4,13 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-import ippon.models.group_phase as gpm
-import ippon.models.group as gm
-import ippon.models.team_fight as tfm
-import ippon.models.team as tem
-import ippon.models.tournament as tm
 import ippon.group_fight.permissions as gfp
 import ippon.group_fight.serializers as gfs
+import ippon.models.group as gm
+import ippon.models.group_phase as gpm
+import ippon.models.team as tem
+import ippon.models.team_fight as tfm
+import ippon.models.tournament as tm
 
 
 class TestGroupFightPermissions(django.test.TestCase):

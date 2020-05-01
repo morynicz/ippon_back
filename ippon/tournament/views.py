@@ -4,19 +4,19 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.models.group_phase as gpm
-import ippon.models.cup_phase as cpm
-import ippon.models.team as tem
-import ippon.player.serializers as pls
-import ippon.models.player as plm
-import ippon.tournament.authorizations as ta
-import ippon.user.serailzers as us
-import ippon.group_phase.serializers as gps
 import ippon.cup_phase.serializers as cps
-import ippon.team.serializers as tes
+import ippon.group_phase.serializers as gps
+import ippon.models.cup_phase as cpm
+import ippon.models.group_phase as gpm
+import ippon.models.player as plm
+import ippon.models.team as tem
 import ippon.models.tournament as tm
-import ippon.tournament.seralizers as ts
+import ippon.player.serializers as pls
+import ippon.team.serializers as tes
+import ippon.tournament.authorizations as ta
 import ippon.tournament.permissions as tp
+import ippon.tournament.seralizers as ts
+import ippon.user.serailzers as us
 
 
 class TournamentParticipationViewSet(viewsets.ModelViewSet):

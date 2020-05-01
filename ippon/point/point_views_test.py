@@ -6,11 +6,11 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-import ippon.models.team_fight as tfm
-import ippon.models.team as tem
-import ippon.models.tournament as tm
-import ippon.models.player as plm
 import ippon.models.club as cl
+import ippon.models.player as plm
+import ippon.models.team as tem
+import ippon.models.team_fight as tfm
+import ippon.models.tournament as tm
 
 BAD_PK = 0
 

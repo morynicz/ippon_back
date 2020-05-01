@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions
 
-import ippon.models.cup_fight as cfm
-import ippon.cup_fight.serializers as cfs
 import ippon.cup_fight.permissions as cfp
+import ippon.cup_fight.serializers as cfs
+import ippon.models.cup_fight as cfm
 
 
 class CupFightViewSet(viewsets.ModelViewSet):

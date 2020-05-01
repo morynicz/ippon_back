@@ -3,8 +3,8 @@ from math import floor
 
 from django.db import models
 
-import ippon.models.player as plm
 import ippon.models.event as em
+import ippon.models.player as plm
 
 
 class TournamentAdmin(models.Model):

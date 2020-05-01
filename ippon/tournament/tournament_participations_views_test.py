@@ -6,8 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-import ippon.models.tournament as tm
 import ippon.models.club as cl
+import ippon.models.tournament as tm
 
 BAD_PK = 0
 

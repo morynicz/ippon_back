@@ -5,10 +5,10 @@ import django.test
 from django.contrib.auth.models import User
 
 import ippon.models.club as cl
-import ippon.models.tournament as tm
-import ippon.models.team as tem
 import ippon.models.player as plm
+import ippon.models.team as tem
 import ippon.models.team_fight as tfm
+import ippon.models.tournament as tm
 import ippon.point.permissions as ptp
 import ippon.point.serializers as pts
 
