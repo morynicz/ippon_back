@@ -4,11 +4,13 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from ippon.models import GroupPhase, CupPhase
+import ippon.models.group_phase as gpm
+import ippon.models.cup_phase as cpm
 import ippon.models.team as tem
 import ippon.player.serializers as pls
 import ippon.models.player as plm
-from ippon.serializers import MinimalUserSerializer, GroupPhaseSerializer, CupPhaseSerializer
+from ippon.serializers import MinimalUserSerializer, GroupPhaseSerializer
+import ippon.cup_phase.serializers as cps
 import ippon.team.serializers as tes
 import ippon.models.tournament as tm
 import ippon.tournament.seralizers as ts
@@ -95,7 +97,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
         url_name='group_phases')
     def group_phases(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = GroupPhaseSerializer(GroupPhase.objects.filter(tournament=pk), many=True)
+        serializer = GroupPhaseSerializer(gpm.GroupPhase.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -104,7 +106,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
         url_name='cup_phases')
     def cup_phases(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = CupPhaseSerializer(CupPhase.objects.filter(tournament=pk), many=True)
+        serializer = cps.CupPhaseSerializer(cpm.CupPhase.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(

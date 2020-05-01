@@ -3,10 +3,6 @@ from rest_framework import serializers
 
 import ippon.models as models
 import ippon.event_models as event_models
-import ippon.models.cup_fight
-import ippon.models.cup_phase
-import ippon.models.group
-import ippon.models.group_fight
 import ippon.models.group_phase
 
 
@@ -63,19 +59,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 'write_only': True,
             },
         }
-
-
-class CupPhaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ippon.models.cup_phase.CupPhase
-        fields = (
-            'id',
-            'tournament',
-            'name',
-            'fight_length',
-            'final_fight_length',
-            'number_of_positions'
-        )
 
 
 class CupFightSerializer(serializers.ModelSerializer):

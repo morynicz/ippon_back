@@ -164,22 +164,6 @@ def register_user(request):
         return Response(status=status.HTTP_400_BAD_REQUEST, data=response, content_type="application/json")
 
 
-class CupPhaseViewSet(viewsets.ModelViewSet):
-    queryset = CupPhase.objects.all()
-    serializer_class = CupPhaseSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          tp.IsTournamentAdminOrReadOnlyDependent)
-
-    @action(
-        methods=['get'],
-        detail=True,
-        url_name='cup_fights')
-    def cup_fights(self, request, pk=None):
-        get_object_or_404(self.queryset, pk=pk)
-        serializer = CupFightSerializer(ippon.models.cup_fight.CupFight.objects.filter(cup_phase=pk), many=True)
-        return Response(serializer.data)
-
-
 class CupFightViewSet(viewsets.ModelViewSet):
     queryset = ippon.models.cup_fight.CupFight.objects.all()
     serializer_class = CupFightSerializer
