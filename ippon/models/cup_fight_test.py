@@ -4,14 +4,14 @@ import django
 from django.db import IntegrityError
 from django.test import TestCase
 
-import ippon.models.cup_fight
-import ippon.models.fight
 import ippon.models
-import ippon.models.team_fight as tfm
-import ippon.models.cup_fight as cfm
-import ippon.models.tournament as tm
-import ippon.models.player as plm
 import ippon.models.club as cl
+import ippon.models.cup_fight
+import ippon.models.cup_fight as cfm
+import ippon.models.fight
+import ippon.models.player as plm
+import ippon.models.team_fight as tfm
+import ippon.models.tournament as tm
 
 
 class TestCupFights(TestCase):

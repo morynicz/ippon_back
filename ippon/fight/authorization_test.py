@@ -3,13 +3,13 @@ import datetime
 from django.urls.base import reverse
 from rest_framework import status
 
-import ippon.utils.authorization_test_fixtures as iua
 import ippon.models.club as cl
+import ippon.models.fight as fm
+import ippon.models.player as plm
 import ippon.models.team as tem
 import ippon.models.team_fight as tfm
-import ippon.models.player as plm
 import ippon.models.tournament as tm
-import ippon.models.fight as fm
+import ippon.utils.authorization_test_fixtures as iua
 
 
 class TournamentFightAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):

@@ -1,9 +1,9 @@
 from django.urls.base import reverse
 from rest_framework import status
 
-import ippon.utils.authorization_test_fixtures as iua
 import ippon.models.group_phase as gpm
 import ippon.models.tournament as tm
+import ippon.utils.authorization_test_fixtures as iua
 
 
 class TournamentGroupPhaseAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):

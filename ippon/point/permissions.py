@@ -2,9 +2,9 @@ from rest_framework import permissions
 
 import ippon.models
 import ippon.models.fight
-import ippon.utils.permissions as ip
-import ippon.point.serializers as pts
 import ippon.models.tournament as tm
+import ippon.point.serializers as pts
+import ippon.utils.permissions as ip
 
 
 class IsPointOwnerOrReadOnly(permissions.BasePermission):

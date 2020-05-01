@@ -3,12 +3,12 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.tournament.authorizations as ta
-import ippon.cup_phase.serializers as cps
-import ippon.models.cup_phase as cpm
 import ippon.cup_fight.serializers as cfs
-import ippon.tournament.permissions as tp
+import ippon.cup_phase.serializers as cps
 import ippon.models.cup_fight as cfm
+import ippon.models.cup_phase as cpm
+import ippon.tournament.authorizations as ta
+import ippon.tournament.permissions as tp
 
 
 class CupPhaseViewSet(viewsets.ModelViewSet):

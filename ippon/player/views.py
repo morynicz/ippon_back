@@ -4,8 +4,8 @@ from rest_framework.generics import get_object_or_404
 
 import ippon.club.authorizations as ca
 import ippon.club.permissisons as clp
-import ippon.player.serializers as pls
 import ippon.models.player as plm
+import ippon.player.serializers as pls
 
 
 class PlayerViewSet(viewsets.ModelViewSet):

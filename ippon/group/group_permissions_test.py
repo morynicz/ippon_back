@@ -4,9 +4,9 @@ import unittest
 import django.test
 from django.contrib.auth.models import User
 
-import ippon.models.tournament as tm
 import ippon.group.permissions as gp
 import ippon.group.serializers as gs
+import ippon.models.tournament as tm
 
 
 class TestGroupPermissions(django.test.TestCase):

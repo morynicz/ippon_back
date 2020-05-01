@@ -6,9 +6,9 @@ import django.test
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
+import ippon.models.club as cl
 import ippon.models.tournament as tm
 import ippon.tournament.permissions as tp
-import ippon.models.club as cl
 
 
 class TournamentPermissionTests(django.test.TestCase):

@@ -3,9 +3,9 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-import ippon.models.event as em
 import ippon.event.permissions as ep
 import ippon.event.serializers as es
+import ippon.models.event as em
 
 
 class EventViewSet(viewsets.ModelViewSet):

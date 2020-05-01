@@ -3,9 +3,9 @@ import datetime
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase
 
-import ippon.models.tournament as tm
-import ippon.models.player as plm
 import ippon.models.club as cl
+import ippon.models.player as plm
+import ippon.models.tournament as tm
 
 
 class AuthorizationViewsTest(APITestCase):

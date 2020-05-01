@@ -3,14 +3,13 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.player.serializers as pls
 import ippon.models.player as plm
 import ippon.models.team as tem
+import ippon.player.serializers as pls
 import ippon.team.permissions as tep
 import ippon.team.serializers as tes
-import ippon.tournament.permissions as tp
 import ippon.tournament.authorizations as ta
-import ippon.models.team as tem
+import ippon.tournament.permissions as tp
 
 
 class TeamViewSet(viewsets.ModelViewSet):

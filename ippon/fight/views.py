@@ -3,12 +3,12 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-import ippon.fight.serializers as fs
 import ippon.fight.permissions as fp
+import ippon.fight.serializers as fs
 import ippon.models
 import ippon.models.fight
-import ippon.point.serializers as pts
 import ippon.models.point as ptm
+import ippon.point.serializers as pts
 import ippon.tournament.authorizations as ta
 
 
