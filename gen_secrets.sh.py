@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
@@ -25,6 +26,7 @@ export MAIL_USE_SSL=''
 export MAIL_SSL_KEYFILE=''
 export MAIL_SSL_CERTFILE=''
 export ALLOWED_HOSTS='["localhost"]'
+export deployment='{deployment}'
 """
 
 
@@ -54,14 +56,14 @@ def gen_key():
     return "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)])
 
 
-def generate():
+def generate(deployment):
     with open("secrets2.sh", "w") as file:
         dir = os.path.join(os.getcwd(), "keys")
         if not os.path.exists(dir):
             os.mkdir(dir)
         gen_ssh(dir)
-        file.write(TEMPLATE.format(key=gen_key(), dbname="dbname", dbuser="dbuser", dbpass="dbpass", keypath=dir))
+        file.write(TEMPLATE.format(key=gen_key(), dbname="dbname", dbuser="dbuser", dbpass="dbpass", keypath=dir, deployment=deployment))
 
 
 if __name__ == '__main__':
-    generate()
+    generate(deployment=sys.argv[1])

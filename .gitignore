@@ -105,3 +105,4 @@ ENV/
 /keys
 secrets2.sh
 /media
+db.sqlite3
