@@ -26,7 +26,7 @@ class EventViewSet(viewsets.ModelViewSet):
         methods=["GET"],
         detail=False,
         url_name='my_tournaments')
-    def my_tournaments(self, request: Request):
+    def return_users_events(self, request: Request):
         if request.user.is_authenticated:
             events = [i.event for i in em.EventAdmin.objects.filter(user=request.user)]
             return Response(data=self.serializer_class(events, many=True).data)
