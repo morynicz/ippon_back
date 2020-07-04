@@ -18,7 +18,7 @@ class Event(models.Model):
     registration_start_time = models.DateTimeField()
     registration_end_time = models.DateTimeField()
 
-    # TODO: add fields for storing location (I don't know the format for now)
+    locationID = models.CharField(max_length=300, null=True)
 
     @property
     def registration_is_open(self) -> bool:
