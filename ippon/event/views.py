@@ -29,6 +29,6 @@ class EventViewSet(viewsets.ModelViewSet):
     def return_users_events(self, request: Request):
         if request.user.is_authenticated:
             events = [i.event for i in em.EventAdmin.objects.filter(user=request.user)]
-            return Response(data=self.serializer_class(events, many=True).data)
+            return Response(data=self.serializer_class(events, many=True, context={'request': request}).data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, data={"error": "You are not logged in."})

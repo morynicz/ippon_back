@@ -17,5 +17,6 @@ class EventSerializer(serializers.ModelSerializer):
             'registration_start_time',
             'registration_end_time',
             'registration_is_open',
+            'locationID',
             'has_started'
         )
