@@ -10,7 +10,7 @@ coreschema==0.0.4
 coverage==5.3.1
 cryptography==3.3.1
 distlib==0.3.1
-Django==3.1.5
+Django==3.1.6
 django-cors-headers==3.6.0
 django-stubs==1.7.0
 djangorestframework==3.12.2
@@ -25,7 +25,7 @@ idna==2.10
 importlib-metadata==3.4.0
 inflection==0.5.1
 itypes==1.2.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 mypy==0.790
 mypy-extensions==0.4.3
