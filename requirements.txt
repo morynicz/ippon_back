@@ -10,7 +10,7 @@ coreschema==0.0.4
 coverage==5.3.1
 cryptography==3.3.1
 distlib==0.3.1
-Django==3.1.5
+Django==3.1.7
 django-cors-headers==3.6.0
 django-stubs==1.7.0
 djangorestframework==3.12.2
