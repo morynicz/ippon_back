@@ -21,7 +21,7 @@ factory-boy==3.2.0
 Faker==6.6.0
 filelock==3.0.12
 gunicorn==20.0.4
-idna==3.1
+idna==2.10
 importlib-metadata==3.7.3
 inflection==0.5.1
 itypes==1.2.0
