@@ -29,9 +29,7 @@ export ALLOWED_HOSTS='["localhost"]'
 
 
 def gen_ssh(dir):
-    key = rsa.generate_private_key(
-        backend=crypto_default_backend(), public_exponent=65537, key_size=2048
-    )
+    key = rsa.generate_private_key(backend=crypto_default_backend(), public_exponent=65537, key_size=2048)
     private_key = key.private_bytes(
         crypto_serialization.Encoding.PEM,
         crypto_serialization.PrivateFormat.PKCS8,
@@ -49,12 +47,7 @@ def gen_ssh(dir):
 
 
 def gen_key():
-    return "".join(
-        [
-            random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
-            for i in range(50)
-        ]
-    )
+    return "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)])
 
 
 def generate():

@@ -14,15 +14,9 @@ class AuthorizationViewsTest(APITestCase):
         self.u2 = User.objects.create(username="a2", password="password2")
         self.u3 = User.objects.create(username="u3", password="password1")
 
-        self.c1 = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
-        self.c2 = cl.Club.objects.create(
-            name="cn2", webpage="http://cw2.co", description="cd2", city="cc2"
-        )
-        self.c4 = cl.Club.objects.create(
-            name="cn4", webpage="http://cw4.co", description="cd4", city="cc4"
-        )
+        self.c1 = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
+        self.c2 = cl.Club.objects.create(name="cn2", webpage="http://cw2.co", description="cd2", city="cc2")
+        self.c4 = cl.Club.objects.create(name="cn4", webpage="http://cw4.co", description="cd4", city="cc4")
         self.a1 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c1)
         self.a2 = cl.ClubAdmin.objects.create(user=self.u2, club=self.c2)
         self.p1 = plm.Player.objects.create(

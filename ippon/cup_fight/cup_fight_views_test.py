@@ -17,9 +17,7 @@ import ippon.utils.values as iuv
 class CupFightViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.user = User.objects.create(username="admin", password="password")
         self.to = tm.Tournament.objects.create(
             name="T1",
@@ -81,21 +79,13 @@ class CupFightViewTest(APITestCase):
         )
         self.t4.team_members.create(player=self.p4)
 
-        self.tf1 = tfm.TeamFight.objects.create(
-            aka_team=self.t1, shiro_team=self.t2, tournament=self.to
-        )
-        self.tf2 = tfm.TeamFight.objects.create(
-            aka_team=self.t3, shiro_team=self.t4, tournament=self.to
-        )
+        self.tf1 = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
+        self.tf2 = tfm.TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to)
 
-        self.phase = self.to.cup_phases.create(
-            name="phase", fight_length=3, final_fight_length=4
-        )
+        self.phase = self.to.cup_phases.create(name="phase", fight_length=3, final_fight_length=4)
 
         self.cf1 = self.phase.cup_fights.create(team_fight=self.tf1)
-        self.cf2 = self.phase.cup_fights.create(
-            team_fight=self.tf2, previous_aka_fight=self.cf1
-        )
+        self.cf2 = self.phase.cup_fights.create(team_fight=self.tf2, previous_aka_fight=self.cf1)
         self.cf3 = self.phase.cup_fights.create(previous_aka_fight=self.cf2)
 
         self.cf1_json = {
@@ -132,9 +122,7 @@ class CupFightViewTest(APITestCase):
 class CupFightViewSetAuthorizedTests(CupFightViewTest):
     def setUp(self):
         super(CupFightViewSetAuthorizedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_cup_fight(self):
@@ -173,9 +161,7 @@ class CupFightViewSetAuthorizedTests(CupFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_existing_cup_fight_deletes_it(self):
-        response = self.client.delete(
-            reverse("cupfight-detail", kwargs={"pk": self.cf1.pk})
-        )
+        response = self.client.delete(reverse("cupfight-detail", kwargs={"pk": self.cf1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(cfm.CupFight.DoesNotExist):
             cfm.CupFight.objects.get(pk=self.cf1.id)
@@ -183,9 +169,7 @@ class CupFightViewSetAuthorizedTests(CupFightViewTest):
             tfm.TeamFight.objects.get(pk=self.cf1.team_fight.id)
 
     def test_delete_existing_cup_fight_without_teamfight_deletes_it(self):
-        response = self.client.delete(
-            reverse("cupfight-detail", kwargs={"pk": self.cf3.pk})
-        )
+        response = self.client.delete(reverse("cupfight-detail", kwargs={"pk": self.cf3.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(cfm.CupFight.DoesNotExist):
             cfm.CupFight.objects.get(pk=self.cf3.id)
@@ -205,16 +189,12 @@ class CupFightViewSetUnauthenticatedTests(CupFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_existing_fight_returns_correct_fight(self):
-        response = self.client.get(
-            reverse("cupfight-detail", kwargs={"pk": self.cf1.pk})
-        )
+        response = self.client.get(reverse("cupfight-detail", kwargs={"pk": self.cf1.pk}))
         self.assertEqual(self.cf1_json, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_fight_returns_404(self):
-        response = self.client.get(
-            reverse("cupfight-detail", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.get(reverse("cupfight-detail", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_post_gets_unauthorized(self):
@@ -234,9 +214,7 @@ class CupFightViewSetUnauthenticatedTests(CupFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_gets_unauthorized(self):
-        response = self.client.delete(
-            reverse("cupfight-detail", kwargs={"pk": self.cf1.id})
-        )
+        response = self.client.delete(reverse("cupfight-detail", kwargs={"pk": self.cf1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -262,7 +240,5 @@ class CupFightViewSetUnauthorizedTests(CupFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_gets_forbidden(self):
-        response = self.client.delete(
-            reverse("cupfight-detail", kwargs={"pk": self.cf1.id})
-        )
+        response = self.client.delete(reverse("cupfight-detail", kwargs={"pk": self.cf1.id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

@@ -50,16 +50,12 @@ class TestGroupOwnerOrReadOnlyPermissionNotAdmin(TestGroupOwnerOrReadOnlyPermiss
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group)
         self.assertEqual(result, True)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group)
         self.assertEqual(result, False)
 
     def test_doesnt_permit_when_post(self):
@@ -71,22 +67,16 @@ class TestGroupOwnerOrReadOnlyPermissionNotAdmin(TestGroupOwnerOrReadOnlyPermiss
 class TestGroupOwnerOrReadOnlyPermissionAdmin(TestGroupOwnerOrReadOnlyPermissions):
     def setUp(self):
         super(TestGroupOwnerOrReadOnlyPermissionAdmin, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.admin, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group)
         self.assertEqual(result, True)
 
     def test_does_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group)
         self.assertEqual(result, True)
 
     def test_does_permit_when_post(self):
@@ -107,9 +97,7 @@ class TestGroupOwnerPermissionNotAdmin(TestGroupOwnerPermissions):
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group)
         self.assertEqual(result, False)
 
     def test_doesnt_permit_general(self):
@@ -120,16 +108,12 @@ class TestGroupOwnerPermissionNotAdmin(TestGroupOwnerPermissions):
 class TestGroupOwnerPermissionAdmin(TestGroupOwnerPermissions):
     def setUp(self):
         super(TestGroupOwnerPermissionAdmin, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.admin, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
         self.view.kwargs = dict(pk=self.group.pk)
 
     def test_does_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group)
         self.assertEqual(result, True)
 
     def test_does_permit_general(self):

@@ -22,15 +22,11 @@ class TeamFightViewSet(viewsets.ModelViewSet):
     @action(methods=["get"], detail=True, url_name="fights")
     def fights(self, request, pk=None):
         team_fight = get_object_or_404(self.queryset, pk=pk)
-        serializer = fs.FightSerializer(
-            fm.Fight.objects.filter(team_fight=team_fight), many=True
-        )
+        serializer = fs.FightSerializer(fm.Fight.objects.filter(team_fight=team_fight), many=True)
         return Response(serializer.data)
 
 
 @api_view(["GET"])
 def team_fight_authorization(request, pk, format=None):
     team_fight = tfm.TeamFight.objects.get(pk=pk)
-    return ta.has_tournament_authorization(
-        [True, False], team_fight.tournament.id, request
-    )
+    return ta.has_tournament_authorization([True, False], team_fight.tournament.id, request)

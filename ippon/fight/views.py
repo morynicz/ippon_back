@@ -23,15 +23,11 @@ class FightViewSet(viewsets.ModelViewSet):
     @action(methods=["get"], detail=True, url_name="points")
     def points(self, request, pk=None):
         fight = get_object_or_404(self.queryset, pk=pk)
-        serializer = pts.PointSerializer(
-            ptm.Point.objects.filter(fight=fight), many=True
-        )
+        serializer = pts.PointSerializer(ptm.Point.objects.filter(fight=fight), many=True)
         return Response(serializer.data)
 
 
 @api_view(["GET"])
 def fight_authorization(request, pk, format=None):
     fight = ippon.models.fight.Fight.objects.get(pk=pk)
-    return ta.has_tournament_authorization(
-        [True, False], fight.team_fight.tournament.id, request
-    )
+    return ta.has_tournament_authorization([True, False], fight.team_fight.tournament.id, request)

@@ -32,12 +32,8 @@ class CupPhasesViewTest(APITestCase):
             sex_constraint=1,
         )
 
-        self.cp1 = self.to.cup_phases.create(
-            fight_length=3, name="cp1", final_fight_length=4, number_of_positions=16
-        )
-        self.cp2 = self.to.cup_phases.create(
-            fight_length=5, name="cp2", final_fight_length=6, number_of_positions=15
-        )
+        self.cp1 = self.to.cup_phases.create(fight_length=3, name="cp1", final_fight_length=4, number_of_positions=16)
+        self.cp2 = self.to.cup_phases.create(fight_length=5, name="cp2", final_fight_length=6, number_of_positions=15)
 
         self.cp1_json = {
             "id": self.cp1.id,
@@ -74,9 +70,7 @@ class CupPhasesViewTest(APITestCase):
 class CupPhasesViewSetAuthorizedTests(CupPhasesViewTest):
     def setUp(self):
         super(CupPhasesViewSetAuthorizedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_cup_phase(self):
@@ -115,9 +109,7 @@ class CupPhasesViewSetAuthorizedTests(CupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_existing_cup_phase_deletes_it(self):
-        response = self.client.delete(
-            reverse("cupphase-detail", kwargs={"pk": self.cp1.pk})
-        )
+        response = self.client.delete(reverse("cupphase-detail", kwargs={"pk": self.cp1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_cup_phase_returns_bad_request(self):
@@ -147,9 +139,7 @@ class CupPhaseViewSetUnauthorizedTests(CupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthorized_delete_gets_forbidden(self):
-        response = self.client.delete(
-            reverse("cupphase-detail", kwargs={"pk": self.cp1.id})
-        )
+        response = self.client.delete(reverse("cupphase-detail", kwargs={"pk": self.cp1.id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -164,9 +154,7 @@ class CupPhaseViewSetUnauthenticatedTests(CupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_existing_cup_phase_returns_correct_cup_phase(self):
-        response = self.client.get(
-            reverse("cupphase-detail", kwargs={"pk": self.cp1.pk})
-        )
+        response = self.client.get(reverse("cupphase-detail", kwargs={"pk": self.cp1.pk}))
         self.assertEqual(self.cp1_json, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -183,9 +171,7 @@ class CupPhaseViewSetUnauthenticatedTests(CupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(
-            reverse("cupphase-detail", kwargs={"pk": self.cp1.id})
-        )
+        response = self.client.delete(reverse("cupphase-detail", kwargs={"pk": self.cp1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_fights_for_valid_cup_phase_returns_list_of_cup_fights(self):
@@ -197,9 +183,7 @@ class CupPhaseViewSetUnauthenticatedTests(CupPhasesViewTest):
         tf2 = self.to.team_fights.create(aka_team=team3, shiro_team=team4)
         cf1 = self.cp1.cup_fights.create(team_fight=tf1)
         cf2 = self.cp1.cup_fights.create(team_fight=tf2)
-        cf3 = self.cp1.cup_fights.create(
-            previous_shiro_fight=cf1, previous_aka_fight=cf2
-        )
+        cf3 = self.cp1.cup_fights.create(previous_shiro_fight=cf1, previous_aka_fight=cf2)
 
         cf1_json = {
             "id": cf1.id,
@@ -224,14 +208,10 @@ class CupPhaseViewSetUnauthenticatedTests(CupPhasesViewTest):
         }
 
         expected = [cf1_json, cf2_json, cf3_json]
-        response = self.client.get(
-            reverse("cupphase-cup_fights", kwargs={"pk": self.cp1.pk})
-        )
+        response = self.client.get(reverse("cupphase-cup_fights", kwargs={"pk": self.cp1.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_fights_for_invalid_cup_phase_returns_not_found(self):
-        response = self.client.get(
-            reverse("cupphase-cup_fights", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.get(reverse("cupphase-cup_fights", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -26,6 +26,4 @@ class Player(models.Model):
     name = models.CharField(max_length=100, blank=False)
     surname = models.CharField(max_length=100, blank=False)
     birthday = models.DateField()
-    club_id = models.ForeignKey(
-        "Club", related_name="players", on_delete=models.PROTECT
-    )
+    club_id = models.ForeignKey("Club", related_name="players", on_delete=models.PROTECT)

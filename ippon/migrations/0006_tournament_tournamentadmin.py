@@ -65,9 +65,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sex_constraint",
-                    models.IntegerField(
-                        choices=[(0, "None"), (1, "WomenOnly"), (2, "MenOnly")]
-                    ),
+                    models.IntegerField(choices=[(0, "None"), (1, "WomenOnly"), (2, "MenOnly")]),
                 ),
                 (
                     "rank_constraint_value",

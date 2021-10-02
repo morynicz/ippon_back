@@ -43,9 +43,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sex",
-                    models.IntegerField(
-                        choices=[(0, "Male"), (1, "Female")], max_length=1
-                    ),
+                    models.IntegerField(choices=[(0, "Male"), (1, "Female")], max_length=1),
                 ),
                 (
                     "rank",

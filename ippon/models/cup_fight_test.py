@@ -33,14 +33,10 @@ class TestCupFights(TestCase):
             sex_constraint=1,
         )
         self.tournament.save()
-        self.cup_phase = self.tournament.cup_phases.create(
-            name="CP", fight_length=3, final_fight_length=5
-        )
+        self.cup_phase = self.tournament.cup_phases.create(name="CP", fight_length=3, final_fight_length=5)
         self.t1 = self.tournament.teams.create(name="t1")
         self.t2 = self.tournament.teams.create(name="t2")
-        self.team_fight1 = self.tournament.team_fights.create(
-            aka_team=self.t1, shiro_team=self.t2
-        )
+        self.team_fight1 = self.tournament.team_fights.create(aka_team=self.t1, shiro_team=self.t2)
         self.cup_fight = self.cup_phase.cup_fights.create(team_fight=self.team_fight1)
 
 
@@ -53,9 +49,7 @@ class CupFightFollowingFightTests(TestCupFights):
             self.cup_fight.get_following_fight()
 
     def test_cup_fight_which_is_previous_on_aka_side_returns_following_fight(self):
-        following_aka = self.cup_phase.cup_fights.create(
-            team_fight=self.team_fight1, previous_aka_fight=self.cup_fight
-        )
+        following_aka = self.cup_phase.cup_fights.create(team_fight=self.team_fight1, previous_aka_fight=self.cup_fight)
         self.assertEqual(self.cup_fight.get_following_fight(), following_aka)
 
 
@@ -64,9 +58,7 @@ class CupFightSiblingTests(TestCupFights):
         super(CupFightSiblingTests, self).setUp()
         self.t3 = self.tournament.teams.create(name="t3")
         self.t4 = self.tournament.teams.create(name="t4")
-        self.tf_aka = self.tournament.team_fights.create(
-            aka_team=self.t3, shiro_team=self.t4
-        )
+        self.tf_aka = self.tournament.team_fights.create(aka_team=self.t3, shiro_team=self.t4)
         self.cf_aka = self.cup_phase.cup_fights.create(team_fight=self.tf_aka)
         self.cf_parent = self.cup_phase.cup_fights.create(
             previous_aka_fight=self.cf_aka, previous_shiro_fight=self.cup_fight
@@ -140,17 +132,11 @@ class CupPhaseTests(TestCase):
             sex_constraint=1,
         )
         self.tournament.save()
-        c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
-        self.cup_phase = self.tournament.cup_phases.create(
-            name="CP", fight_length=3, final_fight_length=5
-        )
+        c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
+        self.cup_phase = self.tournament.cup_phases.create(name="CP", fight_length=3, final_fight_length=5)
         self.t1 = self.tournament.teams.create(name="t1")
         self.t2 = self.tournament.teams.create(name="t2")
-        self.team_fight1 = self.tournament.team_fights.create(
-            aka_team=self.t1, shiro_team=self.t2
-        )
+        self.team_fight1 = self.tournament.team_fights.create(aka_team=self.t1, shiro_team=self.t2)
         self.cf1 = self.cup_phase.cup_fights.create(team_fight=self.team_fight1)
 
         self.p1 = plm.Player.objects.create(
@@ -239,11 +225,5 @@ class CupPhaseTests(TestCase):
         with self.assertRaises(django.db.models.ProtectedError):
             self.cup_phase.delete()
         self.assertTrue(tfm.TeamFight.objects.filter(cup_fight=self.cf1).count())
-        self.assertTrue(
-            ippon.models.cup_fight.CupFight.objects.filter(
-                cup_phase=self.cup_phase
-            ).count()
-        )
-        self.assertTrue(
-            ippon.models.fight.Fight.objects.filter(team_fight=self.team_fight1).count()
-        )
+        self.assertTrue(ippon.models.cup_fight.CupFight.objects.filter(cup_phase=self.cup_phase).count())
+        self.assertTrue(ippon.models.fight.Fight.objects.filter(team_fight=self.team_fight1).count())

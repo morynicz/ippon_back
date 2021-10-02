@@ -29,9 +29,7 @@ class TestEventPermissions(django.test.TestCase):
         )
         self.event.save()
 
-        self.event_admin: em.EventAdmin = em.EventAdmin(
-            event=self.event, user=self.user
-        )
+        self.event_admin: em.EventAdmin = em.EventAdmin(event=self.event, user=self.user)
         self.event_admin.save()
 
     def test_event_get_with_unauthorized_user_return_200(self):

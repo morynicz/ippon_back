@@ -10,9 +10,7 @@ class Club(models.Model):
 
 class ClubAdmin(models.Model):
     club = models.ForeignKey("Club", related_name="admins", on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        "auth.User", related_name="clubs", on_delete=models.PROTECT
-    )
+    user = models.ForeignKey("auth.User", related_name="clubs", on_delete=models.PROTECT)
 
     def get_user(self):
         return {"id": self.user.id, "username": self.user.username}

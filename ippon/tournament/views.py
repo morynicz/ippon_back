@@ -64,9 +64,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
     )
     def non_participants(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = pls.PlayerSerializer(
-            plm.Player.objects.exclude(participations__tournament=pk), many=True
-        )
+        serializer = pls.PlayerSerializer(plm.Player.objects.exclude(participations__tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -77,18 +75,14 @@ class TournamentViewSet(viewsets.ModelViewSet):
     def participants(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
         serializer = pls.PlayerSerializer(
-            plm.Player.objects.filter(
-                participations__tournament=pk, participations__is_qualified=True
-            ),
+            plm.Player.objects.filter(participations__tournament=pk, participations__is_qualified=True),
             many=True,
         )
         return Response(serializer.data)
 
     def perform_create(self, serializer):
         tournament = serializer.save()
-        ta = tm.TournamentAdmin(
-            user=self.request.user, tournament=tournament, is_master=True
-        )
+        ta = tm.TournamentAdmin(user=self.request.user, tournament=tournament, is_master=True)
         ta.save()
 
     @action(
@@ -98,9 +92,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
     )
     def admins(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = ts.TournamentAdminSerializer(
-            tm.TournamentAdmin.objects.filter(tournament=pk), many=True
-        )
+        serializer = ts.TournamentAdminSerializer(tm.TournamentAdmin.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -110,33 +102,25 @@ class TournamentViewSet(viewsets.ModelViewSet):
     )
     def non_admins(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = us.MinimalUserSerializer(
-            User.objects.exclude(tournaments__tournament=pk), many=True
-        )
+        serializer = us.MinimalUserSerializer(User.objects.exclude(tournaments__tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=["get"], detail=True)
     def teams(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = tes.TeamSerializer(
-            tem.Team.objects.filter(tournament=pk), many=True
-        )
+        serializer = tes.TeamSerializer(tem.Team.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=["get"], detail=True, url_name="group_phases")
     def group_phases(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = gps.GroupPhaseSerializer(
-            gpm.GroupPhase.objects.filter(tournament=pk), many=True
-        )
+        serializer = gps.GroupPhaseSerializer(gpm.GroupPhase.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(methods=["get"], detail=True, url_name="cup_phases")
     def cup_phases(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = cps.CupPhaseSerializer(
-            cpm.CupPhase.objects.filter(tournament=pk), many=True
-        )
+        serializer = cps.CupPhaseSerializer(cpm.CupPhase.objects.filter(tournament=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -146,9 +130,9 @@ class TournamentViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated, tp.IsTournamentAdmin],
     )
     def not_assigned(self, request, pk=None):
-        players = plm.Player.objects.filter(
-            participations__tournament=pk, participations__is_qualified=True
-        ).exclude(team_member__team__tournament=pk)
+        players = plm.Player.objects.filter(participations__tournament=pk, participations__is_qualified=True).exclude(
+            team_member__team__tournament=pk
+        )
         serializer = pls.ShallowPlayerSerializer(players, many=True)
         return Response(serializer.data)
 

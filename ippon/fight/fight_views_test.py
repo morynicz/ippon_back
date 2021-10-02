@@ -16,9 +16,7 @@ import ippon.utils.values as iuv
 class FightViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.user = User.objects.create(username="admin", password="password")
         self.to = tm.Tournament.objects.create(
             name="T1",
@@ -59,9 +57,7 @@ class FightViewTest(APITestCase):
         )
         self.t2.team_members.create(player=self.p2)
 
-        self.tf = tfm.TeamFight.objects.create(
-            aka_team=self.t1, shiro_team=self.t2, tournament=self.to
-        )
+        self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.f1 = self.tf.fights.create(aka=self.p1, shiro=self.p2)
         self.f2 = self.tf.fights.create(aka=self.p2, shiro=self.p1)
 
@@ -103,9 +99,7 @@ class FightViewSetAuthorizedTests(FightViewTest):
     def setUp(self):
         super(FightViewSetAuthorizedTests, self).setUp()
         self.client.force_authenticate(user=self.user)
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
 
     def test_post_valid_payload_creates_specified_fight(self):
         response = self.client.post(
@@ -144,9 +138,7 @@ class FightViewSetAuthorizedTests(FightViewTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_existing_fight_deletes_it(self):
-        response = self.client.delete(
-            reverse("fight-detail", kwargs={"pk": self.f1.pk})
-        )
+        response = self.client.delete(reverse("fight-detail", kwargs={"pk": self.f1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_fight_returns_bad_request(self):
@@ -196,9 +188,7 @@ class FightViewSetUnauthorizedTests(FightViewTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(
-            reverse("fight-detail", kwargs={"pk": self.t1.id})
-        )
+        response = self.client.delete(reverse("fight-detail", kwargs={"pk": self.t1.id}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 

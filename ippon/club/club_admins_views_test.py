@@ -13,9 +13,7 @@ class ClubAdminViewTest(APITestCase):
         self.u1 = User.objects.create(username="a1", password="password1")
         self.u2 = User.objects.create(username="a2", password="password2")
 
-        self.c1 = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        self.c1 = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.a1 = cl.ClubAdmin.objects.create(user=self.u1, club=self.c1)
 
         self.valid_payload = {
@@ -52,9 +50,7 @@ class ClubAdminViewSetAuthorizedTests(ClubAdminViewTest):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(
-            cl.ClubAdmin.objects.filter(club=self.c1.id, user=self.u2).exists()
-        )
+        self.assertTrue(cl.ClubAdmin.objects.filter(club=self.c1.id, user=self.u2).exists())
 
 
 class ClubAdminViewSetUnauthorizedTests(ClubAdminViewTest):
@@ -70,9 +66,7 @@ class ClubAdminViewSetUnauthorizedTests(ClubAdminViewTest):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertFalse(
-            cl.ClubAdmin.objects.filter(club=self.c1.id, user=self.u2).exists()
-        )
+        self.assertFalse(cl.ClubAdmin.objects.filter(club=self.c1.id, user=self.u2).exists())
 
 
 class ClubAdminViewSetUnauthenticatedTests(ClubAdminViewTest):
@@ -87,6 +81,4 @@ class ClubAdminViewSetUnauthenticatedTests(ClubAdminViewTest):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertFalse(
-            cl.ClubAdmin.objects.filter(club=self.c1.id, user=self.u2).exists()
-        )
+        self.assertFalse(cl.ClubAdmin.objects.filter(club=self.c1.id, user=self.u2).exists())

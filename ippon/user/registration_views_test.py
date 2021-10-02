@@ -26,18 +26,14 @@ class RegistrationViewsetTests(TestCase):
         self.email_error = b'["Enter a valid email address."]'
 
     @patch("django.contrib.auth.models.User.email_user")
-    def test_register_unique_user_with_valid_payload_creates_new_user(
-        self, email_user_mock
-    ):
+    def test_register_unique_user_with_valid_payload_creates_new_user(self, email_user_mock):
         response = self.client.post(
             reverse("register-user"),
             data=json.dumps(self.valid_payload),
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        user = User.objects.get(
-            email=self.valid_payload["email"], username=self.valid_payload["username"]
-        )
+        user = User.objects.get(email=self.valid_payload["email"], username=self.valid_payload["username"])
         self.assertIsNotNone(user)
         self.assertTrue(user.check_password(self.valid_payload["password"]))
         email_user_mock.assert_called_with(

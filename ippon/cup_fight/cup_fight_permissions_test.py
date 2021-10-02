@@ -34,16 +34,12 @@ class TestCupFightPermissions(django.test.TestCase):
         self.t1 = tem.Team.objects.create(tournament=self.to, name="t1")
         self.t2 = tem.Team.objects.create(tournament=self.to, name="t2")
 
-        self.tf = tfm.TeamFight.objects.create(
-            aka_team=self.t1, shiro_team=self.t2, tournament=self.to
-        )
+        self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.permission = cfp.IsCupFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
         self.request.user = self.admin
-        self.cup_phase = self.to.cup_phases.create(
-            name="cp", fight_length=3, final_fight_length=4
-        )
+        self.cup_phase = self.to.cup_phases.create(name="cp", fight_length=3, final_fight_length=4)
         self.cup_fight = self.cup_phase.cup_fights.create(team_fight=self.tf)
         self.request.data = cfs.CupFightSerializer(self.cup_fight).data
 
@@ -54,16 +50,12 @@ class TestCupFightPermissionNotAdmin(TestCupFightPermissions):
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.cup_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.cup_fight)
         self.assertEqual(result, True)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.cup_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.cup_fight)
         self.assertEqual(result, False)
 
     def test_doesnt_permit_when_post(self):
@@ -75,22 +67,16 @@ class TestCupFightPermissionNotAdmin(TestCupFightPermissions):
 class TestCupFightPermissionAdmin(TestCupFightPermissions):
     def setUp(self):
         super(TestCupFightPermissionAdmin, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.admin, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.cup_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.cup_fight)
         self.assertEqual(result, True)
 
     def test_permits_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.cup_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.cup_fight)
         self.assertEqual(result, True)
 
     def test_does_permit_when_post(self):

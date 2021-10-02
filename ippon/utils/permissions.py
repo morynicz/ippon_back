@@ -2,12 +2,7 @@ import ippon.models.tournament as tm
 
 
 def is_user_admin_of_the_tournament(request, tournament):
-    return (
-        tm.TournamentAdmin.objects.filter(
-            tournament=tournament, user=request.user
-        ).count()
-        > 0
-    )
+    return tm.TournamentAdmin.objects.filter(tournament=tournament, user=request.user).count() > 0
 
 
 def get_tournament_from_dependent(obj):
@@ -27,9 +22,7 @@ def has_object_creation_permission(
         tournament_dependent = tournament_dependent_class.objects.get(
             pk=serializer.validated_data[tournament_dependent_class_field].id
         )
-        return is_user_admin_of_the_tournament(
-            request, getter_fcn(tournament_dependent)
-        )
+        return is_user_admin_of_the_tournament(request, getter_fcn(tournament_dependent))
     except (KeyError):
         return False
     except tournament_dependent_class.DoesNotExist:

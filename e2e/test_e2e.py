@@ -22,9 +22,7 @@ class MySeleniumTests(LiveServerTestCase):
         self.username = "admin"
         self.password = "password"
         self.email = "admin@amdin.com"
-        self.user = User.objects.create_user(
-            username=self.username, password=self.password, email=self.email
-        )
+        self.user = User.objects.create_user(username=self.username, password=self.password, email=self.email)
 
     def log_in(self):
         self.selenium.get("%s%s" % ("localhost:4231", "/login/"))

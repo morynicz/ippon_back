@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="teamfight",
             name="result",
-            field=models.IntegerField(
-                choices=[(0, "None"), (1, "Aka"), (2, "Shiro")], default=0
-            ),
+            field=models.IntegerField(choices=[(0, "None"), (1, "Aka"), (2, "Shiro")], default=0),
         ),
     ]

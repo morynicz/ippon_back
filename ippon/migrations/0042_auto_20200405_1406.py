@@ -31,9 +31,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "event",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="ippon.Event"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="ippon.Event"),
                 ),
                 (
                     "user",

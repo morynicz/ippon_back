@@ -16,9 +16,7 @@ import ippon.utils.values as iuv
 class TeamFightViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.user = User.objects.create(username="admin", password="password")
         self.to = tm.Tournament.objects.create(
             name="T1",
@@ -80,12 +78,8 @@ class TeamFightViewTest(APITestCase):
         )
         self.t4.team_members.create(player=self.p4)
 
-        self.tf1 = tfm.TeamFight.objects.create(
-            aka_team=self.t1, shiro_team=self.t2, tournament=self.to
-        )
-        self.tf2 = tfm.TeamFight.objects.create(
-            aka_team=self.t3, shiro_team=self.t4, tournament=self.to, status=1
-        )
+        self.tf1 = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
+        self.tf2 = tfm.TeamFight.objects.create(aka_team=self.t3, shiro_team=self.t4, tournament=self.to, status=1)
 
         self.tf1_json = {
             "id": self.tf1.id,
@@ -126,9 +120,7 @@ class TeamFightViewTest(APITestCase):
 class TeamFightViewSetAuthorizedTests(TeamFightViewTest):
     def setUp(self):
         super(TeamFightViewSetAuthorizedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_team_fight(self):
@@ -167,9 +159,7 @@ class TeamFightViewSetAuthorizedTests(TeamFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_existing_team_fight_deletes_it(self):
-        response = self.client.delete(
-            reverse("teamfight-detail", kwargs={"pk": self.tf1.pk})
-        )
+        response = self.client.delete(reverse("teamfight-detail", kwargs={"pk": self.tf1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_team_fight_returns_bad_request(self):
@@ -199,9 +189,7 @@ class TeamFightViewSetUnauthorizedTests(TeamFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_gets_forbidden(self):
-        response = self.client.delete(
-            reverse("teamfight-detail", kwargs={"pk": self.tf1.id})
-        )
+        response = self.client.delete(reverse("teamfight-detail", kwargs={"pk": self.tf1.id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -216,16 +204,12 @@ class TeamFightViewSetUnauthenticatedTests(TeamFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_existing_fight_returns_correct_fight(self):
-        response = self.client.get(
-            reverse("teamfight-detail", kwargs={"pk": self.tf1.pk})
-        )
+        response = self.client.get(reverse("teamfight-detail", kwargs={"pk": self.tf1.pk}))
         self.assertEqual(self.tf1_json, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_fight_returns_404(self):
-        response = self.client.get(
-            reverse("teamfight-detail", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.get(reverse("teamfight-detail", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):
@@ -245,9 +229,7 @@ class TeamFightViewSetUnauthenticatedTests(TeamFightViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(
-            reverse("teamfight-detail", kwargs={"pk": self.tf1.id})
-        )
+        response = self.client.delete(reverse("teamfight-detail", kwargs={"pk": self.tf1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -276,14 +258,10 @@ class UnauthorizedTeamFightsFightsTest(TeamFightViewSetUnauthorizedTests):
 
     def test_get_fights_for_valid_team_fight_returns_list_of_fights(self):
         expected = [self.f1_json, self.f2_json]
-        response = self.client.get(
-            reverse("teamfight-fights", kwargs={"pk": self.tf1.pk})
-        )
+        response = self.client.get(reverse("teamfight-fights", kwargs={"pk": self.tf1.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_fights_for_invalid_team_fight_returns_not_found(self):
-        response = self.client.get(
-            reverse("teamfight-fights", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.get(reverse("teamfight-fights", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

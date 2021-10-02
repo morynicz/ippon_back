@@ -29,9 +29,9 @@ class TeamViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated, tep.IsTeamOwner),
     )
     def handle_members(self, request, pk=None, player_id=None):
-        return {"post": self.create_member, "delete": self.delete_member}[
-            request.method.lower()
-        ](request, pk, player_id)
+        return {"post": self.create_member, "delete": self.delete_member}[request.method.lower()](
+            request, pk, player_id
+        )
 
     # @action(
     #     methods=['post'],
@@ -70,9 +70,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     @action(methods=["get"], detail=True)
     def members(self, request, pk=None):
-        serializer = pls.PlayerSerializer(
-            plm.Player.objects.filter(team_member__team=pk), many=True
-        )
+        serializer = pls.PlayerSerializer(plm.Player.objects.filter(team_member__team=pk), many=True)
         return Response(serializer.data)
 
     @action(

@@ -14,9 +14,7 @@ import ippon.models.tournament as tm
 
 class TestFightPermissions(django.test.TestCase):
     def setUp(self):
-        c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.admin = User.objects.create(username="admin", password="password")
         self.to = tm.Tournament.objects.create(
             name="T1",
@@ -57,9 +55,7 @@ class TestFightPermissions(django.test.TestCase):
         )
         self.t2.team_members.create(player=self.p2)
 
-        self.tf = tfm.TeamFight.objects.create(
-            aka_team=self.t1, shiro_team=self.t2, tournament=self.to
-        )
+        self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.fight = self.tf.fights.create(aka=self.p1, shiro=self.p2)
         self.permission = fp.IsFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
@@ -74,16 +70,12 @@ class TestFightPermissionNotAdmin(TestFightPermissions):
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.fight)
         self.assertEqual(result, True)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.fight)
         self.assertEqual(result, False)
 
     def test_doesnt_permit_when_post(self):
@@ -95,22 +87,16 @@ class TestFightPermissionNotAdmin(TestFightPermissions):
 class TestFightPermissionAdmin(TestFightPermissions):
     def setUp(self):
         super(TestFightPermissionAdmin, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.admin, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.fight)
         self.assertEqual(result, True)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.fight)
         self.assertEqual(result, True)
 
     def test_does_permit_when_post(self):

@@ -35,9 +35,7 @@ class TeamsViewTest(APITestCase):
             sex_constraint=1,
         )
         self.t1 = tem.Team.objects.create(tournament=self.to, name="t1")
-        self.c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        self.c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.p1 = plm.Player.objects.create(
             name="pn1",
             surname="ps1",
@@ -88,9 +86,7 @@ class TeamsViewTest(APITestCase):
 class TeamViewSetAuthorizedTests(TeamsViewTest):
     def setUp(self):
         super(TeamViewSetAuthorizedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.client.force_authenticate(user=self.user)
 
     def test_teams_post_valid_payload_creates_specified_team(self):
@@ -149,9 +145,7 @@ class TeamViewSetAuthorizedTests(TeamsViewTest):
         )
         self.to.participations.create(player=p4)
 
-        response = self.client.get(
-            reverse("team-not-assigned", kwargs={"pk": self.t1.pk})
-        )
+        response = self.client.get(reverse("team-not-assigned", kwargs={"pk": self.t1.pk}))
         expected = [
             {
                 "id": p4.id,
@@ -259,18 +253,14 @@ class TeamViewSetUnauthenticatedTests(TeamsViewTest):
         )
         self.to.participations.create(player=p4)
 
-        response = self.client.get(
-            reverse("team-not-assigned", kwargs={"pk": self.t1.pk})
-        )
+        response = self.client.get(reverse("team-not-assigned", kwargs={"pk": self.t1.pk}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class TeamMembersViewTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.club = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        self.club = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.admin = User.objects.create(username="admin", password="password")
         self.to = tm.Tournament.objects.create(
             name="T1",
@@ -290,9 +280,7 @@ class TeamMembersViewTests(APITestCase):
             rank_constraint_value=7,
             sex_constraint=1,
         )
-        tm.TournamentAdmin.objects.create(
-            user=self.admin, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
 
 
 class AuthorizedTeamMembersViewTests(TeamMembersViewTests):
@@ -324,9 +312,7 @@ class ValidIdsTeamMembersViewTests(AuthorizedTeamMembersViewTests):
     def test_delete_existing_team_member_deletes_it(self):
         self.t1.team_members.create(player=self.p1)
 
-        response = self.client.delete(
-            reverse("team-members", kwargs={"pk": self.t1.pk, "player_id": self.p1.pk})
-        )
+        response = self.client.delete(reverse("team-members", kwargs={"pk": self.t1.pk, "player_id": self.p1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
@@ -367,7 +353,5 @@ class InvalidIdsTeamMemberViewTests(AuthorizedTeamMembersViewTests):
             sex=1,
             club_id=self.club,
         )
-        response = self.client.delete(
-            reverse("team-members", kwargs={"pk": iuv.BAD_PK, "player_id": p1.pk})
-        )
+        response = self.client.delete(reverse("team-members", kwargs={"pk": iuv.BAD_PK, "player_id": p1.pk}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

@@ -13,15 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="fight",
             name="status",
-            field=models.IntegerField(
-                choices=[(0, "Prepared"), (1, "Started"), (2, "Finished")], default=0
-            ),
+            field=models.IntegerField(choices=[(0, "Prepared"), (1, "Started"), (2, "Finished")], default=0),
         ),
         migrations.AddField(
             model_name="fight",
             name="winner",
-            field=models.IntegerField(
-                choices=[(0, "None"), (1, "Aka"), (2, "Shiro")], default=0
-            ),
+            field=models.IntegerField(choices=[(0, "None"), (1, "Aka"), (2, "Shiro")], default=0),
         ),
     ]

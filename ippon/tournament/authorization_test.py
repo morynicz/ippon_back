@@ -10,28 +10,20 @@ class TournamentAdminAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests
         super(TournamentAdminAuthenticatedTests, self).setUp()
 
     def test_tournament_admin_authorization_returns_positive_auth_if_authorized(self):
-        tm.TournamentAdmin.objects.create(
-            user=self.u1, tournament=self.tournament, is_master=True
-        )
+        tm.TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=True)
 
         expected = {"isAuthorized": True}
 
-        response = self.client.get(
-            reverse("tournament-admin-authorization", kwargs={"pk": self.tournament.id})
-        )
+        response = self.client.get(reverse("tournament-admin-authorization", kwargs={"pk": self.tournament.id}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_tournament_staff_authorization_returns_positive_auth_if_authorized(self):
-        tm.TournamentAdmin.objects.create(
-            user=self.u1, tournament=self.tournament, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=False)
 
         expected = {"isAuthorized": True}
 
-        response = self.client.get(
-            reverse("tournament-staff-authorization", kwargs={"pk": self.tournament.id})
-        )
+        response = self.client.get(reverse("tournament-staff-authorization", kwargs={"pk": self.tournament.id}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -40,9 +32,7 @@ class TournamentAdminAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests
     ):
         expected = {"isAuthorized": False}
 
-        response = self.client.get(
-            reverse("tournament-admin-authorization", kwargs={"pk": self.tournament.pk})
-        )
+        response = self.client.get(reverse("tournament-admin-authorization", kwargs={"pk": self.tournament.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -51,9 +41,7 @@ class TournamentAdminAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests
     ):
         expected = {"isAuthorized": False}
 
-        response = self.client.get(
-            reverse("tournament-staff-authorization", kwargs={"pk": self.tournament.pk})
-        )
+        response = self.client.get(reverse("tournament-staff-authorization", kwargs={"pk": self.tournament.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -67,9 +55,7 @@ class AdminViewsUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests)
     ):
         expected = {"isAuthorized": False}
 
-        response = self.client.get(
-            reverse("tournament-admin-authorization", kwargs={"pk": self.tournament.pk})
-        )
+        response = self.client.get(reverse("tournament-admin-authorization", kwargs={"pk": self.tournament.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -78,8 +64,6 @@ class AdminViewsUnauthenticatedTests(iua.AuthorizationViewsUnauthenticatedTests)
     ):
         expected = {"isAuthorized": False}
 
-        response = self.client.get(
-            reverse("tournament-staff-authorization", kwargs={"pk": self.tournament.pk})
-        )
+        response = self.client.get(reverse("tournament-staff-authorization", kwargs={"pk": self.tournament.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

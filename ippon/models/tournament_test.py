@@ -27,9 +27,7 @@ class TournamentParticipationTests(TestCase):
             sex_constraint=1,
         )
         self.tournament.save()
-        c = clm.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        c = clm.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         c.save()
         p = plm.Player.objects.create(
             name="pn1",
@@ -41,9 +39,7 @@ class TournamentParticipationTests(TestCase):
         )
         p.save()
 
-        self.part = tm.TournamentParticipation.objects.create(
-            tournament=self.tournament, player=p
-        )
+        self.part = tm.TournamentParticipation.objects.create(tournament=self.tournament, player=p)
 
     def test_is_age_ok_true_when_age_is_equal_and_constraint_is_equal(self):
         self.assertTrue(self.part.check_is_age_ok())

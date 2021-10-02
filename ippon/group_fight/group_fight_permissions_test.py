@@ -36,16 +36,12 @@ class TestGroupFightPermissions(django.test.TestCase):
         self.t1 = tem.Team.objects.create(tournament=self.to, name="t1")
         self.t2 = tem.Team.objects.create(tournament=self.to, name="t2")
 
-        self.tf = tfm.TeamFight.objects.create(
-            aka_team=self.t1, shiro_team=self.t2, tournament=self.to
-        )
+        self.tf = tfm.TeamFight.objects.create(aka_team=self.t1, shiro_team=self.t2, tournament=self.to)
         self.permission = gfp.IsGroupFightOwnerOrReadOnly()
         self.request = unittest.mock.Mock()
         self.view = unittest.mock.Mock()
         self.request.user = self.admin
-        self.group_phase = gpm.GroupPhase.objects.create(
-            name="gp", tournament=self.to, fight_length=3
-        )
+        self.group_phase = gpm.GroupPhase.objects.create(name="gp", tournament=self.to, fight_length=3)
         self.group = gm.Group.objects.create(name="g1", group_phase=self.group_phase)
         self.group_fight = self.group.group_fights.create(team_fight=self.tf)
         self.request.data = gfs.GroupFightSerializer(self.group_fight).data
@@ -57,16 +53,12 @@ class TestGroupFightPermissionNotAdmin(TestGroupFightPermissions):
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group_fight)
         self.assertEqual(result, True)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group_fight)
         self.assertEqual(result, False)
 
     def test_doesnt_permit_when_post(self):
@@ -78,22 +70,16 @@ class TestGroupFightPermissionNotAdmin(TestGroupFightPermissions):
 class TestGroupFightPermissionAdmin(TestGroupFightPermissions):
     def setUp(self):
         super(TestGroupFightPermissionAdmin, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.admin, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.admin, tournament=self.to, is_master=False)
 
     def test_permits_when_safe_method(self):
         self.request.method = "GET"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group_fight)
         self.assertEqual(result, True)
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.group_fight
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.group_fight)
         self.assertEqual(result, True)
 
     def test_permit_when_post(self):

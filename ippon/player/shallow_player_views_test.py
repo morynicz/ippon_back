@@ -14,9 +14,7 @@ class ShallowPlayerViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.u1 = User.objects.create(username="a1", password="password1")
-        self.c1 = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        self.c1 = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.p1 = plm.Player.objects.create(
             name="pn1",
             surname="ps1",
@@ -78,16 +76,12 @@ class ShallowPlayerViewSetUnauthorizedTests(ShallowPlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_existing_player_returns_correct_player(self):
-        response = self.client.get(
-            reverse("shallow-player-detail", kwargs={"pk": self.p1.pk})
-        )
+        response = self.client.get(reverse("shallow-player-detail", kwargs={"pk": self.p1.pk}))
         self.assertEqual(self.p1_json, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_player_returns_404(self):
-        response = self.client.get(
-            reverse("shallow-player-detail", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.get(reverse("shallow-player-detail", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_gets_method_not_allowed(self):
@@ -107,7 +101,5 @@ class ShallowPlayerViewSetUnauthorizedTests(ShallowPlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_delete_gets_method_not_allowed(self):
-        response = self.client.delete(
-            reverse("shallow-player-detail", kwargs={"pk": self.c1.id})
-        )
+        response = self.client.delete(reverse("shallow-player-detail", kwargs={"pk": self.c1.id}))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

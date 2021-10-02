@@ -9,9 +9,7 @@ STATUS = [(0, "Prepared"), (1, "Started"), (2, "Finished")]
 
 
 class TeamFight(models.Model):
-    tournament = models.ForeignKey(
-        tm.Tournament, related_name="team_fights", on_delete=models.PROTECT
-    )
+    tournament = models.ForeignKey(tm.Tournament, related_name="team_fights", on_delete=models.PROTECT)
     aka_team = models.ForeignKey(tem.Team, on_delete=models.PROTECT, related_name="+")
     shiro_team = models.ForeignKey(tem.Team, on_delete=models.PROTECT, related_name="+")
     winner = models.IntegerField(choices=WINNER, default=0)
@@ -23,13 +21,7 @@ class TeamFight(models.Model):
         )
 
     def get_teams_points(self, team):
-        return (
-            ptm.Point.objects.filter(
-                player__team_member__team=team, fight__team_fight=self
-            )
-            .exclude(type=4)
-            .count()
-        )
+        return ptm.Point.objects.filter(player__team_member__team=team, fight__team_fight=self).exclude(type=4).count()
 
     def get_aka_points(self):
         return self.get_teams_points(self.aka_team)

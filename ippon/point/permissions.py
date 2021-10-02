@@ -23,8 +23,6 @@ class IsPointOwnerOrReadOnly(permissions.BasePermission):
         if request and request.method in permissions.SAFE_METHODS:
             return True
         return (
-            tm.TournamentAdmin.objects.filter(
-                tournament=point.fight.team_fight.tournament, user=request.user
-            ).count()
+            tm.TournamentAdmin.objects.filter(tournament=point.fight.team_fight.tournament, user=request.user).count()
             > 0
         )

@@ -18,9 +18,7 @@ def register_user(request):
 
     serializer = us.UserRegistrationSerializer(data=request.data)
     if serializer.is_valid(raise_exception=False):
-        user = serializer.save(
-            password=make_password(serializer.validated_data["password"])
-        )
+        user = serializer.save(password=make_password(serializer.validated_data["password"]))
         user.email_user(
             subject="You have been registered",
             message=f"You have been successfully registered in ippon with username {user.username}",
@@ -56,6 +54,4 @@ def user_data(request: HttpRequest):
                 "email": user.email,
             }
         )
-    return Response(
-        data={"error": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED
-    )
+    return Response(data={"error": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)

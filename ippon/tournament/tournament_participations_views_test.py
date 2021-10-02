@@ -12,9 +12,7 @@ import ippon.models.tournament as tm
 class TournamentParticipationsViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.club = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        self.club = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.player = self.club.players.create(
             name="pn1",
             surname="ps1",
@@ -70,9 +68,7 @@ class TournamentParticipationsViewTest(APITestCase):
 class TournamentParticipationViewSetAuthorizedTests(TournamentParticipationsViewTest):
     def setUp(self):
         super(TournamentParticipationViewSetAuthorizedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to1, is_master=True
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user)
 
     def test_post_invalid_payload_returns_400(self):
@@ -95,9 +91,7 @@ class TournamentParticipationViewSetAuthorizedTests(TournamentParticipationsView
 class TournamentParticipationViewSetUnauthorizedTests(TournamentParticipationsViewTest):
     def setUp(self):
         super(TournamentParticipationViewSetUnauthorizedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to1, is_master=True
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
         self.client.force_authenticate(user=self.user2)
 
     def test_post_invalid_payload_returns_403(self):
@@ -117,14 +111,10 @@ class TournamentParticipationViewSetUnauthorizedTests(TournamentParticipationsVi
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
-class TournamentParticipationViewSetUnauthenticatedTests(
-    TournamentParticipationsViewTest
-):
+class TournamentParticipationViewSetUnauthenticatedTests(TournamentParticipationsViewTest):
     def setUp(self):
         super(TournamentParticipationViewSetUnauthenticatedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to1, is_master=True
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to1, is_master=True)
 
     def test_post_invalid_payload_returns_401(self):
         response = self.client.post(

@@ -22,15 +22,11 @@ class GroupPhaseViewSet(viewsets.ModelViewSet):
     @action(methods=["get"], detail=True, url_name="groups")
     def groups(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = gs.GroupSerializer(
-            gm.Group.objects.filter(group_phase=pk), many=True
-        )
+        serializer = gs.GroupSerializer(gm.Group.objects.filter(group_phase=pk), many=True)
         return Response(serializer.data)
 
 
 @api_view(["GET"])
 def group_phase_authorization(request, pk, format=None):
     group_phase = get_object_or_404(gpm.GroupPhase.objects.all(), pk=pk)
-    return ta.has_tournament_authorization(
-        [True, False], group_phase.tournament.id, request
-    )
+    return ta.has_tournament_authorization([True, False], group_phase.tournament.id, request)

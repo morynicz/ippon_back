@@ -10,9 +10,7 @@ import ippon.models.tournament as tm
 
 class TeamTests(TestCase):
     def test_player_and_team_combinations_are_unique(self):
-        c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.to = tm.Tournament.objects.create(
             name="T1",
             webpage="http://w1.co",

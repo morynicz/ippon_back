@@ -6,9 +6,7 @@ import ippon.models.tournament as tm
 import ippon.utils.authorization_test_fixtures as iua
 
 
-class TournamentTeamAuthorizationAuthenticatedTests(
-    iua.AuthorizationViewsAuthenticatedTests
-):
+class TournamentTeamAuthorizationAuthenticatedTests(iua.AuthorizationViewsAuthenticatedTests):
     def setUp(self):
         super(TournamentTeamAuthorizationAuthenticatedTests, self).setUp()
 
@@ -32,12 +30,8 @@ class TournamentTeamAuthorizationAuthenticatedTests(
     ):
         self.parametrized_team_authorization_returns_positive_auth_if_authorized(True)
 
-    def parametrized_team_authorization_returns_positive_auth_if_authorized(
-        self, is_admin
-    ):
-        tm.TournamentAdmin.objects.create(
-            user=self.u1, tournament=self.tournament, is_master=is_admin
-        )
+    def parametrized_team_authorization_returns_positive_auth_if_authorized(self, is_admin):
+        tm.TournamentAdmin.objects.create(user=self.u1, tournament=self.tournament, is_master=is_admin)
         t1 = tem.Team.objects.create(name="t1", tournament=self.tournament)
         expected = {"isAuthorized": True}
         response = self.client.get(reverse("team-authorization", kwargs={"pk": t1.pk}))

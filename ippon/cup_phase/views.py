@@ -22,15 +22,11 @@ class CupPhaseViewSet(viewsets.ModelViewSet):
     @action(methods=["get"], detail=True, url_name="cup_fights")
     def cup_fights(self, request, pk=None):
         get_object_or_404(self.queryset, pk=pk)
-        serializer = cfs.CupFightSerializer(
-            cfm.CupFight.objects.filter(cup_phase=pk), many=True
-        )
+        serializer = cfs.CupFightSerializer(cfm.CupFight.objects.filter(cup_phase=pk), many=True)
         return Response(serializer.data)
 
 
 @api_view(["GET"])
 def cup_phase_authorization(request, pk, format=None):
     cup_phase = get_object_or_404(cpm.CupPhase.objects.all(), pk=pk)
-    return ta.has_tournament_authorization(
-        [True, False], cup_phase.tournament.id, request
-    )
+    return ta.has_tournament_authorization([True, False], cup_phase.tournament.id, request)

@@ -27,9 +27,7 @@ class ClubViewSet(viewsets.ModelViewSet):
 
     @action(methods=["get"], detail=True)
     def players(self, request, pk=None):
-        serializer = pls.PlayerSerializer(
-            plm.Player.objects.filter(club_id=pk), many=True
-        )
+        serializer = pls.PlayerSerializer(plm.Player.objects.filter(club_id=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -38,9 +36,7 @@ class ClubViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated, clp.IsClubOwner),
     )
     def admins(self, request, pk=None):
-        serializer = cls.ClubAdminSerializer(
-            cl.ClubAdmin.objects.filter(club=pk), many=True
-        )
+        serializer = cls.ClubAdminSerializer(cl.ClubAdmin.objects.filter(club=pk), many=True)
         return Response(serializer.data)
 
     @action(
@@ -49,9 +45,7 @@ class ClubViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated, clp.IsClubOwner),
     )
     def non_admins(self, request, pk=None):
-        serializer = us.MinimalUserSerializer(
-            User.objects.exclude(clubs__club=pk), many=True
-        )
+        serializer = us.MinimalUserSerializer(User.objects.exclude(clubs__club=pk), many=True)
         return Response(serializer.data)
 
 

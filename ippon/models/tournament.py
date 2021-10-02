@@ -7,12 +7,8 @@ import ippon.models.player as plm
 
 
 class TournamentAdmin(models.Model):
-    tournament = models.ForeignKey(
-        "Tournament", related_name="admins", on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(
-        "auth.User", related_name="tournaments", on_delete=models.PROTECT
-    )
+    tournament = models.ForeignKey("Tournament", related_name="admins", on_delete=models.CASCADE)
+    user = models.ForeignKey("auth.User", related_name="tournaments", on_delete=models.PROTECT)
     is_master = models.BooleanField()
 
     def get_user(self):
@@ -20,12 +16,8 @@ class TournamentAdmin(models.Model):
 
 
 class TournamentParticipation(models.Model):
-    tournament = models.ForeignKey(
-        "Tournament", related_name="participations", on_delete=models.PROTECT
-    )
-    player = models.ForeignKey(
-        plm.Player, related_name="participations", on_delete=models.PROTECT
-    )
+    tournament = models.ForeignKey("Tournament", related_name="participations", on_delete=models.PROTECT)
+    player = models.ForeignKey(plm.Player, related_name="participations", on_delete=models.PROTECT)
     is_paid = models.BooleanField(default=False)
     is_registered = models.BooleanField(default=False)
     is_qualified = models.BooleanField(default=False)

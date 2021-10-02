@@ -7,24 +7,14 @@ import ippon.models.team_fight as tfm
 
 
 class CupFight(models.Model):
-    cup_phase = models.ForeignKey(
-        "CupPhase", related_name="cup_fights", on_delete=models.PROTECT
-    )
-    team_fight = models.ForeignKey(
-        "TeamFight", related_name="cup_fight", on_delete=models.SET_NULL, null=True
-    )
-    previous_shiro_fight = models.OneToOneField(
-        "self", on_delete=models.CASCADE, related_name="+", null=True
-    )
-    previous_aka_fight = models.OneToOneField(
-        "self", on_delete=models.CASCADE, related_name="+", null=True
-    )
+    cup_phase = models.ForeignKey("CupPhase", related_name="cup_fights", on_delete=models.PROTECT)
+    team_fight = models.ForeignKey("TeamFight", related_name="cup_fight", on_delete=models.SET_NULL, null=True)
+    previous_shiro_fight = models.OneToOneField("self", on_delete=models.CASCADE, related_name="+", null=True)
+    previous_aka_fight = models.OneToOneField("self", on_delete=models.CASCADE, related_name="+", null=True)
 
     def get_following_fight(self):
         try:
-            return CupFight.objects.get(
-                Q(previous_aka_fight=self) | Q(previous_shiro_fight=self)
-            )
+            return CupFight.objects.get(Q(previous_aka_fight=self) | Q(previous_shiro_fight=self))
         except CupFight.DoesNotExist:
             raise NoSuchFightException()
 
@@ -43,12 +33,8 @@ class CupFight(models.Model):
                 id=self.id,
                 team_fight=self.team_fight,
                 cup_phase=self.cup_phase,
-                previous_aka=self.previous_aka_fight.id
-                if self.previous_aka_fight is not None
-                else None,
-                previous_shiro=self.previous_shiro_fight.id
-                if self.previous_shiro_fight is not None
-                else None,
+                previous_aka=self.previous_aka_fight.id if self.previous_aka_fight is not None else None,
+                previous_shiro=self.previous_shiro_fight.id if self.previous_shiro_fight is not None else None,
             )
         )
 

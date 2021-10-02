@@ -59,9 +59,7 @@ class GroupPhasesViewTest(APITestCase):
 class GroupPhasesViewSetAuthorizedTests(GroupPhasesViewTest):
     def setUp(self):
         super(GroupPhasesViewSetAuthorizedTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.client.force_authenticate(user=self.user)
 
     def test_post_valid_payload_creates_specified_group_phase(self):
@@ -100,9 +98,7 @@ class GroupPhasesViewSetAuthorizedTests(GroupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_existing_group_phase_deletes_it(self):
-        response = self.client.delete(
-            reverse("groupphase-detail", kwargs={"pk": self.gp1.pk})
-        )
+        response = self.client.delete(reverse("groupphase-detail", kwargs={"pk": self.gp1.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_group_phase_returns_bad_request(self):
@@ -132,9 +128,7 @@ class GroupPhaseViewSetUnauthorizedTests(GroupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_gets_forbidden(self):
-        response = self.client.delete(
-            reverse("groupphase-detail", kwargs={"pk": self.gp1.id})
-        )
+        response = self.client.delete(reverse("groupphase-detail", kwargs={"pk": self.gp1.id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -149,16 +143,12 @@ class GroupPhaseViewSetUnauthenticatedTests(GroupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_existing_group_phase_returns_correct_group_phase(self):
-        response = self.client.get(
-            reverse("groupphase-detail", kwargs={"pk": self.gp1.pk})
-        )
+        response = self.client.get(reverse("groupphase-detail", kwargs={"pk": self.gp1.pk}))
         self.assertEqual(self.gp1_json, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_for_not_existing_group_phase_returns_404(self):
-        response = self.client.get(
-            reverse("groupphase-detail", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.get(reverse("groupphase-detail", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_put_gets_unauthorized(self):
@@ -178,9 +168,7 @@ class GroupPhaseViewSetUnauthenticatedTests(GroupPhasesViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(
-            reverse("groupphase-detail", kwargs={"pk": self.gp1.id})
-        )
+        response = self.client.delete(reverse("groupphase-detail", kwargs={"pk": self.gp1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_groups_for_valid_group_phase_returns_list_of_groups(self):
@@ -190,14 +178,10 @@ class GroupPhaseViewSetUnauthenticatedTests(GroupPhasesViewTest):
         g2_json = {"id": group2.id, "name": "G2", "group_phase": self.gp1.id}
 
         expected = [g1_json, g2_json]
-        response = self.client.get(
-            reverse("groupphase-groups", kwargs={"pk": self.gp1.pk})
-        )
+        response = self.client.get(reverse("groupphase-groups", kwargs={"pk": self.gp1.pk}))
         self.assertEqual(expected, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_groups_for_invalid_group_phase_returns_not_found(self):
-        response = self.client.get(
-            reverse("groupphase-groups", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.get(reverse("groupphase-groups", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

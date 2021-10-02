@@ -61,9 +61,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="teammember",
             name="player",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="ippon.Player"
-            ),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="ippon.Player"),
         ),
         migrations.AlterField(
             model_name="teammember",

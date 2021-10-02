@@ -14,9 +14,7 @@ class PlayerViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.u1 = User.objects.create(username="a1", password="password1")
-        self.c1 = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
+        self.c1 = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
         self.p1 = plm.Player.objects.create(
             name="pn1",
             surname="ps1",
@@ -128,15 +126,11 @@ class PlayerViewSetAuthorizedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_existing_player_deletes_it(self):
-        response = self.client.delete(
-            reverse("player-detail", kwargs={"pk": self.p2.pk})
-        )
+        response = self.client.delete(reverse("player-detail", kwargs={"pk": self.p2.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_existing_player_returns_bad_request(self):
-        response = self.client.delete(
-            reverse("player-detail", kwargs={"pk": iuv.BAD_PK})
-        )
+        response = self.client.delete(reverse("player-detail", kwargs={"pk": iuv.BAD_PK}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -162,9 +156,7 @@ class PlayerViewSetUnauthorizedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthorized_delete_gets_forbidden(self):
-        response = self.client.delete(
-            reverse("player-detail", kwargs={"pk": self.p1.id})
-        )
+        response = self.client.delete(reverse("player-detail", kwargs={"pk": self.p1.id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -204,7 +196,5 @@ class PlayerViewSetUnauthenticatedTests(PlayerViewTest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthorized_delete_gets_unauthorized(self):
-        response = self.client.delete(
-            reverse("player-detail", kwargs={"pk": self.p1.id})
-        )
+        response = self.client.delete(reverse("player-detail", kwargs={"pk": self.p1.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

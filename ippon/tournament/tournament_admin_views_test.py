@@ -32,9 +32,7 @@ class TournamentAdminViewTest(APITestCase):
             rank_constraint_value=7,
             sex_constraint=1,
         )
-        self.a1 = tm.TournamentAdmin.objects.create(
-            user=self.u1, tournament=self.to1, is_master=True
-        )
+        self.a1 = tm.TournamentAdmin.objects.create(user=self.u1, tournament=self.to1, is_master=True)
 
         self.valid_payload = {
             "id": -1,
@@ -57,11 +55,7 @@ class TournamentAdminViewSetAuthorizedTests(TournamentAdminViewTest):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(
-            tm.TournamentAdmin.objects.filter(
-                tournament=self.to1.id, user=self.u2
-            ).exists()
-        )
+        self.assertTrue(tm.TournamentAdmin.objects.filter(tournament=self.to1.id, user=self.u2).exists())
 
 
 class TournamentAdminViewSetUnauthorizedTests(TournamentAdminViewTest):
@@ -77,11 +71,7 @@ class TournamentAdminViewSetUnauthorizedTests(TournamentAdminViewTest):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertFalse(
-            tm.TournamentAdmin.objects.filter(
-                tournament=self.to1.id, user=self.u2
-            ).exists()
-        )
+        self.assertFalse(tm.TournamentAdmin.objects.filter(tournament=self.to1.id, user=self.u2).exists())
 
 
 class TournamentAdminViewSetUnauthenticatedTests(TournamentAdminViewTest):
@@ -96,8 +86,4 @@ class TournamentAdminViewSetUnauthenticatedTests(TournamentAdminViewTest):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertFalse(
-            tm.TournamentAdmin.objects.filter(
-                tournament=self.to1.id, user=self.u2
-            ).exists()
-        )
+        self.assertFalse(tm.TournamentAdmin.objects.filter(tournament=self.to1.id, user=self.u2).exists())

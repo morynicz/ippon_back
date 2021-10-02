@@ -39,16 +39,12 @@ class IsTeamOwnerTests(django.test.TestCase):
 class IsTeamOwnerAdminTests(IsTeamOwnerTests):
     def setUp(self):
         super(IsTeamOwnerAdminTests, self).setUp()
-        tm.TournamentAdmin.objects.create(
-            user=self.user, tournament=self.to, is_master=False
-        )
+        tm.TournamentAdmin.objects.create(user=self.user, tournament=self.to, is_master=False)
         self.view.kwargs = dict(pk=self.team.pk)
 
     def test_does_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.team
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.team)
         self.assertEqual(result, True)
 
     def test_does_permit_general(self):
@@ -63,9 +59,7 @@ class IsTeamOwnerNotAdminTests(IsTeamOwnerTests):
 
     def test_doesnt_permit_when_unsafe_method(self):
         self.request.method = "PUT"
-        result = self.permission.has_object_permission(
-            self.request, self.view, self.team
-        )
+        result = self.permission.has_object_permission(self.request, self.view, self.team)
         self.assertEqual(result, False)
 
     def test_doesnt_permit_general(self):

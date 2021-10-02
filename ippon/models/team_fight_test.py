@@ -27,17 +27,11 @@ class TestTeamFights(TestCase):
             sex_constraint=1,
         )
         self.tournament.save()
-        c = cl.Club.objects.create(
-            name="cn1", webpage="http://cw1.co", description="cd1", city="cc1"
-        )
-        self.cup_phase = self.tournament.cup_phases.create(
-            name="CP", fight_length=3, final_fight_length=5
-        )
+        c = cl.Club.objects.create(name="cn1", webpage="http://cw1.co", description="cd1", city="cc1")
+        self.cup_phase = self.tournament.cup_phases.create(name="CP", fight_length=3, final_fight_length=5)
         self.t1 = self.tournament.teams.create(name="t1")
         self.t2 = self.tournament.teams.create(name="t2")
-        self.team_fight1 = self.tournament.team_fights.create(
-            aka_team=self.t1, shiro_team=self.t2
-        )
+        self.team_fight1 = self.tournament.team_fights.create(aka_team=self.t1, shiro_team=self.t2)
         self.p1 = plm.Player.objects.create(
             name="pn1",
             surname="ps1",
