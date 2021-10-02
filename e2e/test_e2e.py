@@ -3,8 +3,6 @@ from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-import ippon
-
 
 class MySeleniumTests(LiveServerTestCase):
     @classmethod

@@ -1,6 +1,5 @@
 import datetime
 import django
-from django.db import IntegrityError
 from django.test import TestCase
 
 import ippon.models
@@ -237,7 +236,7 @@ class CupPhaseTests(TestCase):
     def test_destruction_of_cup_phase_is_impossible_when_there_are_some_fights_in_it(
         self,
     ):
-        with self.assertRaises(django.db.models.ProtectedError) as pe:
+        with self.assertRaises(django.db.models.ProtectedError):
             self.cup_phase.delete()
         self.assertTrue(tfm.TeamFight.objects.filter(cup_fight=self.cf1).count())
         self.assertTrue(

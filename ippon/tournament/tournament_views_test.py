@@ -799,7 +799,7 @@ class TournamentUnassignedPlayersTests(TournamentViewTest):
         tm.TournamentAdmin.objects.create(
             user=self.user, tournament=self.to1, is_master=False
         )
-        p4 = plm.Player.objects.create(
+        plm.Player.objects.create(
             name="pn4",
             surname="ps4",
             rank=7,
@@ -807,7 +807,7 @@ class TournamentUnassignedPlayersTests(TournamentViewTest):
             sex=1,
             club_id=self.club,
         )
-        par5 = self.to1.participations.create(player=self.p4)
+        self.to1.participations.create(player=self.p4)
 
         self.client.force_authenticate(user=self.user)
         response = self.client.get(

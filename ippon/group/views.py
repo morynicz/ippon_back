@@ -112,7 +112,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         url_path="members/(?P<team_id>[0-9]+)/score",
     )
     def member_score(self, request, pk=None, team_id=None):
-        group = get_object_or_404(self.queryset, pk=pk)
+        get_object_or_404(self.queryset, pk=pk)
         team = get_object_or_404(tem.Team.objects.all(), pk=team_id)
         fights = (
             tfm.TeamFight.objects.filter(group_fight__group=pk, aka_team=team_id)
