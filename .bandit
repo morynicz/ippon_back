@@ -1,2 +1,2 @@
 [bandit]
-exclude: *test_*.py venv
+exclude: *test.py venv/*

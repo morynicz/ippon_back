@@ -41,7 +41,9 @@ jobs:
           python-version: 3.9.6
           architecture: x64
       - run: pip install bandit
-      - run: bandit -r .
+      - run: bandit ippon -r --exclude "*test*.py"
+      - run: bandit auth_server -r --exclude "*test*.py"
+      - run: bandit ippon_back -r --exclude "*test*.py"
 
 #  django_unit_tests:
 #    needs:
