@@ -34,11 +34,12 @@ class CupFight(models.Model):
             self.team_fight.delete()
 
     def __str__(self):
-        return "CupFight {{id: {id}, " \
-               "cup_phase: {cup_phase}, " \
-               "team_fight: {team_fight}, " \
-               "previous_shiro: {previous_shiro}, " \
-               "previous_aka: {previous_aka} }}".format(
+        return (
+            "CupFight {{id: {id}, "
+            "cup_phase: {cup_phase}, "
+            "team_fight: {team_fight}, "
+            "previous_shiro: {previous_shiro}, "
+            "previous_aka: {previous_aka} }}".format(
                 id=self.id,
                 team_fight=self.team_fight,
                 cup_phase=self.cup_phase,
@@ -48,7 +49,8 @@ class CupFight(models.Model):
                 previous_shiro=self.previous_shiro_fight.id
                 if self.previous_shiro_fight is not None
                 else None,
-                )
+            )
+        )
 
 
 @receiver(post_save, sender=tfm.TeamFight)
