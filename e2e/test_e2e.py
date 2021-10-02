@@ -21,13 +21,15 @@ class MySeleniumTests(LiveServerTestCase):
 
     def setUp(self) -> None:
         super(MySeleniumTests, self).setUp()
-        self.username = 'admin'
-        self.password = 'password'
-        self.email= 'admin@amdin.com'
-        self.user = User.objects.create_user(username=self.username, password=self.password, email=self.email)
+        self.username = "admin"
+        self.password = "password"
+        self.email = "admin@amdin.com"
+        self.user = User.objects.create_user(
+            username=self.username, password=self.password, email=self.email
+        )
 
     def log_in(self):
-        self.selenium.get('%s%s' % ('localhost:4231', '/login/'))
+        self.selenium.get("%s%s" % ("localhost:4231", "/login/"))
         self.selenium.save_screenshot("screen.png")
         print(self.selenium.page_source)
         self.selenium.implicitly_wait(10)
@@ -37,8 +39,7 @@ class MySeleniumTests(LiveServerTestCase):
         password_input = self.selenium.find_element_by_name("password")
         password_input.send_keys(self.password)
         self.selenium.implicitly_wait(10)
-        self.selenium.find_element_by_id('login-login').click()
-
+        self.selenium.find_element_by_id("login-login").click()
 
     def test_login(self):
         self.log_in()
@@ -50,11 +51,8 @@ class MySeleniumTests(LiveServerTestCase):
         self.log_in()
         # self.selenium.implicitly_wait(100)
 
-        print(self.selenium.find_element_by_id('logout'))
-        self.selenium.find_element_by_id('logout').click()
+        print(self.selenium.find_element_by_id("logout"))
+        self.selenium.find_element_by_id("logout").click()
 
         with self.assertRaises(selenium.common.exceptions.NoSuchElementException):
             self.selenium.find_element_by_id("logout")
-
-
-

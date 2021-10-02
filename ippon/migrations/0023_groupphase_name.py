@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ippon', '0022_auto_20181101_1852'),
+        ("ippon", "0022_auto_20181101_1852"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='groupphase',
-            name='name',
-            field=models.CharField(default='gp1', max_length=100),
+            model_name="groupphase",
+            name="name",
+            field=models.CharField(default="gp1", max_length=100),
             preserve_default=False,
         ),
     ]

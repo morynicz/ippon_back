@@ -1,5 +1,4 @@
 import datetime
-
 import django.test
 import pytz
 from django.contrib.auth.models import User
@@ -17,7 +16,7 @@ class TestEventPermissions(django.test.TestCase):
             username="JackTheRipper",
             password="ultrasecurepassword123",
             first_name="JackThe",
-            last_name="Ripper"
+            last_name="Ripper",
         )
 
         self.event: em.Event = em.Event(
@@ -26,13 +25,12 @@ class TestEventPermissions(django.test.TestCase):
             registration_start_time=datetime.datetime.now(pytz.UTC),
             registration_end_time=datetime.datetime.now(pytz.UTC),
             start_time=datetime.datetime.now(pytz.UTC),
-            end_time=datetime.datetime.now(pytz.UTC)
+            end_time=datetime.datetime.now(pytz.UTC),
         )
         self.event.save()
 
         self.event_admin: em.EventAdmin = em.EventAdmin(
-            event=self.event,
-            user=self.user
+            event=self.event, user=self.user
         )
         self.event_admin.save()
 
@@ -47,43 +45,52 @@ class TestEventPermissions(django.test.TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_event_creation_with_unauthorized_user_return_401(self):
-        response = self.client.post("/ippon/events/", {
-            "name": "Cool Event",
-            "description": "cool description",
-            "event_owner": self.user.pk,
-            "start_time": datetime.datetime.now(),
-            "end_time": datetime.datetime.now(),
-            "registration_start_time": datetime.datetime.now(),
-            "registration_end_time": datetime.datetime.now()
-        })
+        response = self.client.post(
+            "/ippon/events/",
+            {
+                "name": "Cool Event",
+                "description": "cool description",
+                "event_owner": self.user.pk,
+                "start_time": datetime.datetime.now(),
+                "end_time": datetime.datetime.now(),
+                "registration_start_time": datetime.datetime.now(),
+                "registration_end_time": datetime.datetime.now(),
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_event_creation_with_valid_owner_return_201(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post("/ippon/events/", {
-            "name": "Cool Event",
-            "description": "cool description",
-            "event_owner": self.user.pk,
-            "start_time": datetime.datetime.now(),
-            "end_time": datetime.datetime.now(),
-            "registration_start_time": datetime.datetime.now(),
-            "registration_end_time": datetime.datetime.now()
-        })
+        response = self.client.post(
+            "/ippon/events/",
+            {
+                "name": "Cool Event",
+                "description": "cool description",
+                "event_owner": self.user.pk,
+                "start_time": datetime.datetime.now(),
+                "end_time": datetime.datetime.now(),
+                "registration_start_time": datetime.datetime.now(),
+                "registration_end_time": datetime.datetime.now(),
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_event_creation_with_invalid_owner_return_403(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post("/ippon/events/", {
-            "name": "Cool Event",
-            "description": "cool description",
-            "event_owner": self.user.pk + 1,
-            "start_time": datetime.datetime.now(),
-            "end_time": datetime.datetime.now(),
-            "registration_start_time": datetime.datetime.now(),
-            "registration_end_time": datetime.datetime.now()
-        })
+        response = self.client.post(
+            "/ippon/events/",
+            {
+                "name": "Cool Event",
+                "description": "cool description",
+                "event_owner": self.user.pk + 1,
+                "start_time": datetime.datetime.now(),
+                "end_time": datetime.datetime.now(),
+                "registration_start_time": datetime.datetime.now(),
+                "registration_end_time": datetime.datetime.now(),
+            },
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_event_delete_with_valid_owner_return_204(self):

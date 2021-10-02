@@ -8,15 +8,23 @@ import ippon.utils.permissions as ip
 
 
 class IsPointOwnerOrReadOnly(permissions.BasePermission):
-
     def has_permission(self, request, view):
         if request.method == "POST":
-            return ip.has_object_creation_permission(request, pts.PointSerializer, "fight", ippon.models.fight.Fight,
-                                                     ip.get_tournament_from_fight)
+            return ip.has_object_creation_permission(
+                request,
+                pts.PointSerializer,
+                "fight",
+                ippon.models.fight.Fight,
+                ip.get_tournament_from_fight,
+            )
         return True
 
     def has_object_permission(self, request, view, point):
         if request and request.method in permissions.SAFE_METHODS:
             return True
-        return tm.TournamentAdmin.objects.filter(tournament=point.fight.team_fight.tournament,
-                                                 user=request.user).count() > 0
+        return (
+            tm.TournamentAdmin.objects.filter(
+                tournament=point.fight.team_fight.tournament, user=request.user
+            ).count()
+            > 0
+        )
