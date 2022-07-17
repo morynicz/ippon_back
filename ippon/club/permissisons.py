@@ -1,5 +1,4 @@
 import json
-
 from rest_framework import permissions
 
 import ippon.models.club as cl

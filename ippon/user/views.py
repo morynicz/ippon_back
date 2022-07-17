@@ -8,7 +8,7 @@ from rest_framework.response import Response
 import ippon.user.serailzers as us
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def register_user(request):
     """
     Validate input data
@@ -21,11 +21,20 @@ def register_user(request):
         user = serializer.save(password=make_password(serializer.validated_data["password"]))
         user.email_user(
             subject="You have been registered",
-            message=f"You have been successfully registered in ippon with username {user.username}")
-        return Response(status=status.HTTP_201_CREATED, data=serializer.data, content_type="application/json")
+            message=f"You have been successfully registered in ippon with username {user.username}",
+        )
+        return Response(
+            status=status.HTTP_201_CREATED,
+            data=serializer.data,
+            content_type="application/json",
+        )
     else:
         response = [str(err[0]) for err in serializer.errors.values()]
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=response, content_type="application/json")
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=response,
+            content_type="application/json",
+        )
 
 
 @api_view(["get"])
@@ -36,11 +45,13 @@ def user_data(request: HttpRequest):
     """
     user: User = request.user
     if user.is_authenticated:
-        return Response({
-            "id": user.id,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "username": user.username,
-            "email": user.email
-        })
+        return Response(
+            {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "username": user.username,
+                "email": user.email,
+            }
+        )
     return Response(data={"error": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)

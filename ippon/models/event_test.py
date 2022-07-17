@@ -1,5 +1,4 @@
 import datetime
-
 from rest_framework.test import APITestCase
 
 import ippon.models.event as em
@@ -7,19 +6,19 @@ import ippon.models.event as em
 
 class EventModelTest(APITestCase):
     def setUp(self):
-        self.late_event = self.configure_event('09/19/3030 13:55:26', '09/19/3030 13:55:26')
-        self.early_event = self.configure_event('09/19/1030 13:55:26', '09/19/1030 13:55:26')
-        self.current_event = self.configure_event('09/19/1030 13:55:26', '09/19/3030 13:55:26')
+        self.late_event = self.configure_event("09/19/3030 13:55:26", "09/19/3030 13:55:26")
+        self.early_event = self.configure_event("09/19/1030 13:55:26", "09/19/1030 13:55:26")
+        self.current_event = self.configure_event("09/19/1030 13:55:26", "09/19/3030 13:55:26")
 
     @staticmethod
     def configure_event(start_string, end_string):
-        registration_start = datetime.datetime.strptime(start_string, '%m/%d/%Y %H:%M:%S')
-        registration_end = datetime.datetime.strptime(end_string, '%m/%d/%Y %H:%M:%S')
+        registration_start = datetime.datetime.strptime(start_string, "%m/%d/%Y %H:%M:%S")
+        registration_end = datetime.datetime.strptime(end_string, "%m/%d/%Y %H:%M:%S")
         event: em.Event = em.Event(
             name="Tournament",
             description="It's very cool",
             registration_start_time=registration_start,
-            registration_end_time=registration_end
+            registration_end_time=registration_end,
         )
         return event
 

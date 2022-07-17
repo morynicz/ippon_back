@@ -29,24 +29,20 @@ export ALLOWED_HOSTS='["localhost"]'
 
 
 def gen_ssh(dir):
-    key = rsa.generate_private_key(
-        backend=crypto_default_backend(),
-        public_exponent=65537,
-        key_size=2048
-    )
+    key = rsa.generate_private_key(backend=crypto_default_backend(), public_exponent=65537, key_size=2048)
     private_key = key.private_bytes(
         crypto_serialization.Encoding.PEM,
         crypto_serialization.PrivateFormat.PKCS8,
-        crypto_serialization.NoEncryption())
+        crypto_serialization.NoEncryption(),
+    )
     public_key = key.public_key().public_bytes(
-        crypto_serialization.Encoding.OpenSSH,
-        crypto_serialization.PublicFormat.OpenSSH
+        crypto_serialization.Encoding.OpenSSH, crypto_serialization.PublicFormat.OpenSSH
     )
 
-    with open(os.path.join(dir, 'id_rsa'), 'wb') as private:
+    with open(os.path.join(dir, "id_rsa"), "wb") as private:
         private.write(private_key)
 
-    with open(os.path.join(dir, 'id_rsa.pub'), 'wb') as public:
+    with open(os.path.join(dir, "id_rsa.pub"), "wb") as public:
         public.write(public_key)
 
 
@@ -60,8 +56,16 @@ def generate():
         if not os.path.exists(dir):
             os.mkdir(dir)
         gen_ssh(dir)
-        file.write(TEMPLATE.format(key=gen_key(), dbname="dbname", dbuser="dbuser", dbpass="dbpass", keypath=dir))
+        file.write(
+            TEMPLATE.format(
+                key=gen_key(),
+                dbname="dbname",
+                dbuser="dbuser",
+                dbpass="dbpass",
+                keypath=dir,
+            )
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     generate()

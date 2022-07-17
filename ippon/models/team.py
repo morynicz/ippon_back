@@ -6,7 +6,7 @@ import ippon.models.tournament as tm
 
 class Team(models.Model):
     name = models.CharField(max_length=100, blank=False)
-    tournament = models.ForeignKey(tm.Tournament, related_name='teams', on_delete=models.CASCADE)
+    tournament = models.ForeignKey(tm.Tournament, related_name="teams", on_delete=models.CASCADE)
 
     def get_member_ids(self):
         members = TeamMember.objects.filter(team__pk=self.id)
@@ -14,8 +14,8 @@ class Team(models.Model):
 
 
 class TeamMember(models.Model):
-    player = models.ForeignKey(plm.Player, on_delete=models.CASCADE, related_name='team_member')
-    team = models.ForeignKey(Team, related_name='team_members', on_delete=models.CASCADE)
+    player = models.ForeignKey(plm.Player, on_delete=models.CASCADE, related_name="team_member")
+    team = models.ForeignKey(Team, related_name="team_members", on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('player', 'team')
+        unique_together = ("player", "team")

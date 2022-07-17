@@ -1,0 +1,63 @@
+name: "Python CI"
+
+on:
+  pull_request:
+    branches:
+      - "**"
+
+env:
+  SECRET: ${{secrets.SECRET}}
+  POETRY_VIRTUALENVS_CREATE: false
+
+jobs:
+  test_flake_compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.6
+          architecture: x64
+      - run: pip install flake8
+      - run: flake8
+
+  test_black_compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.6
+          architecture: x64
+      - run: pip install black
+      - run: black . --check --verbose --line-length=120
+
+  test_bandit_compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.6
+          architecture: x64
+      - run: pip install bandit
+      - run: bandit ippon -r --exclude "*test*.py"
+      - run: bandit auth_server -r --exclude "*test*.py"
+      - run: bandit ippon_back -r --exclude "*test*.py"
+
+#  django_unit_tests:
+#    needs:
+#      - test_bandit_compliance
+#      - test_black_compliance
+#      - test_flake_compliance
+#
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/setup-python@v2
+#        with:
+#          python-version: 3.9.6
+#          architecture: x64
+#      - run: pip install poetry
+#      - run: poetry install
+#      - run: ./manage.py test

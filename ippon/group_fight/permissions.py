@@ -16,7 +16,8 @@ class IsGroupFightOwnerOrReadOnly(permissions.BasePermission):
                 serializer_class=gfs.GroupFightSerializer,
                 tournament_dependent_class_field="group",
                 tournament_dependent_class=gm.Group,
-                getter_fcn=self.get_tournament)
+                getter_fcn=self.get_tournament,
+            )
         return True
 
     def has_object_permission(self, request, view, group_fight):

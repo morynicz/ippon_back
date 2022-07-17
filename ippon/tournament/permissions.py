@@ -1,5 +1,4 @@
 import json
-
 from rest_framework import permissions
 
 import ippon.models.tournament as tm
@@ -7,7 +6,6 @@ import ippon.utils.permissions as iup
 
 
 class IsTournamentAdminOrReadOnlyTournament(permissions.BasePermission):
-
     def has_object_permission(self, request, view, tournament):
         if request and request.method in permissions.SAFE_METHODS:
             return True
@@ -19,7 +17,7 @@ class IsTournamentAdminOrReadOnlyDependent(permissions.BasePermission):
         if request.method == "POST":
             try:
                 return iup.is_user_admin_of_the_tournament(request, request.data["tournament"])
-            except(KeyError):
+            except (KeyError):
                 return False
         return True
 
@@ -38,30 +36,35 @@ class IsTournamentOwner(permissions.BasePermission):
     def has_permission(self, request, view):
         try:
             tournament = tm.Tournament.objects.get(pk=(view.kwargs["pk"]))
-            return tm.TournamentAdmin.objects.filter(user=request.user, tournament=tournament,
-                                                     is_master=True).count() > 0
+            return (
+                tm.TournamentAdmin.objects.filter(user=request.user, tournament=tournament, is_master=True).count() > 0
+            )
         except KeyError:
             return False
         except tm.Tournament.DoesNotExist:
             return True
 
     def has_object_permission(self, request, view, admin):
-        return tm.TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament,
-                                                 is_master=True).count() > 0
+        return (
+            tm.TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament, is_master=True).count()
+            > 0
+        )
 
 
 class IsTournamentOwnerAdminCreation(permissions.BasePermission):
     def has_permission(self, request, view):  # TODO: CCheck if this is needed
         try:
             req_body = json.loads(request.body)
-            return tm.TournamentAdmin.objects.filter(user=request.user, tournament=req_body["tournament_id"],
-                                                     is_master=True).exists()
+            return tm.TournamentAdmin.objects.filter(
+                user=request.user, tournament=req_body["tournament_id"], is_master=True
+            ).exists()
         except KeyError:
             return False
 
     def has_object_permission(self, request, view, admin):
-        return tm.TournamentAdmin.objects.filter(user=request.user, tournament=admin.tournament,
-                                                 is_master=True).exists()
+        return tm.TournamentAdmin.objects.filter(
+            user=request.user, tournament=admin.tournament, is_master=True
+        ).exists()
 
 
 class IsTournamentAdminParticipantCreation(permissions.BasePermission):

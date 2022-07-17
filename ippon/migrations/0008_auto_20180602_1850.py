@@ -6,18 +6,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ippon', '0007_tournament_finals_depth'),
+        ("ippon", "0007_tournament_finals_depth"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='tournamentadmin',
-            old_name='isMaster',
-            new_name='is_master',
+            model_name="tournamentadmin",
+            old_name="isMaster",
+            new_name="is_master",
         ),
         migrations.RenameField(
-            model_name='tournamentadmin',
-            old_name='club',
-            new_name='tournament',
+            model_name="tournamentadmin",
+            old_name="club",
+            new_name="tournament",
         ),
     ]

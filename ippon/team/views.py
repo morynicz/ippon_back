@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -15,22 +15,23 @@ import ippon.tournament.permissions as tp
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = tem.Team.objects.all()
     serializer_class = tes.TeamSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          tp.IsTournamentAdminOrReadOnlyDependent)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        tp.IsTournamentAdminOrReadOnlyDependent,
+    )
 
     # TODO: check when will DRF finally release the multiple actions for single url improvement
     @action(
-        methods=['post', 'delete'],
+        methods=["post", "delete"],
         detail=True,
-        url_name='members',
-        url_path='members/(?P<player_id>[0-9]+)',
-        permission_classes=(permissions.IsAuthenticated,
-                            tep.IsTeamOwner))
+        url_name="members",
+        url_path="members/(?P<player_id>[0-9]+)",
+        permission_classes=(permissions.IsAuthenticated, tep.IsTeamOwner),
+    )
     def handle_members(self, request, pk=None, player_id=None):
-        return {
-            'post': self.create_member,
-            'delete': self.delete_member
-        }[request.method.lower()](request, pk, player_id)
+        return {"post": self.create_member, "delete": self.delete_member}[request.method.lower()](
+            request, pk, player_id
+        )
 
     # @action(
     #     methods=['post'],
@@ -60,25 +61,34 @@ class TeamViewSet(viewsets.ModelViewSet):
             membership = tem.TeamMember.objects.filter(player=player, team=team)
             membership.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except (plm.Player.DoesNotExist, tem.Team.DoesNotExist, tem.TeamMember.DoesNotExist):
+        except (
+            plm.Player.DoesNotExist,
+            tem.Team.DoesNotExist,
+            tem.TeamMember.DoesNotExist,
+        ):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @action(methods=['get'], detail=True)
+    @action(methods=["get"], detail=True)
     def members(self, request, pk=None):
         serializer = pls.PlayerSerializer(plm.Player.objects.filter(team_member__team=pk), many=True)
         return Response(serializer.data)
 
-    @action(methods=['get'], detail=True, permission_classes=[
-        permissions.IsAuthenticated,
-        tp.IsTournamentAdminDependent])
+    @action(
+        methods=["get"],
+        detail=True,
+        permission_classes=[permissions.IsAuthenticated, tp.IsTournamentAdminDependent],
+    )
     def not_assigned(self, request, pk=None):
         serializer = pls.PlayerSerializer(
-            plm.Player.objects.filter(participations__tournament__teams=pk)
-                .exclude(team_member__team__tournament__teams=pk), many=True)
+            plm.Player.objects.filter(participations__tournament__teams=pk).exclude(
+                team_member__team__tournament__teams=pk
+            ),
+            many=True,
+        )
         return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def team_authorization(request, pk, format=None):
     team = get_object_or_404(tem.Team.objects.all(), pk=pk)
     return ta.has_tournament_authorization([True, False], team.tournament.id, request)

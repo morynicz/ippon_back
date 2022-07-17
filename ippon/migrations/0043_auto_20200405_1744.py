@@ -8,12 +8,12 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('ippon', '0042_auto_20200405_1406'),
+        ("ippon", "0042_auto_20200405_1406"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='EventAdmins',
-            new_name='EventAdmin',
+            old_name="EventAdmins",
+            new_name="EventAdmin",
         ),
     ]

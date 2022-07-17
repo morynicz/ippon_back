@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ippon', '0035_auto_20190613_1835'),
+        ("ippon", "0035_auto_20190613_1835"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='teamfight',
-            name='is_started',
+            model_name="teamfight",
+            name="is_started",
             field=models.BooleanField(default=False),
         ),
     ]

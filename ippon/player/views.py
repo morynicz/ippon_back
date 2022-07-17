@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, generics
+from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 
@@ -11,8 +11,10 @@ import ippon.player.serializers as pls
 class PlayerViewSet(viewsets.ModelViewSet):
     queryset = plm.Player.objects.all()
     serializer_class = pls.PlayerSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          clp.IsClubAdminOrReadOnlyDependent)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        clp.IsClubAdminOrReadOnlyDependent,
+    )
 
 
 class ShallowPlayerListView(generics.ListAPIView):
@@ -25,7 +27,7 @@ class ShallowPlayerDetailView(generics.RetrieveAPIView):
     serializer_class = pls.ShallowPlayerSerializer
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def player_authorization(request, pk, format=None):
     player = get_object_or_404(plm.Player.objects.all(), pk=pk)
     return ca.has_club_authorization(player.club_id, request)

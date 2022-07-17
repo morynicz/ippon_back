@@ -8,8 +8,7 @@ import ippon.utils.permissions as iup
 class IsCupFightOwnerOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == "POST":
-            return iup.has_object_creation_permission(request, cfs.CupFightSerializer, "cup_phase",
-                                                      cpm.CupPhase)
+            return iup.has_object_creation_permission(request, cfs.CupFightSerializer, "cup_phase", cpm.CupPhase)
         return True
 
     def has_object_permission(self, request, view, cup_fight):

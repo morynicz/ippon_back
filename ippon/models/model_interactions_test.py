@@ -1,5 +1,4 @@
 import datetime
-
 from django.test import TestCase
 
 import ippon.models.cup_fight
@@ -12,12 +11,12 @@ import ippon.models.tournament as tm
 class TournamentDependentClasses(TestCase):
     def setUp(self):
         self.tournament = tm.Tournament.objects.create(
-            name='T1',
-            webpage='http://w1.co',
-            description='d1',
-            city='c1',
+            name="T1",
+            webpage="http://w1.co",
+            description="d1",
+            city="c1",
             date=datetime.date(year=2021, month=1, day=1),
-            address='a1',
+            address="a1",
             team_size=1,
             group_match_length=3,
             ko_match_length=3,
@@ -27,15 +26,13 @@ class TournamentDependentClasses(TestCase):
             age_constraint_value=20,
             rank_constraint=5,
             rank_constraint_value=7,
-            sex_constraint=1)
+            sex_constraint=1,
+        )
         self.tournament.save()
-        self.cup_phase = self.tournament.cup_phases.create(name="CP",
-                                                           fight_length=3,
-                                                           final_fight_length=5)
-        self.t1 = self.tournament.teams.create(name='t1')
-        self.t2 = self.tournament.teams.create(name='t2')
-        self.team_fight = self.tournament.team_fights.create(aka_team=self.t1,
-                                                             shiro_team=self.t2)
+        self.cup_phase = self.tournament.cup_phases.create(name="CP", fight_length=3, final_fight_length=5)
+        self.t1 = self.tournament.teams.create(name="t1")
+        self.t2 = self.tournament.teams.create(name="t2")
+        self.team_fight = self.tournament.team_fights.create(aka_team=self.t1, shiro_team=self.t2)
 
 
 class GroupFightAndTeamFightInteractionTests(TournamentDependentClasses):
@@ -69,4 +66,7 @@ class CupFightAndTeamFightInteractionTests(TournamentDependentClasses):
 
     def test_team_fight_deletion_does_not_trigger_related_cup_fight_deletion(self):
         self.team_fight.delete()
-        self.assertEquals(self.cup_fight, ippon.models.cup_fight.CupFight.objects.get(pk=self.cup_fight.id))
+        self.assertEquals(
+            self.cup_fight,
+            ippon.models.cup_fight.CupFight.objects.get(pk=self.cup_fight.id),
+        )
